@@ -245,25 +245,25 @@ function goToSource() {
         $('#sourceitem button').remove();
         $('#sourceitem').append(`
             <div id="selectform" style="display:flex;">
-                <input type="checkbox" name="movie" value="39ys" checked />
-                <label for="movie"> 39影视</label><br />
+                <input type="checkbox" name="movie" value="hyzy" checked />
+                <label for="movie"> 虎牙资源</label><br />
                 <input type="checkbox" name="movie" value="wlys" checked />
                 <label for="movie"> 卧龙影视</label><br />
-                <input type="checkbox" name="movie" value="phzy" checked />
-                <label for="movie"> 飘花资源</label><br />
+                <input type="checkbox" name="movie" value="gszy" checked />
+                <label for="movie"> 光速资源</label><br />
             </div>
             <div id="selectform" style="display:flex;">
-                <input type="checkbox" name="movie" value="kby" checked />
-                <label for="movie"> 快播云</label><br />
+                <input type="checkbox" name="movie" value="hnzy" checked />
+                <label for="movie"> 红牛资源</label><br />
                 <input type="checkbox" name="movie" value="tky" checked />
-                <label for="movie"> 天空云</label><br />
+                <label for="movie"> 茅台资源</label><br />
                 <input type="checkbox" name="movie" value="bjy" checked />
-                <label for="movie"> 八戒云</label><br />
+                <label for="movie"> 如意资源</label><br />
             </div>
             <button class="stylebtn" onclick="returnSource()"><img src="./images/return.svg" style="width:30px;"></button>
         `);
         let ms = window.localStorage.getItem('movie').split(",");
-        let arr = ["39ys", "hnzy", "88zy", "kby", "tky", "bjy"];
+        let arr = ["hyzy", "wlys", "gszy", "hnzy", "tky", "bjy"];
         let lst = arr.filter(x => ms.includes(x)).map(x => arr.indexOf(x));
         let cat = arr.filter(x => !ms.includes(x)).map(x => arr.indexOf(x));
         for (let i of lst) {

@@ -33,7 +33,10 @@ $(document).ready(function() {
                 for (let i = 0; i < links.length; i++) {
                     episode.push(`第${Number(i+1)}集`);
                 }
-            } else {
+            } else if(initlink == "https://www.huyaapi.com/api.php/provide/vod/at/json"){
+                var episode = $list[1].innerHTML.split('[')[2].split(']')[0].split('\#').map(x => x.split('$')).map(x => x[0]);
+                var links = $list[1].innerHTML.split('[')[2].split(']')[0].split('\#').map(x => x.split('$')).map(x => x[1]);
+            }else {
                 var episode = $list[0].innerHTML.split('[')[2].split(']')[0].split('\#').map(x => x.split('$')).map(x => x[0]);
                 var links = $list[0].innerHTML.split('[')[2].split(']')[0].split('\#').map(x => x.split('$')).map(x => x[1]);
             }

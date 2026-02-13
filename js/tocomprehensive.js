@@ -19,27 +19,27 @@ $(document).ready(function() {
     //Get select source
     try {
         let ms = window.localStorage.getItem('movie').split(",");
-        let arr = ["tky", "bjy", "39ys", "wlys", "phzy", "kby"];
+        let arr = ["tky", "bjy", "hyzy", "wlys", "gszy", "hnzy"];
         let lst = arr.filter(x => ms.includes(x)).map(x => arr.indexOf(x));
         let sts = [
-            '<option value="https://api.tiankongapi.com/api.php/provide/vod/at/xml/from/tkm3u8/">天空云</option>',
-            '<option value="http://cj.bajiecaiji.com/inc/bjm3u8.php">八戒云</option>',
-            '<option value="https://www.39kan.com/api.php/provide/vod/at/json">39影视</option>',
+            '<option value="https://caiji.maotaizy.cc/api.php/provide/vod/from/mtm3u8/at/xml/">茅台资源</option>',
+            '<option value="https://cj.rycjapi.com/api.php/provide/vod/from/rym3u8/at/xml/">如意资源</option>',
+            '<option value="https://www.huyaapi.com/api.php/provide/vod/at/json">虎牙资源</option>',
             '<option value="https://collect.wolongzyw.com/api.php/provide/vod/at/xml">卧龙影视</option>',
-            '<option value="http://www.zzrhgg.com/api.php/provide/vod/at/xml">飘花资源</option>',
-            '<option value="http://www.kuaibozy.com/api.php/provide/vod/from/kbm3u8/at/xml/">快播云</option>',
+            '<option value="https://api.guangsuapi.com/api.php/provide/vod/from/gsm3u8/at/xml/">光速资源</option>',
+            '<option value="https://www.hongniuzy2.com/api.php/provide/vod/from/hnm3u8/at/xml/">红牛资源</option>',
         ];
         for (let i of lst) {
             $('#selectapi').append(sts[i]);
         }
     } catch (e) {
         $('#selectapi').append(`
-            <option value="https://api.tiankongapi.com/api.php/provide/vod/at/xml/from/tkm3u8/">天空云</option>
-            <option value="http://cj.bajiecaiji.com/inc/bjm3u8.php">八戒云</option>
-            <option value="https://www.39kan.com/api.php/provide/vod/at/json">39影视</option>
+            <option value="https://caiji.maotaizy.cc/api.php/provide/vod/from/mtm3u8/at/xml/">茅台资源</option>
+            <option value="https://cj.rycjapi.com/api.php/provide/vod/from/rym3u8/at/xml/">如意资源</option>
+            <option value="https://www.huyaapi.com/api.php/provide/vod/at/json">虎牙资源</option>
             <option value="https://collect.wolongzyw.com/api.php/provide/vod/at/xml">卧龙影视</option>
-            <option value="http://www.zzrhgg.com/api.php/provide/vod/at/xml">飘花资源</option>
-            <option value="http://www.kuaibozy.com/api.php/provide/vod/from/kbm3u8/at/xml/">快播云</option>
+            <option value="https://api.guangsuapi.com/api.php/provide/vod/from/gsm3u8/at/xml/">光速资源</option>
+            <option value="https://www.hongniuzy2.com/api.php/provide/vod/from/hnm3u8/at/xml/">红牛资源</option>
         `);
     }
     //Variable zone
@@ -75,9 +75,9 @@ $(document).ready(function() {
             $('#root').append(`<div class="loadingimg"><img src="../images/loading.gif" tag="Easy Web TV"></div>`);
             pnum++;
             if (sts.length > 0) {
-                if (link == 'http://www.88zy.live/inc/api.php' || link == 'https://collect.wolongzyw.com/api.php/provide/vod/at/xml' || link == 'http://www.zzrhgg.com/api.php/provide/vod/at/xml') {
+                if (link == 'https://collect.wolongzyw.com/api.php/provide/vod/at/xml' || link == 'https://api.guangsuapi.com/api.php/provide/vod/from/gsm3u8/at/xml/') {
                     globallink = proxy[rand] + `${link}?ac=list&wd=${sts}&pg=${pnum}`;
-                } else if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                } else if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                     globallink = proxy[rand] + `${link}?ac=videolist&wd=${sts}&pg=${pnum}`;
                 } else {
                     globallink = proxy[rand] + `${link}?ac=videolist&wd=${sts}&pg=${pnum}`;
@@ -88,9 +88,9 @@ $(document).ready(function() {
             $.ajax({
                 type: 'GET',
                 url: globallink,
-                dataType: link == 'https://www.39kan.com/api.php/provide/vod/at/json' ? 'json' : 'html',
+                dataType: link == 'https://www.huyaapi.com/api.php/provide/vod/at/json' ? 'json' : 'html',
                 success: function(data) {
-                    if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                    if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                         $test = data.list;
                         $id = data.list;
                         $total = data.pagecount;
@@ -104,13 +104,13 @@ $(document).ready(function() {
                             $id = $xml.find('id');
                         var pic;
                     }
-                    var count = link == 'https://www.39kan.com/api.php/provide/vod/at/json' ? $total : Number($total[0].attributes[1].value);
+                    var count = link == 'https://www.huyaapi.com/api.php/provide/vod/at/json' ? $total : Number($total[0].attributes[1].value);
                     if (pnum <= count) {
                         $('.loadingimg').remove();
                         if ($(window).width() > 1024) {
                             $(`.itemContainer:eq(4)`).hide();
                             for (let i = 0; i < $id.length; i++) {
-                                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                     if (i % 4 == 0) {
                                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                     } else if (i % 4 == 1) {
@@ -137,7 +137,7 @@ $(document).ready(function() {
                             $(`.itemContainer:eq(3)`).hide();
                             $(`.itemContainer:eq(4)`).hide();
                             for (let i = 0; i < $id.length; i++) {
-                                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                     if (i % 3 == 0) {
                                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                     } else if (i % 3 == 1) {
@@ -161,7 +161,7 @@ $(document).ready(function() {
                             $(`.itemContainer:eq(3)`).hide();
                             $(`.itemContainer:eq(4)`).hide();
                             for (let i = 0; i < $id.length; i++) {
-                                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                     if (i % 2 == 0) {
                                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                     } else if (i % 2 == 1) {
@@ -190,7 +190,7 @@ $(document).ready(function() {
 function iniMenu(link) {
     var menu;
     var list;
-    if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+    if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
         menu = $.getJSON(proxy[rand] + `${link}?ac=&pg=1`);
         list = $.getJSON(proxy[rand] + `${link}?ac=videolist&pg=1`);
     } else {
@@ -208,7 +208,7 @@ function iniMenu(link) {
     $('#root').append(`<div class="loadingimg"><img src="../images/loading.gif" tag="Easy Web TV"></div>`);
     $.when(menu, list).done(function(alp, bet) {
         $("#menu").empty();
-        if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+        if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
             $lef = alp[0]['class'];
             $test = bet[0]['list'];
         } else {
@@ -226,7 +226,7 @@ function iniMenu(link) {
         $("#menu").append('<li style="background-color:#fff"><input id="search" type="text" placeholder="Search..." /></li>');
         $("#menu").append(`<li><p><span class="0">最近更新</span></p></li>`);
         for (let i of $lef) {
-            if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+            if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                 $("#menu").append(`<li><p><span class="${i.type_id}">${i.type_name}</span></p></li>`);
             } else {
                 $("#menu").append(`<li><p><span class="${i.id}">${i.innerHTML}</span></p></li>`);
@@ -236,7 +236,7 @@ function iniMenu(link) {
         if ($(window).width() > 1024) {
             $(`.itemContainer:eq(4)`).hide();
             for (let i = 0; i < $test.length; i++) {
-                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                     if (i % 4 == 0) {
                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                     } else if (i % 4 == 1) {
@@ -263,7 +263,7 @@ function iniMenu(link) {
             $(`.itemContainer:eq(3)`).hide();
             $(`.itemContainer:eq(4)`).hide();
             for (let i = 0; i < $test.length; i++) {
-                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                     if (i % 3 == 0) {
                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                     } else if (i % 3 == 1) {
@@ -287,7 +287,7 @@ function iniMenu(link) {
             $(`.itemContainer:eq(3)`).hide();
             $(`.itemContainer:eq(4)`).hide();
             for (let i = 0; i < $test.length; i++) {
-                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                     if (i % 2 == 0) {
                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                     } else if (i % 2 == 1) {
@@ -309,23 +309,23 @@ function iniMenu(link) {
             if (e.which == 13) {
                 //Search Items
                 var valThis = $(this).val().toLowerCase();
-                if (link == 'http://www.kuaibozy.com/api.php/provide/vod/from/kbm3u8/at/xml/') {
-                    alert('快播云 not support search');
-                } else if (link == 'https://api.tiankongapi.com/api.php/provide/vod/at/xml/from/tkm3u8/') {
-                    alert('天空云 not support search');
-                } else if (link == 'http://cj.bajiecaiji.com/inc/bjm3u8.php') {
-                    alert('八戒云 not support search');
-                } else if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                if (link == 'https://www.hongniuzy2.com/api.php/provide/vod/from/hnm3u8/at/xml/') {
+                    alert('红牛资源 not support search');
+                } else if (link == 'https://caiji.maotaizy.cc/api.php/provide/vod/from/mtm3u8/at/xml/') {
+                    alert('茅台资源 not support search');
+                } else if (link == 'https://cj.rycjapi.com/api.php/provide/vod/from/rym3u8/at/xml/') {
+                    alert('如意资源 not support search');
+                } else if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                     searchlink = proxy[rand] + `${link}?ac=videolist&wd=${valThis}`;
-                } else if (link == 'http://www.88zy.live/inc/api.php' || link == "https://collect.wolongzyw.com/api.php/provide/vod/at/xml" || link == 'http://www.zzrhgg.com/api.php/provide/vod/at/xml') {
+                } else if (link == "https://collect.wolongzyw.com/api.php/provide/vod/at/xml" || link == 'https://api.guangsuapi.com/api.php/provide/vod/from/gsm3u8/at/xml/') {
                     searchlink = proxy[rand] + `${link}?ac=list&wd=${valThis}`;
                 }
                 $.ajax({
                     tyep: 'GET',
                     url: searchlink,
-                    dataType: link == 'https://www.39kan.com/api.php/provide/vod/at/json' ? 'json' : 'html',
+                    dataType: link == 'https://www.huyaapi.com/api.php/provide/vod/at/json' ? 'json' : 'html',
                     success: function(data) {
-                        if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                        if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                             $test = data.list;
                             $id = data.list;
                         } else {
@@ -341,7 +341,7 @@ function iniMenu(link) {
                         if ($(window).width() > 1024) {
                             $(`.itemContainer:eq(4)`).hide();
                             for (let i = 0; i < $id.length; i++) {
-                                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                     if (i % 4 == 0) {
                                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                     } else if (i % 4 == 1) {
@@ -368,7 +368,7 @@ function iniMenu(link) {
                             $(`.itemContainer:eq(3)`).hide();
                             $(`.itemContainer:eq(4)`).hide();
                             for (let i = 0; i < $id.length; i++) {
-                                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                     if (i % 3 == 0) {
                                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                     } else if (i % 3 == 1) {
@@ -392,7 +392,7 @@ function iniMenu(link) {
                             $(`.itemContainer:eq(3)`).hide();
                             $(`.itemContainer:eq(4)`).hide();
                             for (let i = 0; i < $id.length; i++) {
-                                if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                                if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                     if (i % 2 == 0) {
                                         $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                     } else if (i % 2 == 1) {
@@ -426,9 +426,9 @@ function iniMenu(link) {
             $.ajax({
                 tyep: 'GET',
                 url: proxy[rand] + `${link}?ac=videolist&t=${className}`,
-                dataType: link == 'https://www.39kan.com/api.php/provide/vod/at/json' ? 'json' : 'html',
+                dataType: link == 'https://www.huyaapi.com/api.php/provide/vod/at/json' ? 'json' : 'html',
                 success: function(data) {
-                    if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                    if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                         $test = data.list;
                         $id = data.list;
                     } else {
@@ -444,7 +444,7 @@ function iniMenu(link) {
                     if ($(window).width() > 1024) {
                         $(`.itemContainer:eq(4)`).hide();
                         for (let i = 0; i < $test.length; i++) {
-                            if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                            if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                 if (i % 4 == 0) {
                                     $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                 } else if (i % 4 == 1) {
@@ -471,7 +471,7 @@ function iniMenu(link) {
                         $(`.itemContainer:eq(3)`).hide();
                         $(`.itemContainer:eq(4)`).hide();
                         for (let i = 0; i < $test.length; i++) {
-                            if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                            if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                 if (i % 3 == 0) {
                                     $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                 } else if (i % 3 == 1) {
@@ -495,7 +495,7 @@ function iniMenu(link) {
                         $(`.itemContainer:eq(3)`).hide();
                         $(`.itemContainer:eq(4)`).hide();
                         for (let i = 0; i < $test.length; i++) {
-                            if (link == 'https://www.39kan.com/api.php/provide/vod/at/json') {
+                            if (link == 'https://www.huyaapi.com/api.php/provide/vod/at/json') {
                                 if (i % 2 == 0) {
                                     $(`.itemContainer:eq(0)`).append(`<a href="../catalogues/complay.html?web=${link}&tab=${$test[i]['vod_id']}"><div class="item"><img class="itemImg" src="${$test[i]['vod_pic']}" alt="${$test[i]['vod_name']}" /><div class="userInfo"><img class="avatar" src="../images/player.jpg" alt="" /><span class="username">[${$test[i]['type_name']}]${$test[i]['vod_name']}</span></div></div></a>`)
                                 } else if (i % 2 == 1) {
