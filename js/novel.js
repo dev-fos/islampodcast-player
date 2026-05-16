@@ -569,26 +569,8 @@ $(document).ready(function() {
         toggleSidebar();
     });
     
-    // Menu Button - hides toolbar for immersive reading
-    $('#menuBtn').on('click', function() {
-        var sidebar = $('#sidebar');
-        var toolbar = $('.top-toolbar');
-        var readerArea = $('#readerArea');
-        
-        // Hide toolbar for immersive reading
-        toolbar.addClass('hidden');
-        readerArea.addClass('expanded');
-        
-        // Collapse sidebar
-        if (window.innerWidth <= 768) {
-            sidebar.removeClass('show-mobile');
-        } else {
-            sidebar.addClass('collapsed');
-        }
-    });
-    
     $('#backBtn').on('click', function() {
-        window.location.href = '/Easy-Web-TV-M3u8/';
+        window.history.back();
     });
     
     $('#favBtn').on('click', function() {
@@ -630,4 +612,91 @@ $(document).ready(function() {
             turnPage(nextChapterUrl);
         }
     });
+    
+    // Chapter search functionality
+    $('#chapterSearch').on('input', function() {
+        var keyword = $(this).val().toLowerCase();
+        $('.chapter-item').each(function() {
+            var name = $(this).find('.chapter-name').text().toLowerCase();
+            $(this).toggle(name.indexOf(keyword) > -1);
+        });
+    });
+    
+    // GitHub button
+    $('#githubBtn').on('click', function() {
+        window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
+    });
+    
+    // Font settings functionality
+    var currentFontSize = 18;
+    var currentFontFamily = "Georgia, 'Times New Roman', serif";
+    
+    // Toggle font panel
+    $('#fontBtn').on('click', function(e) {
+        e.stopPropagation();
+        $('#fontPanel').toggleClass('show');
+    });
+    
+    // Close font panel when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#fontPanel, #fontBtn').length) {
+            $('#fontPanel').removeClass('show');
+        }
+    });
+    
+    // Increase font size
+    $('#fontIncrease').on('click', function() {
+        if (currentFontSize < 32) {
+            currentFontSize += 2;
+            updateFontSize();
+        }
+    });
+    
+    // Decrease font size
+    $('#fontDecrease').on('click', function() {
+        if (currentFontSize > 12) {
+            currentFontSize -= 2;
+            updateFontSize();
+        }
+    });
+    
+    // Font family change
+    $('#fontFamily').on('change', function() {
+        currentFontFamily = $(this).val();
+        updateFontFamily();
+    });
+    
+    function updateFontSize() {
+        $('#currentFontSize').text(currentFontSize + 'px');
+        $('#readerContent').css('font-size', currentFontSize + 'px');
+        // Save to localStorage
+        localStorage.setItem('novelFontSize', currentFontSize);
+    }
+    
+    function updateFontFamily() {
+        $('#readerContent').css('font-family', currentFontFamily);
+        // Save to localStorage
+        localStorage.setItem('novelFontFamily', currentFontFamily);
+    }
+    
+    // Load saved font settings
+    function loadFontSettings() {
+        var savedFontSize = localStorage.getItem('novelFontSize');
+        var savedFontFamily = localStorage.getItem('novelFontFamily');
+        
+        if (savedFontSize) {
+            currentFontSize = parseInt(savedFontSize);
+            $('#currentFontSize').text(currentFontSize + 'px');
+            $('#readerContent').css('font-size', currentFontSize + 'px');
+        }
+        
+        if (savedFontFamily) {
+            currentFontFamily = savedFontFamily;
+            $('#fontFamily').val(savedFontFamily);
+            $('#readerContent').css('font-family', savedFontFamily);
+        }
+    }
+    
+    // Initialize font settings on page load
+    loadFontSettings();
 });

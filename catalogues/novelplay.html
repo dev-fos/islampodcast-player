@@ -206,6 +206,31 @@
             color: #a3001b;
         }
         
+        .chapter-item .fav-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .chapter-item:hover .fav-btn {
+            opacity: 1;
+        }
+        
+        .chapter-item .fav-btn.active {
+            opacity: 1;
+            color: #a3001b;
+        }
+        
+        .chapter-item .fav-btn:hover {
+            color: #a3001b;
+            transform: scale(1.2);
+        }
+        
         /* Loading State */
         .loading-state {
             display: flex;
@@ -264,7 +289,7 @@
             justify-content: space-between;
             padding: 10px 20px;
             border-bottom: 1px solid rgba(163,0,27,0.3);
-            z-index: 50;
+            z-index: 250;
         }
         
         .toolbar-left {
@@ -682,10 +707,6 @@
             transform: rotate(180deg);
         }
         
-        /* Hide menuBtn when sidebar is collapsed */
-        .sidebar.collapsed ~ .main-content .toolbar-left #menuBtn {
-            display: none;
-        }
         
         /* Loading Overlay */
         .loading-overlay {
@@ -1165,9 +1186,6 @@
                     <div class="toolbar-btn" id="backBtn" title="Back">
                         <i class="fas fa-arrow-left"></i>
                     </div>
-                    <div class="toolbar-btn" id="menuBtn" title="Toggle Menu">
-                        <i class="fas fa-bars"></i>
-                    </div>
                     <div class="toolbar-title">
                         <i class="fas fa-book-open"></i>
                         <span id="chapterTitle">Select a chapter</span>
@@ -1304,104 +1322,6 @@
     </div>
     
     <script src="../js/novel.js"></script>
-    <script>
-        // Chapter search functionality
-        $('#chapterSearch').on('input', function() {
-            var keyword = $(this).val().toLowerCase();
-            $('.chapter-item').each(function() {
-                var name = $(this).find('.chapter-name').text().toLowerCase();
-                $(this).toggle(name.indexOf(keyword) > -1);
-            });
-        });
-        
-        // GitHub button
-        $('#githubBtn').on('click', function() {
-            window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
-        });
-        
-        // Font settings functionality
-        var currentFontSize = 18;
-        var currentFontFamily = "Georgia, 'Times New Roman', serif";
-        
-        // Toggle font panel
-        $('#fontBtn').on('click', function(e) {
-            e.stopPropagation();
-            $('#fontPanel').toggleClass('show');
-        });
-        
-        // Close font panel when clicking outside
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('#fontPanel, #fontBtn').length) {
-                $('#fontPanel').removeClass('show');
-            }
-        });
-        
-        // Increase font size
-        $('#fontIncrease').on('click', function() {
-            if (currentFontSize < 32) {
-                currentFontSize += 2;
-                updateFontSize();
-            }
-        });
-        
-        // Decrease font size
-        $('#fontDecrease').on('click', function() {
-            if (currentFontSize > 12) {
-                currentFontSize -= 2;
-                updateFontSize();
-            }
-        });
-        
-        // Font family change
-        $('#fontFamily').on('change', function() {
-            currentFontFamily = $(this).val();
-            updateFontFamily();
-        });
-        
-        function updateFontSize() {
-            $('#currentFontSize').text(currentFontSize + 'px');
-            $('#readerContent').css('font-size', currentFontSize + 'px');
-            // Save to localStorage
-            localStorage.setItem('novelFontSize', currentFontSize);
-        }
-        
-        function updateFontFamily() {
-            $('#readerContent').css('font-family', currentFontFamily);
-            // Save to localStorage
-            localStorage.setItem('novelFontFamily', currentFontFamily);
-        }
-        
-        // Load saved font settings
-        function loadFontSettings() {
-            var savedFontSize = localStorage.getItem('novelFontSize');
-            var savedFontFamily = localStorage.getItem('novelFontFamily');
-            
-            if (savedFontSize) {
-                currentFontSize = parseInt(savedFontSize);
-                $('#currentFontSize').text(currentFontSize + 'px');
-                $('#readerContent').css('font-size', currentFontSize + 'px');
-            }
-            
-            if (savedFontFamily) {
-                currentFontFamily = savedFontFamily;
-                $('#fontFamily').val(savedFontFamily);
-                $('#readerContent').css('font-family', savedFontFamily);
-            }
-        }
-        
-        // Initialize font settings on page load
-        loadFontSettings();
-        
-        // Close panels when clicking outside
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('#favPanel, #favBtn').length) {
-                $('#favPanel').removeClass('show');
-            }
-            if (!$(e.target).closest('#novelInfo, #infoBtn').length) {
-                $('#novelInfo').removeClass('show');
-            }
-        });
-    </script>
 </body>
 
 </html>

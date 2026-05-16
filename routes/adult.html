@@ -48,8 +48,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
             z-index: 100;
         }
         
@@ -170,6 +173,7 @@
             display: flex;
             flex: 1;
             height: 0;
+            margin-top: 70px;
             position: relative;
             overflow: hidden;
         }
@@ -183,7 +187,9 @@
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
-            position: relative;
+            position: fixed;
+            top: 70px;
+            bottom: 0;
             z-index: 50;
         }
         
@@ -270,9 +276,9 @@
         
         /* Toggle Sidebar Button */
         .toggle-sidebar {
-            position: absolute;
+            position: fixed;
             left: 250px;
-            top: 50%;
+            top: calc(70px + 50%);
             transform: translateY(-50%);
             width: 30px;
             height: 60px;
@@ -521,9 +527,6 @@
             .sidebar {
                 width: 0;
                 border-right: none;
-                position: absolute;
-                height: calc(100vh - 70px);
-                top: 70px;
             }
             
             .sidebar.show-mobile {
@@ -569,6 +572,8 @@
         @media screen and (max-width: 480px) {
             .header {
                 padding: 10px 15px;
+                flex-wrap: wrap;
+                height: auto;
             }
             
             .back-btn {
@@ -576,12 +581,27 @@
                 height: 35px;
             }
             
+            .header-left {
+                order: 1;
+            }
+            
             .header-right {
+                order: 2;
+                width: 100%;
                 gap: 10px;
+                margin-top: 10px;
             }
             
             .search-box {
-                display: none;
+                flex: 1;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .search-input:focus {
+                width: 100%;
             }
             
             .content-grid {

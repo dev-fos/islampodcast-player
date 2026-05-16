@@ -8,7 +8,7 @@ var games = [
         platform: 'PC',
         category: 'arcade',
         image: '../gamebox/ball/squareobstacle.png',
-        url: 'gameplay.html?game=square-obstacles'
+        url: '../catalogues/gameplay.html?game=square-obstacles'
     },
     {
         id: 2,
@@ -16,7 +16,7 @@ var games = [
         platform: 'PC',
         category: 'classic',
         image: '../gamebox/bong/bong.png',
-        url: 'gameplay.html?game=pong'
+        url: '../catalogues/gameplay.html?game=pong'
     },
     {
         id: 3,
@@ -24,7 +24,7 @@ var games = [
         platform: 'PC',
         category: 'arcade',
         image: '../gamebox/breakout/breakout.png',
-        url: 'gameplay.html?game=breakout'
+        url: '../catalogues/gameplay.html?game=breakout'
     },
     {
         id: 4,
@@ -32,7 +32,7 @@ var games = [
         platform: 'PC',
         category: 'puzzle',
         image: '../gamebox/tic-tac-toe/tictactoe.png',
-        url: 'gameplay.html?game=tic-tac-toe'
+        url: '../catalogues/gameplay.html?game=tic-tac-toe'
     }
 ];
 

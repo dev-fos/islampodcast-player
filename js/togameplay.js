@@ -42,7 +42,7 @@ function getUrlParams() {
 function loadGame() {
     var params = getUrlParams();
     var gameId = params.game || '';
-    
+    console.info('Loading game:', gameId);
     // Default to first game if not found
     if (!gameId || !games[gameId]) {
         gameId = Object.keys(games)[0];
@@ -105,7 +105,7 @@ $(document).ready(function() {
     
     // Back button - go to games page
     $('#backBtn').on('click', function() {
-        window.location.href = 'game.html';
+        window.history.back();
     });
     
     // Home button - go to home page

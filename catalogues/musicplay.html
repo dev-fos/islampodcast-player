@@ -274,7 +274,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 10px 20px;
-            z-index: 50;
+            z-index: 250;
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
         
@@ -283,10 +283,6 @@
             display: none;
         }
         
-        /* Hide menuBtn when sidebar is collapsed */
-        .sidebar.collapsed ~ .main-content .toolbar-left #menuBtn {
-            display: none;
-        }
         
         /* When toolbar is hidden, audio container fills the space */
         .top-toolbar.hidden ~ .audio-container {
@@ -821,9 +817,6 @@
                 <div class="toolbar-left">
                     <div class="toolbar-btn" id="backBtn" title="Back">
                         <i class="fas fa-arrow-left"></i>
-                    </div>
-                    <div class="toolbar-btn" id="menuBtn" title="Toggle Menu">
-                        <i class="fas fa-bars"></i>
                     </div>
                     <div class="toolbar-title">
                         <i class="fas fa-headphones"></i>

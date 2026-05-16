@@ -86,25 +86,6 @@ function setupEventListeners() {
         toggleSidebar();
     });
     
-    // Menu button - hides toolbar for immersive reading
-    $('#menuBtn').click(function() {
-        var sidebar = $('#sidebar');
-        var toolbar = $('.top-toolbar');
-        var readerArea = $('#readerWrapper');
-        
-        // Hide toolbar for immersive reading
-        toolbar.addClass('hidden');
-        sidebar.toggleClass('hidden');
-        readerArea.addClass('expanded');
-        
-        // Collapse sidebar
-        if (window.innerWidth <= 768) {
-            sidebar.removeClass('show-mobile');
-        } else {
-            sidebar.addClass('collapsed');
-        }
-    });
-    
     // Back button
     $('#backBtn').click(function() {
         window.history.back();

@@ -8,6 +8,12 @@ $(document).ready(function() {
     // Initialize video player
     player = videojs(document.querySelector('#video1'));
     
+    // Error handling - prevent loading spinner and error icon showing simultaneously
+    player.on('error', function() {
+        player.removeClass('vjs-waiting');
+        player.removeClass('vjs-loading');
+    });
+    
     // Get Current href parameters
     // URL format: tvplay.html?type=categories&key=xxx&title=xxx
     var urlParams = new URLSearchParams(window.location.search);
@@ -27,6 +33,111 @@ $(document).ready(function() {
     
     // Load favorites
     loadFavorites();
+    
+    // ========== UI Event Handlers ==========
+    
+    // Toggle sidebar - toggle channel list and toolbar visibility
+    function toggleSidebar() {
+        var sidebar = $('#sidebar');
+        var toolbar = $('#top-toolbar');
+        
+        // Toggle sidebar
+        if (window.innerWidth <= 768) {
+            sidebar.toggleClass('show-mobile');
+        } else {
+            sidebar.toggleClass('collapsed');
+        }
+        
+        // Show toolbar when sidebar is expanded, hide when collapsed
+        var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
+        
+        if (isExpanded) {
+            toolbar.removeClass('hidden');
+        } else {
+            toolbar.addClass('hidden');
+        }
+    }
+    
+    // Toggle Sidebar button
+    $('#toggleSidebar').on('click', function() {
+        toggleSidebar();
+    });
+    
+    // Menu Button - hides toolbar for immersive mode
+    $('#menuBtn').on('click', function() {
+        var sidebar = $('#sidebar');
+        var toolbar = $('#top-toolbar');
+        
+        // Hide toolbar for immersive mode
+        toolbar.addClass('hidden');
+        
+        // Collapse sidebar
+        if (window.innerWidth <= 768) {
+            sidebar.removeClass('show-mobile');
+        } else {
+            sidebar.addClass('collapsed');
+        }
+    });
+    
+    // Back Button
+    $('#backBtn').on('click', function() {
+        window.history.back();
+    });
+    
+    // Link Input Toggle
+    $('#linkBtn').on('click', function() {
+        $('#linkInputWrapper').toggleClass('show');
+    });
+    
+    // Play Custom Link
+    $('#playLinkBtn').on('click', function() {
+        var link = $('#linkInput').val();
+        if (link) {
+            playChannel(link, 'Custom URL');
+        }
+    });
+    
+    // Favorite Panel Toggle
+    $('#favoriteBtn').on('click', function() {
+        $('#favoritePanel').toggleClass('show');
+    });
+    
+    // GitHub Button
+    $('#githubBtn').on('click', function() {
+        window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
+    });
+    
+    // Shuffle Play
+    $('#shuffleBtn').on('click', function() {
+        var channelItems = $('#channelList .channel-item');
+        if (channelItems.length > 0) {
+            var randomIndex = Math.floor(Math.random() * channelItems.length);
+            channelItems.eq(randomIndex).click();
+        }
+    });
+    
+    // Channel Search
+    $('#channelSearch').on('input', function() {
+        var searchTerm = $(this).val().toLowerCase();
+        $('#channelList .channel-item').each(function() {
+            var name = $(this).find('.channel-name').text().toLowerCase();
+            if (name.indexOf(searchTerm) > -1) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+    
+    // Close panels when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#favoritePanel, #favoriteBtn').length) {
+            $('#favoritePanel').removeClass('show');
+        }
+        if (!$(e.target).closest('#linkInputWrapper, #linkBtn').length) {
+            $('#linkInputWrapper').removeClass('show');
+        }
+    });
 });
 
 // Load channels from API

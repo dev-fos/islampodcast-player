@@ -248,14 +248,14 @@
             left: 0;
             right: 0;
             height: 60px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(255,255,255,0.1);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px 20px;
-            z-index: 50;
+            z-index: 250;
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
         
@@ -269,10 +269,6 @@
             padding-top: 20px;
         }
         
-        /* Hide menuBtn when sidebar is collapsed */
-        .sidebar.collapsed ~ .main-content .toolbar-left #menuBtn {
-            display: none;
-        }
         
         .toolbar-left {
             display: flex;
@@ -810,9 +806,6 @@
                 <div class="toolbar-left">
                     <div class="toolbar-btn" id="backBtn" title="Back">
                         <i class="fas fa-arrow-left"></i>
-                    </div>
-                    <div class="toolbar-btn" id="menuBtn" title="Toggle Menu">
-                        <i class="fas fa-bars"></i>
                     </div>
                     <div class="toolbar-title">
                         <i class="fas fa-book"></i>

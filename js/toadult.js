@@ -37,8 +37,15 @@ $(document).ready(function() {
     
     // Toggle sidebar
     $('#toggleSidebar, #menuBtn').on('click', function() {
-        $('#sidebar').toggleClass('collapsed');
-        $('#sidebar').toggleClass('show-mobile');
+        var sidebar = $('#sidebar');
+        var mainContent = $('#mainContent');
+        
+        if (window.innerWidth <= 768) {
+            sidebar.toggleClass('show-mobile');
+        } else {
+            sidebar.toggleClass('collapsed');
+            mainContent.toggleClass('expanded');
+        }
     });
     
     // Source select change
@@ -64,9 +71,9 @@ $(document).ready(function() {
                 // Clear category selection
                 $('.category-item').removeClass('active');
                 // Show loading state
-                $('#contentArea').find('.loading-state').remove();
+                $('#mainContent').find('.loading-state').remove();
                 $('#contentGrid').hide();
-                $('#contentArea').prepend(`
+                $('#mainContent').prepend(`
                     <div class="loading-state search-loading">
                         <i class="fas fa-spinner"></i>
                         <span>Searching...</span>
@@ -80,8 +87,8 @@ $(document).ready(function() {
         }
     });
     
-    // Infinite scroll on content area
-    $('#contentArea').scroll(function() {
+    // Infinite scroll on main content
+    $('#mainContent').scroll(function() {
         var scrollTop = $(this).scrollTop();
         var scrollHeight = $(this)[0].scrollHeight;
         var clientHeight = $(this).height();

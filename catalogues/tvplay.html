@@ -272,7 +272,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 10px 20px;
-            z-index: 50;
+            z-index: 250;
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
         
@@ -281,10 +281,6 @@
             display: none;
         }
         
-        /* Hide menuBtn when sidebar is collapsed */
-        .sidebar.collapsed ~ .main-content .toolbar-left #menuBtn {
-            display: none;
-        }
         
         /* When toolbar is hidden, video container fills the space */
         .top-toolbar.hidden ~ .video-container {
@@ -415,28 +411,30 @@
             height: 100%;
         }
         
-        /* Video.js Custom Styles */
+        /* Video.js Custom Styles - Hide big play button to avoid duplicate icons */
         .video-js .vjs-big-play-button {
-            background: linear-gradient(135deg, #a3001b 0%, #8a0016 100%);
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            line-height: 80px;
-            font-size: 40px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            display: none !important;
         }
         
-        .video-js:hover .vjs-big-play-button {
-            background: linear-gradient(135deg, #c41e2a 0%, #a3001b 100%);
-            transform: translate(-50%, -50%) scale(1.1);
+.video-js .vjs-control-bar {
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.9) 100%);
+    height: 50px;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+        
+        .video-js:hover .vjs-control-bar,
+        .video-js.vjs-has-started.vjs-paused .vjs-control-bar {
+            opacity: 1;
         }
         
-        .video-js .vjs-control-bar {
-            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.9) 100%);
-            height: 50px;
+        /* Keep control bar visible when user is interacting with it */
+        .video-js .vjs-control-bar:hover {
+            opacity: 1 !important;
         }
         
         .video-js .vjs-play-progress {
@@ -666,6 +664,7 @@
                 width: 250px;
                 border-right: 2px solid rgba(163,0,27,0.5);
                 position: absolute;
+                top: 0;
                 z-index: 200;
             }
             
@@ -787,9 +786,6 @@
                     <div class="toolbar-btn" id="backBtn" title="Back">
                         <i class="fas fa-arrow-left"></i>
                     </div>
-                    <div class="toolbar-btn" id="menuBtn" title="Toggle Menu">
-                        <i class="fas fa-bars"></i>
-                    </div>
                     <div class="toolbar-title">
                         <i class="fas fa-play-circle"></i>
                         <span id="currentChannel">Select a channel</span>
@@ -852,131 +848,8 @@
         </main>
     </div>
     
-    <script src="../js/tvplay.js"></script>
     <script src="https://vjs.zencdn.net/7.14.3/video.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Toggle sidebar - toggle channel list and toolbar visibility
-            function toggleSidebar() {
-                var sidebar = $('#sidebar');
-                var toolbar = $('#top-toolbar');
-                
-                // Toggle sidebar
-                if (window.innerWidth <= 768) {
-                    sidebar.toggleClass('show-mobile');
-                } else {
-                    sidebar.toggleClass('collapsed');
-                }
-                
-                // Show toolbar when sidebar is expanded, hide when collapsed
-                var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
-                
-                if (isExpanded) {
-                    toolbar.removeClass('hidden');
-                } else {
-                    toolbar.addClass('hidden');
-                }
-            }
-            
-            // Toggle Sidebar button
-            $('#toggleSidebar').on('click', function() {
-                toggleSidebar();
-            });
-            
-            // Menu Button - hides toolbar for immersive mode
-            $('#menuBtn').on('click', function() {
-                var sidebar = $('#sidebar');
-                var toolbar = $('#top-toolbar');
-                
-                // Hide toolbar for immersive mode
-                toolbar.addClass('hidden');
-                
-                // Collapse sidebar
-                if (window.innerWidth <= 768) {
-                    sidebar.removeClass('show-mobile');
-                } else {
-                    sidebar.addClass('collapsed');
-                }
-            });
-            
-            // Back Button
-            $('#backBtn').on('click', function() {
-                window.history.back();
-            });
-            
-            // Link Input Toggle
-            $('#linkBtn').on('click', function() {
-                $('#linkInputWrapper').toggleClass('show');
-            });
-            
-            // Play Custom Link
-            $('#playLinkBtn').on('click', function() {
-                var link = $('#linkInput').val();
-                if (link) {
-                    playChannel(link, 'Custom URL');
-                }
-            });
-            
-            // Favorite Panel Toggle
-            $('#favoriteBtn').on('click', function() {
-                $('#favoritePanel').toggleClass('show');
-            });
-            
-            // GitHub Button
-            $('#githubBtn').on('click', function() {
-                window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
-            });
-            
-            // Shuffle Play
-            $('#shuffleBtn').on('click', function() {
-                var channels = $('#channelList .channel-item');
-                if (channels.length > 0) {
-                    var randomIndex = Math.floor(Math.random() * channels.length);
-                    channels.eq(randomIndex).click();
-                }
-            });
-            
-            // Channel Search
-            $('#channelSearch').on('input', function() {
-                var searchTerm = $(this).val().toLowerCase();
-                $('#channelList .channel-item').each(function() {
-                    var name = $(this).find('.channel-name').text().toLowerCase();
-                    if (name.indexOf(searchTerm) > -1) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-            
-            // Close panels when clicking outside
-            $(document).on('click', function(e) {
-                if (!$(e.target).closest('#favoritePanel, #favoriteBtn').length) {
-                    $('#favoritePanel').removeClass('show');
-                }
-                if (!$(e.target).closest('#linkInputWrapper, #linkBtn').length) {
-                    $('#linkInputWrapper').removeClass('show');
-                }
-            });
-        });
-        
-        // Helper function to play channel
-        function playChannel(url, name) {
-            var player = videojs('video1');
-            player.src({
-                src: url,
-                type: 'application/x-mpegURL'
-            });
-            player.play();
-            $('#currentChannel').text(name);
-            
-            // Update active state
-            $('#channelList .channel-item').removeClass('active');
-            $('#channelList .channel-item').filter(function() {
-                return $(this).find('.channel-name').text() === name;
-            }).addClass('active');
-        }
-    </script>
+    <script src="../js/tvplay.js"></script>
 </body>
 
 </html>

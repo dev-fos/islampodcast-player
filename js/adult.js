@@ -25,6 +25,12 @@ $(document).ready(function() {
     player = videojs(document.querySelector('#video1'));
     console.log('Video.js player initialized');
     
+    // Error handling - prevent loading spinner and error icon showing simultaneously
+    player.on('error', function() {
+        player.removeClass('vjs-waiting');
+        player.removeClass('vjs-loading');
+    });
+    
     // Parse URL parameters
     var urlParams = new URLSearchParams(window.location.search);
     currentApiUrl = urlParams.get('web') || '';
@@ -350,7 +356,6 @@ function parsePlayUrls(playUrlRaw, apiUrl) {
 
 // Render playlist to sidebar
 function renderPlaylist(items) {
-    console.log('Rendering playlist, items:', items.length);
     $('#channelList').empty();
     
     for (var i = 0; i < items.length; i++) {
@@ -555,25 +560,24 @@ function setupUIInteractions() {
     console.log('Setting up UI interactions...');
     
     // Toggle Sidebar - with top-toolbar sync
-    $('#toggleSidebar, #menuBtn').on('click', function() {
-        console.log('Toggle sidebar clicked');
+    $('#toggleSidebar').on('click', function() {
         var sidebar = $('#sidebar');
-        var isCollapsed = sidebar.hasClass('collapsed');
+        var toolbar = $('#top-toolbar');
         
-        sidebar.toggleClass('collapsed');
-        
-        // Sync top-toolbar visibility
-        if (isCollapsed) {
-            // Expanding - show toolbar
-            $('#top-toolbar').removeClass('hidden');
-        } else {
-            // Collapsing - hide toolbar
-            $('#top-toolbar').addClass('hidden');
-        }
-        
-        // Mobile handling
+        // Toggle sidebar
         if (window.innerWidth <= 768) {
             sidebar.toggleClass('show-mobile');
+        } else {
+            sidebar.toggleClass('collapsed');
+        }
+        
+        // Show toolbar when sidebar is expanded, hide when collapsed
+        var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
+        
+        if (isExpanded) {
+            toolbar.removeClass('hidden');
+        } else {
+            toolbar.addClass('hidden');
         }
     });
     

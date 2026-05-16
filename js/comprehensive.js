@@ -20,6 +20,12 @@ $(document).ready(function() {
     // Initialize player
     player = videojs(document.querySelector('#video1'));
     
+    // Error handling - prevent loading spinner and error icon showing simultaneously
+    player.on('error', function() {
+        player.removeClass('vjs-waiting');
+        player.removeClass('vjs-loading');
+    });
+    
     // Get Current href parameters
     var initlink = decodeURIComponent(window.location.href).split('=')[1].split('&')[0];
     var id = decodeURIComponent(window.location.href).split('=')[2];
@@ -303,22 +309,6 @@ function initUIInteractions() {
     // Toggle Sidebar button
     $('#toggleSidebar').on('click', function() {
         toggleSidebar();
-    });
-    
-    // Menu Button - hides toolbar for immersive mode
-    $('#menuBtn').on('click', function() {
-        var sidebar = $('#sidebar');
-        var toolbar = $('#top-toolbar');
-        
-        // Hide toolbar for immersive mode
-        toolbar.addClass('hidden');
-        
-        // Collapse sidebar
-        if (window.innerWidth <= 768) {
-            sidebar.removeClass('show-mobile');
-        } else {
-            sidebar.addClass('collapsed');
-        }
     });
     
     // Back Button

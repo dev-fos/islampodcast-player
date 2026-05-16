@@ -1,5 +1,5 @@
 // Easy Web TV Service Worker
-const CACHE_NAME = 'easy-web-tv-v1';
+const CACHE_NAME = 'easy-web-tv-v2';
 const OFFLINE_URL = 'offline.html';
 
 // Assets to cache on install
