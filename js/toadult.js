@@ -87,8 +87,8 @@ $(document).ready(function() {
         }
     });
     
-    // Infinite scroll on main content
-    $('#mainContent').scroll(function() {
+    // Infinite scroll on content area
+    $('#contentArea').scroll(function() {
         var scrollTop = $(this).scrollTop();
         var scrollHeight = $(this)[0].scrollHeight;
         var clientHeight = $(this).height();
