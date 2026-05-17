@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+  <rect x="15" y="30" width="170" height="60" rx="5" fill="#111" stroke="#333" stroke-width="2"/>
+  <rect x="20" y="35" width="80" height="50" rx="3" fill="#222"/>
+  <circle cx="60" cy="60" r="18" fill="#1a1a2e" stroke="#444" stroke-width="1"/>
+  <circle cx="60" cy="60" r="12" fill="#333"/>
+  <circle cx="60" cy="60" r="4" fill="#222"/>
+  <rect x="105" y="35" width="75" height="50" rx="3" fill="#222"/>
+  <rect x="110" y="40" width="25" height="20" rx="2" fill="#444"/>
+  <rect x="140" y="40" width="25" height="20" rx="2" fill="#444"/>
+  <rect x="115" y="65" width="50" height="12" rx="2" fill="#555"/>
+  <text x="100" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">Sega CD</text>
+</svg>

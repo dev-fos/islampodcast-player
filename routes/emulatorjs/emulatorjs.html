@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Emulator - Easy Web TV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="author" content="Zhang Boheng">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/emulatorjs.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="header-btn" id="backBtn" title="Back">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <div class="header-title">
+                <i class="fas fa-gamepad"></i>
+                <span id="pageTitle">Emulator</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-action-btn" id="saveBtn" style="display: none;">
+                <i class="fas fa-save"></i>
+                <span data-i18n="save">Save</span>
+            </div>
+            <div class="header-action-btn" id="loadBtn" style="display: none;">
+                <i class="fas fa-folder-open"></i>
+                <span data-i18n="load">Load</span>
+            </div>
+            <div class="header-action-btn" id="fullscreenBtn" style="display: none;">
+                <i class="fas fa-expand"></i>
+                <span data-i18n="fullscreen">Fullscreen</span>
+            </div>
+            <div class="header-action-btn settings" id="settingsBtn" style="display: none;">
+                <i class="fas fa-cog"></i>
+                <span data-i18n="settings">Settings</span>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Upload Section -->
+        <section class="upload-section" id="uploadSection">
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-icon">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <h2 class="upload-title" data-i18n="uploadTitle">Upload ROM File</h2>
+                <p class="upload-desc" data-i18n="uploadDesc">Drag and drop your ROM file here or click to select</p>
+                <input type="file" class="upload-input" id="romInput" accept=".nes,.zip,.gba,.gbc,.gb,.sfc,.smc,.z64,.v64,.n64,.iso,.bin,.cso,.pbp,.md,.smd,.gen,.sms,.gg,.sg,.cue,.chd,.nds,.3ds,.3dsx,.cia,.a26,.bin,.a78">
+                <button class="upload-btn" id="uploadBtn">
+                    <i class="fas fa-file-upload"></i>
+                    <span data-i18n="selectRom">Select ROM File</span>
+                </button>
+            </div>
+            
+            <!-- Gamepad Status -->
+            <div class="gamepad-status" id="gamepadStatus">
+                <div class="gamepad-status-header">
+                    <div class="gamepad-status-title">
+                        <i class="fas fa-gamepad"></i>
+                        <span data-i18n="gamepadSupport">Gamepad Support</span>
+                    </div>
+                    <div class="gamepad-indicator disconnected" id="gamepadIndicator">
+                        <i class="fas fa-circle"></i>
+                        <span id="gamepadStatusText">No gamepad detected</span>
+                    </div>
+                </div>
+                <div class="gamepad-list" id="gamepadList">
+                    <div class="gamepad-no-devices" id="gamepadNoDevices">
+                        <i class="fas fa-unlink"></i>
+                        <span data-i18n="noGamepad">No gamepad connected</span>
+                    </div>
+                </div>
+                <div class="gamepad-tip">
+                    <i class="fas fa-lightbulb"></i>
+                    <span data-i18n="gamepadTip">Connect gamepad before loading game</span>
+                </div>
+            </div>
+            
+            <!-- Core Selection -->
+            <div class="core-selection">
+                <label class="core-label">
+                    <i class="fas fa-microchip"></i>
+                    <span data-i18n="selectCore">Select Emulator Core:</span>
+                </label>
+                <select class="core-select" id="coreSelect">
+                    <option value="fceumm">NES (Nintendo Entertainment System)</option>
+                    <option value="snes9x">SNES (Super Nintendo)</option>
+                    <option value="mgba">GBA (Game Boy Advance)</option>
+                    <option value="gambatte">GB/GBC (Game Boy / Color)</option>
+                    <option value="mupen64plus">N64 (Nintendo 64)</option>
+                    <option value="melonds">NDS (Nintendo DS)</option>
+                    <option value="citra">3DS (Nintendo 3DS)</option>
+                    <option value="pcsx_rearmed">PS1 (PlayStation)</option>
+                    <option value="pcsx_rearmed">PSX (PlayStation)</option>
+                    <option value="ppsspp">PSP (PlayStation Portable)</option>
+                    <option value="pcsx2">PS2 (PlayStation 2)</option>
+                    <option value="genesis_plus_gx">Genesis/Mega Drive (Sega)</option>
+                    <option value="genesis_plus_gx">Master System (Sega)</option>
+                    <option value="genesis_plus_gx">Sega CD (Sega)</option>
+                    <option value="picodrive">Sega 32X</option>
+                    <option value="genesis_plus_gx">Game Gear (Sega)</option>
+                    <option value="yabause">Saturn (Sega)</option>
+                    <option value="flycast">Dreamcast (Sega)</option>
+                    <option value="stella">Atari 2600</option>
+                    <option value="a7800">Atari 7800</option>
+                    <option value="atari800">Atari 5200 / 800</option>
+                    <option value="virtualjaguar">Atari Jaguar</option>
+                    <option value="handy">Atari Lynx</option>
+                    <option value="opera">3DO Interactive Multiplayer</option>
+                    <option value="fbneo">Arcade (FBNeo)</option>
+                    <option value="mame2003">MAME 2003</option>
+                    <option value="bluemsx">ColecoVision / MSX</option>
+                    <option value="vice">Commodore 64/128/VIC-20/PET/Plus/4</option>
+                    <option value="puae">Commodore Amiga</option>
+                    <option value="beetle_vb">Virtual Boy (Nintendo)</option>
+                </select>
+            </div>
+        </section>
+        
+        <!-- Emulator Section -->
+        <section class="emulator-section" id="emulatorSection">
+            <div id="emulator">
+                <!-- Loading Overlay -->
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">
+                        <span data-i18n="loading">Loading game, please wait...</span>
+                        <small data-i18n="loadingTip">This may take a few seconds</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Instructions Panel -->
+            <div class="instructions-panel" id="instructionsPanel">
+                <div class="instructions-header" id="instructionsHeader">
+                    <h3 class="instructions-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-i18n="instructions">Instructions</span>
+                    </h3>
+                    <i class="fas fa-chevron-down instructions-toggle" id="instructionsToggle"></i>
+                </div>
+                <div class="instructions-content" id="instructionsContent">
+                    <!-- Keyboard Controls -->
+                    <div class="instruction-card">
+                        <h4><i class="fas fa-keyboard"></i> <span data-i18n="keyboardControls">Keyboard Controls</span></h4>
+                        <ul>
+                            <li><i class="fas fa-arrows-alt"></i> <span data-i18n="arrowKeys">Arrow Keys</span> <span class="key-badge">↑↓←→</span> - <span data-i18n="move">Move</span></li>
+                            <li><i class="fas fa-circle"></i> <span data-i18n="aButton">A Button</span> <span class="key-badge">Z</span></li>
+                            <li><i class="fas fa-circle"></i> <span data-i18n="bButton">B Button</span> <span class="key-badge">X</span></li>
+                            <li><i class="fas fa-circle"></i> <span data-i18n="xButton">X Button</span> <span class="key-badge">A</span></li>
+                            <li><i class="fas fa-circle"></i> <span data-i18n="yButton">Y Button</span> <span class="key-badge">S</span></li>
+                            <li><i class="fas fa-play"></i> <span data-i18n="start">Start</span> <span class="key-badge">Enter</span></li>
+                            <li><i class="fas fa-bars"></i> <span data-i18n="select">Select</span> <span class="key-badge">Shift</span></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Gamepad Support -->
+                    <div class="instruction-card">
+                        <h4><i class="fas fa-gamepad"></i> <span data-i18n="gamepadSupport">Gamepad Support</span></h4>
+                        <ul>
+                            <li><i class="fas fa-check"></i> <span data-i18n="gamepadDesc">USB gamepads are automatically detected</span></li>
+                            <li><i class="fas fa-check"></i> <span data-i18n="gamepadMapping">Standard mapping is supported</span></li>
+                            <li><i class="fas fa-check"></i> <span data-i18n="gamepadTip">Connect gamepad before loading game</span></li>
+                            <li><i class="fas fa-cog"></i> <span data-i18n="gamepadSettingsDesc">Click Settings button, then select "Gamepad" to configure buttons</span></li>
+                            <li><i class="fas fa-hand-pointer"></i> <span data-i18n="clickGameToFocus">Click game screen to get focus</span></li>
+                            <li><i class="fas fa-gamepad"></i> <span data-i18n="pressGamepadBtn">Press any gamepad button to activate</span></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Save/Load -->
+                    <div class="instruction-card">
+                        <h4><i class="fas fa-save"></i> <span data-i18n="saveLoadTitle">Save & Load</span></h4>
+                        <ul>
+                            <li><i class="fas fa-download"></i> <span data-i18n="saveDesc">Click "Save" to save progress</span></li>
+                            <li><i class="fas fa-upload"></i> <span data-i18n="loadDesc">Click "Load" to load progress</span></li>
+                            <li><i class="fas fa-database"></i> <span data-i18n="slotsDesc">5 save slots available</span></li>
+                            <li><i class="fas fa-hdd"></i> <span data-i18n="storageDesc">Saves stored in browser</span></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Fullscreen -->
+                    <div class="instruction-card">
+                        <h4><i class="fas fa-expand"></i> <span data-i18n="fullscreenTitle">Fullscreen</span></h4>
+                        <ul>
+                            <li><i class="fas fa-expand-arrows-alt"></i> <span data-i18n="fullscreenDesc">Click "Fullscreen" button to enter</span></li>
+                            <li><i class="fas fa-compress-arrows-alt"></i> <span data-i18n="exitFullscreen">Press ESC to exit fullscreen</span></li>
+                            <li><i class="fas fa-keyboard"></i> <span class="key-badge">F11</span> <span data-i18n="browserFullscreen">Browser fullscreen</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Save Slots Modal -->
+    <div class="modal-overlay" id="saveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-save"></i>
+                    <span id="modalTitle">Save Game</span>
+                </h3>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="save-slots" id="saveSlots">
+                <!-- Save slots will be generated here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast hidden" id="toast">
+        <i class="fas fa-info-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+    
+    <!-- EmulatorJS JavaScript -->
+    <script src="../../js/emulatorjs.js"></script>
+</body>
+
+</html>

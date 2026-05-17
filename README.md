@@ -6,7 +6,7 @@
 [![Forks](https://img.shields.io/github/forks/zhangboheng/Easy-Web-TV-M3u8)](https://github.com/zhangboheng/Easy-Web-TV-M3u8/network/members)
 [![Stars](https://img.shields.io/github/stars/zhangboheng/Easy-Web-TV-M3u8)](https://github.com/zhangboheng/Easy-Web-TV-M3u8/stargazers)
 [![License](https://img.shields.io/github/license/zhangboheng/Easy-Web-TV-M3u8)](https://github.com/zhangboheng/Easy-Web-TV-M3u8/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-8.2.3-green)](https://github.com/zhangboheng/Easy-Web-TV-M3u8)
+[![Version](https://img.shields.io/badge/version-8.3.0-green)](https://github.com/zhangboheng/Easy-Web-TV-M3u8)
 
 An all-in-one web entertainment platform to watch TV, movies, series, anime, shows, listen to music and radio, read novels and manga, and play games - all in one place.
 
@@ -52,9 +52,18 @@ An all-in-one web entertainment platform to watch TV, movies, series, anime, sho
 - Chapter navigation
 
 ### 🎮 Games
-- Built-in mini games
-- Square Obstacles, Pong, Breakout, Tic Tac Toe
-- Fullscreen game mode
+- Built-in mini games (Square Obstacles, Pong, Breakout, Tic Tac Toe)
+- **Emulator support** - Play retro console games
+  - Nintendo: NES, SNES, N64, GB/GBC, GBA, NDS, 3DS, Virtual Boy
+  - PlayStation: PS1/PSX, PS2, PSP
+  - Sega: Genesis, Master System, Sega CD, 32X, Game Gear, Saturn, Dreamcast
+  - Atari: 2600, 5200, 7800, Jaguar, Lynx
+  - Commodore: C64, C128, VIC-20, PET, Plus/4, Amiga
+  - Other: 3DO, Arcade (FBNeo, MAME), ColecoVision
+- ROM file upload support
+- Gamepad support
+- Save/Load game states
+- Fullscreen mode
 
 ### 🔧 Other Features
 - 🌐 Multi-language support
@@ -84,6 +93,7 @@ An all-in-one web entertainment platform to watch TV, movies, series, anime, sho
 - **Library**: jQuery 3.6.0
 - **Video Player**: Video.js
 - **Image Viewer**: Spotlight.js
+- **Emulator**: EmulatorJS (RetroArch-based)
 - **APIs**:
   - [iptv-org](https://github.com/iptv-org/iptv) - TV channels
   - [Radiobrowser](https://github.com/segler-alex/radiobrowser-api-rust) - Radio stations
@@ -141,6 +151,8 @@ Easy-Web-TV-M3u8/
 │   ├── novel.html         # Novel page
 │   ├── manga.html         # Manga page
 │   ├── game.html          # Game page
+│   ├── emulatorjs/        # Emulator pages
+│   │   └── emulatorjs.html # Emulator page
 │   └── ...                # Other pages
 ├── catalogues/
 │   └── *play.html         # Player pages
@@ -175,6 +187,7 @@ This project uses the following open source projects:
 - [Radiobrowser](https://github.com/segler-alex/radiobrowser-api-rust) - Radio stations API
 - [Video.js](https://github.com/videojs/video.js) - Video player
 - [Spotlight.js](https://github.com/nextapps-de/spotlight) - Image viewer
+- [EmulatorJS](https://github.com/EmulatorJS/EmulatorJS) - RetroArch-based emulator
 - [Font Awesome](https://fontawesome.com/) - Icons
 
 ## 📄 License
