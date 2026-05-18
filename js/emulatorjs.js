@@ -61,7 +61,18 @@ var i18n = {
         test: '测试',
         gamepadTest: '手柄测试',
         clickGearIcon: '请点击模拟器控制栏中的齿轮图标（⚙）打开设置',
-        gameNotLoaded: '游戏尚未加载'
+        gameNotLoaded: '游戏尚未加载',
+        tabFile: '文件上传',
+        tabUrl: 'URL 输入',
+        urlTitle: '从 URL 加载 ROM',
+        urlDesc: '输入 ROM 文件的直接链接地址',
+        urlPlaceholder: 'https://example.com/game.nes',
+        loadRom: '加载 ROM',
+        urlTip: '提示：请输入 ROM 文件的直接下载链接，确保 URL 指向可下载的文件。',
+        urlLoading: '正在从 URL 下载 ROM...',
+        urlInvalid: '请输入有效的 URL 地址',
+        urlFetchFailed: '下载 ROM 文件失败，请检查 URL 是否正确。',
+        urlFetchError: '网络错误，无法下载 ROM 文件。'
     },
     en: {
         save: 'Save',
@@ -122,7 +133,18 @@ var i18n = {
         test: 'Test',
         gamepadTest: 'Gamepad Test',
         clickGearIcon: 'Please click the gear icon (⚙) in the emulator controls to open settings',
-        gameNotLoaded: 'Game not loaded yet'
+        gameNotLoaded: 'Game not loaded yet',
+        tabFile: 'File Upload',
+        tabUrl: 'URL Input',
+        urlTitle: 'Load ROM from URL',
+        urlDesc: 'Enter the direct URL of a ROM file to load',
+        urlPlaceholder: 'https://example.com/game.nes',
+        loadRom: 'Load ROM',
+        urlTip: 'Tip: Enter a direct link to the ROM file. Make sure the URL points to a downloadable file.',
+        urlLoading: 'Downloading ROM from URL...',
+        urlInvalid: 'Please enter a valid URL',
+        urlFetchFailed: 'Failed to download ROM file. Please check the URL.',
+        urlFetchError: 'Network error, unable to download ROM file.'
     },
     ja: {
         save: 'セーブ',
@@ -183,7 +205,18 @@ var i18n = {
         test: 'テスト',
         gamepadTest: 'ゲームパッドテスト',
         clickGearIcon: 'エミュレータコントロールのギアアイコン（⚙）をクリックして設定を開く',
-        gameNotLoaded: 'ゲームがまだ読み込まれていません'
+        gameNotLoaded: 'ゲームがまだ読み込まれていません',
+        tabFile: 'ファイルアップロード',
+        tabUrl: 'URL入力',
+        urlTitle: 'URLからROMを読み込む',
+        urlDesc: 'ROMファイルの直接URLを入力',
+        urlPlaceholder: 'https://example.com/game.nes',
+        loadRom: 'ROMを読み込む',
+        urlTip: 'ヒント：ROMファイルの直接ダウンロードリンクを入力してください。',
+        urlLoading: 'URLからROMをダウンロード中...',
+        urlInvalid: '有効なURLを入力してください',
+        urlFetchFailed: 'ROMファイルのダウンロードに失敗しました。URLを確認してください。',
+        urlFetchError: 'ネットワークエラー、ROMファイルをダウンロードできません。'
     },
     ko: {
         save: '저장',
@@ -244,7 +277,18 @@ var i18n = {
         test: '테스트',
         gamepadTest: '게임패드 테스트',
         clickGearIcon: '에뮬레이터 컨트롤의 기어 아이콘（⚙）을 클릭하여 설정 열기',
-        gameNotLoaded: '게임이 아직 로드되지 않음'
+        gameNotLoaded: '게임이 아직 로드되지 않음',
+        tabFile: '파일 업로드',
+        tabUrl: 'URL 입력',
+        urlTitle: 'URL에서 ROM 로드',
+        urlDesc: 'ROM 파일의 직접 URL을 입력',
+        urlPlaceholder: 'https://example.com/game.nes',
+        loadRom: 'ROM 로드',
+        urlTip: '提示：ROM 파일의 직접 다운로드 링크를 입력하세요.',
+        urlLoading: 'URL에서 ROM 다운로드 중...',
+        urlInvalid: '유효한 URL을 입력하세요',
+        urlFetchFailed: 'ROM 파일 다운로드 실패. URL을 확인하세요.',
+        urlFetchError: '네트워크 오류, ROM 파일을 다운로드할 수 없습니다.'
     },
     fr: {
         save: 'Sauvegarder',
@@ -305,7 +349,18 @@ var i18n = {
         test: 'Test',
         gamepadTest: 'Test manette',
         clickGearIcon: 'Cliquez sur l\'icône engrenage（⚙）dans les contrôles pour ouvrir les paramètres',
-        gameNotLoaded: 'Jeu pas encore chargé'
+        gameNotLoaded: 'Jeu pas encore chargé',
+        tabFile: 'Fichier',
+        tabUrl: 'URL',
+        urlTitle: 'Charger ROM depuis URL',
+        urlDesc: 'Entrez l\'URL directe d\'un fichier ROM',
+        urlPlaceholder: 'https://example.com/game.nes',
+        loadRom: 'Charger ROM',
+        urlTip: 'Conseil : Entrez un lien direct vers le fichier ROM.',
+        urlLoading: 'Téléchargement du ROM depuis l\'URL...',
+        urlInvalid: 'Veuillez entrer une URL valide',
+        urlFetchFailed: 'Échec du téléchargement du ROM. Vérifiez l\'URL.',
+        urlFetchError: 'Erreur réseau, impossible de télécharger le ROM.'
     },
     de: {
         save: 'Speichern',
@@ -366,7 +421,18 @@ var i18n = {
         test: 'Test',
         gamepadTest: 'Gamepad-Test',
         clickGearIcon: 'Klicken Sie auf das Zahnrad-Symbol（⚙）in den Steuerelementen',
-        gameNotLoaded: 'Spiel noch nicht geladen'
+        gameNotLoaded: 'Spiel noch nicht geladen',
+        tabFile: 'Datei',
+        tabUrl: 'URL',
+        urlTitle: 'ROM von URL laden',
+        urlDesc: 'Geben Sie die direkte URL einer ROM-Datei ein',
+        urlPlaceholder: 'https://example.com/game.nes',
+        loadRom: 'ROM laden',
+        urlTip: 'Tipp: Geben Sie einen direkten Link zur ROM-Datei ein.',
+        urlLoading: 'ROM wird von URL heruntergeladen...',
+        urlInvalid: 'Bitte geben Sie eine gültige URL ein',
+        urlFetchFailed: 'ROM-Download fehlgeschlagen. Bitte URL prüfen.',
+        urlFetchError: 'Netzwerkfehler, ROM kann nicht heruntergeladen werden.'
     },
     es: {
         save: 'Guardar',
@@ -427,7 +493,18 @@ var i18n = {
         test: 'Prueba',
         gamepadTest: 'Prueba de mando',
         clickGearIcon: 'Haga clic en el icono de engranaje（⚙）en los controles',
-        gameNotLoaded: 'Juego aún no cargado'
+        gameNotLoaded: 'Juego aún no cargado',
+        tabFile: 'Archivo',
+        tabUrl: 'URL',
+        urlTitle: 'Cargar ROM desde URL',
+        urlDesc: 'Ingrese la URL directa de un archivo ROM',
+        urlPlaceholder: 'https://example.com/game.nes',
+        loadRom: 'Cargar ROM',
+        urlTip: 'Consejo: Ingrese un enlace directo al archivo ROM.',
+        urlLoading: 'Descargando ROM desde URL...',
+        urlInvalid: 'Por favor, ingrese una URL válida',
+        urlFetchFailed: 'Error al descargar ROM. Verifique la URL.',
+        urlFetchError: 'Error de red, no se puede descargar el ROM.'
     },
     ru: {
         save: 'Сохранить',
@@ -488,7 +565,18 @@ var i18n = {
         test: 'Тест',
         gamepadTest: 'Тест геймпада',
         clickGearIcon: 'Нажмите значок шестерёнки（⚙）в элементах управления',
-        gameNotLoaded: 'Игра ещё не загружена'
+        gameNotLoaded: 'Игра ещё не загружена',
+        tabFile: 'Файл',
+        tabUrl: 'URL',
+        urlTitle: 'Загрузить ROM по URL',
+        urlDesc: 'Введите прямой URL файла ROM',
+        urlPlaceholder: 'https://example.com/game.nes',
+        loadRom: 'Загрузить ROM',
+        urlTip: 'Совет: Введите прямую ссылку на файл ROM.',
+        urlLoading: 'Загрузка ROM по URL...',
+        urlInvalid: 'Пожалуйста, введите корректный URL',
+        urlFetchFailed: 'Ошибка загрузки ROM. Проверьте URL.',
+        urlFetchError: 'Сетевая ошибка, невозможно загрузить ROM.'
     }
 };
 
@@ -511,6 +599,131 @@ function applyTranslations() {
         var key = el.getAttribute('data-i18n');
         el.textContent = t(key);
     });
+    // Also apply placeholder translations
+    var placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+    placeholderElements.forEach(function(el) {
+        var key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = t(key);
+    });
+}
+
+// CORS proxy list (tried in order)
+var corsProxies = [
+    'https://api.allorigins.win/raw?url=',
+    'https://corsproxy.io/?',
+    'https://api.codetabs.com/v1/proxy?quest='
+];
+
+// Process ROM blob - shared by both URL and file upload paths
+function processRomBlob(blob, filename) {
+    var urlLoadBtn = document.getElementById('urlLoadBtn');
+    
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var romData = e.target.result;
+        
+        // Set current game info
+        currentGame.name = filename.replace(/\.[^/.]+$/, "");
+        currentGame.core = detectCore(filename);
+        currentGame.romData = romData;
+        
+        // Update core select
+        document.getElementById('coreSelect').value = currentGame.core;
+        
+        // Configure EmulatorJS
+        EJS_core = currentGame.core;
+        EJS_gameUrl = romData;
+        
+        // Show emulator section
+        document.getElementById('uploadSection').classList.add('hidden');
+        document.getElementById('emulatorSection').classList.add('active');
+        
+        // Show loading overlay
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+        
+        // Show action buttons
+        document.getElementById('saveBtn').style.display = 'flex';
+        document.getElementById('loadBtn').style.display = 'flex';
+        document.getElementById('fullscreenBtn').style.display = 'flex';
+        document.getElementById('settingsBtn').style.display = 'flex';
+        
+        // Update title
+        document.getElementById('pageTitle').textContent = currentGame.name;
+        
+        // Load EmulatorJS
+        loadEmulatorJS();
+    };
+    reader.readAsDataURL(blob);
+}
+
+// Try fetching ROM through CORS proxies, then direct
+function tryFetchWithProxy(originalUrl, proxyIndex, filename) {
+    var urlLoadBtn = document.getElementById('urlLoadBtn');
+    var fetchUrl;
+    
+    if (proxyIndex < corsProxies.length) {
+        // Use CORS proxy
+        fetchUrl = corsProxies[proxyIndex] + encodeURIComponent(originalUrl);
+        console.log('Trying CORS proxy ' + (proxyIndex + 1) + ': ' + corsProxies[proxyIndex]);
+    } else {
+        // All proxies failed, try direct fetch (works for CORS-enabled servers)
+        fetchUrl = originalUrl;
+        console.log('Trying direct fetch (no proxy)');
+    }
+    
+    fetch(fetchUrl)
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('HTTP error ' + response.status);
+            }
+            // Verify we got binary data, not an HTML error page from proxy
+            var contentType = response.headers.get('content-type') || '';
+            if (proxyIndex < corsProxies.length && contentType.indexOf('text/html') !== -1 && filename.indexOf('.html') === -1) {
+                // Proxy returned HTML instead of the ROM file - try next proxy
+                console.log('Proxy returned HTML, trying next...');
+                throw new Error('Proxy returned HTML');
+            }
+            return response.blob();
+        })
+        .then(function(blob) {
+            // Verify blob size is reasonable (ROM files should be > 1KB)
+            if (blob.size < 1024 && filename.indexOf('.zip') === -1) {
+                throw new Error('File too small, possibly an error page');
+            }
+            console.log('ROM downloaded successfully (' + blob.size + ' bytes)');
+            processRomBlob(blob, filename);
+        })
+        .catch(function(error) {
+            console.log('Fetch attempt failed: ' + error.message);
+            if (proxyIndex < corsProxies.length) {
+                // Try next proxy
+                tryFetchWithProxy(originalUrl, proxyIndex + 1, filename);
+            } else {
+                // All methods failed
+                urlLoadBtn.disabled = false;
+                console.error('All fetch methods failed for: ' + originalUrl);
+                showToast(t('urlFetchError'));
+            }
+        });
+}
+
+// Handle ROM from URL
+function handleRomFromUrl(url) {
+    // Validate URL
+    if (!url || (!url.startsWith('http://') && !url.startsWith('https://'))) {
+        showToast(t('urlInvalid'));
+        return;
+    }
+    
+    var urlLoadBtn = document.getElementById('urlLoadBtn');
+    urlLoadBtn.disabled = true;
+    showToast(t('urlLoading'));
+    
+    // Extract filename from URL
+    var filename = url.split('/').pop().split('?')[0] || 'game.nes';
+    
+    // Try fetching through CORS proxies first, then direct
+    tryFetchWithProxy(url, 0, filename);
 }
 
 // Configuration - Use CDN for EmulatorJS
@@ -977,9 +1190,38 @@ document.addEventListener('DOMContentLoaded', function() {
         window.history.back();
     });
     
+    // Tab switching
+    document.getElementById('tabFile').addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('tabUrl').classList.remove('active');
+        document.getElementById('uploadBox').classList.remove('hidden');
+        document.getElementById('urlBox').classList.add('hidden');
+    });
+    
+    document.getElementById('tabUrl').addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('tabFile').classList.remove('active');
+        document.getElementById('urlBox').classList.remove('hidden');
+        document.getElementById('uploadBox').classList.add('hidden');
+    });
+    
     // Upload button
     document.getElementById('uploadBtn').addEventListener('click', function() {
         document.getElementById('romInput').click();
+    });
+    
+    // URL load button
+    document.getElementById('urlLoadBtn').addEventListener('click', function() {
+        var url = document.getElementById('romUrlInput').value.trim();
+        handleRomFromUrl(url);
+    });
+    
+    // URL input Enter key
+    document.getElementById('romUrlInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            var url = this.value.trim();
+            handleRomFromUrl(url);
+        }
     });
     
     // File input change

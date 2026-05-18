@@ -213,6 +213,135 @@ body {
     box-shadow: 0 5px 20px rgba(163,0,27,0.3);
 }
 
+/* Upload Tabs */
+.upload-tabs {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(163,0,27,0.5);
+}
+
+.upload-tab {
+    flex: 1;
+    padding: 14px 20px;
+    background: rgba(0,0,0,0.6);
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    user-select: none;
+}
+
+.upload-tab:hover {
+    background: rgba(163,0,27,0.15);
+    color: #fff;
+}
+
+.upload-tab.active {
+    background: linear-gradient(135deg, #a3001b 0%, #8a0016 100%);
+    color: #fff;
+}
+
+.upload-tab i {
+    font-size: 16px;
+}
+
+/* URL Input Box */
+.url-box {
+    width: 100%;
+    max-width: 500px;
+    background: rgba(0,0,0,0.6);
+    border: 2px solid rgba(163,0,27,0.5);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.url-box.hidden {
+    display: none;
+}
+
+.url-input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.url-input {
+    flex: 1;
+    padding: 12px 15px;
+    background: rgba(0,0,0,0.6);
+    border: 2px solid rgba(163,0,27,0.5);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    min-width: 0;
+}
+
+.url-input:focus {
+    border-color: #a3001b;
+}
+
+.url-input::placeholder {
+    color: rgba(255,255,255,0.3);
+}
+
+.url-load-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #a3001b 0%, #8a0016 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.url-load-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(163,0,27,0.3);
+}
+
+.url-load-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.url-tip {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    margin-top: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    text-align: left;
+}
+
+.url-tip i {
+    color: #ff9800;
+    margin-top: 2px;
+}
+
 /* Core Selection */
 .core-selection {
     width: 100%;

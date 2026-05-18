@@ -355,7 +355,9 @@ function renderGames() {
     filteredGames.forEach(function(game) {
         var cardHtml = `
             <a href="${game.url}" class="game-card">
-                <img class="game-image" src="${game.image}" alt="${game.name}" onerror="this.src='../images/noimage.jpeg'">
+                <div class="game-image-wrapper">
+                    <img class="game-image" src="${game.image}" alt="${game.name}" onerror="this.src='../images/noimage.jpeg'">
+                </div>
                 <div class="game-overlay"></div>
                 <div class="play-icon">
                     <i class="fas fa-play"></i>

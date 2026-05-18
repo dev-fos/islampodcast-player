@@ -201,7 +201,6 @@
             margin-top: 70px;
             overflow: hidden;
             min-height: 0;
-            height: calc(100vh - 70px);
         }
         
         .tab-content {
@@ -883,6 +882,60 @@
                 width: 100%;
             }
             
+            /* Fix tab-content-wrapper margin for wrapped header */
+            .tab-content-wrapper {
+                margin-top: 0;
+            }
+            
+            /* Fix podcast import area on mobile */
+            .podcast-import-area {
+                padding: 12px 15px;
+            }
+            
+            .import-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .import-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .rss-input-group {
+                min-width: 0;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .rss-input-group input {
+                width: 100%;
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+            
+            .rss-add-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 10px 15px;
+            }
+            
+            .podcast-actions {
+                margin-left: 0;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .podcast-action-btn {
+                flex: 1;
+                justify-content: center;
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+            
             .artist-grid {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 gap: 15px;
@@ -892,20 +945,6 @@
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 gap: 15px;
                 padding: 15px;
-            }
-            
-            .import-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .rss-input-group {
-                min-width: 0;
-            }
-            
-            .podcast-actions {
-                margin-left: 0;
-                justify-content: center;
             }
         }
         
@@ -1446,6 +1485,224 @@
             box-shadow: 0 5px 15px rgba(244,67,54,0.4);
         }
         
+        /* ============ OPML IMPORT MODAL ============ */
+        .opml-import-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 260;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .opml-import-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .opml-import-modal {
+            background: rgba(20,20,30,0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid rgba(163,0,27,0.5);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        
+        .opml-import-overlay.show .opml-import-modal {
+            transform: scale(1);
+        }
+        
+        .opml-import-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .opml-import-title {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .opml-import-title i {
+            color: #a3001b;
+        }
+        
+        .opml-import-close {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .opml-import-close:hover {
+            background: rgba(255,0,0,0.3);
+        }
+        
+        .opml-import-close i {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+        
+        /* OPML Import Tabs */
+        .opml-import-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .opml-import-tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .opml-import-tab:hover {
+            background: rgba(163,0,27,0.1);
+            border-color: rgba(163,0,27,0.3);
+            color: #fff;
+        }
+        
+        .opml-import-tab.active {
+            background: linear-gradient(135deg, #a3001b 0%, #8a0016 100%);
+            border-color: #a3001b;
+            color: #fff;
+        }
+        
+        .opml-import-tab i {
+            font-size: 16px;
+        }
+        
+        /* OPML Import Content Panels */
+        .opml-import-panel {
+            display: none;
+        }
+        
+        .opml-import-panel.active {
+            display: block;
+        }
+        
+        .opml-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid rgba(163,0,27,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 13px;
+            font-family: monospace;
+            outline: none;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        .opml-textarea:focus {
+            border-color: #a3001b;
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .opml-textarea::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+        
+        .opml-url-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(163,0,27,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .opml-url-input:focus {
+            border-color: #a3001b;
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .opml-url-input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+        
+        .opml-import-hint {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+        .opml-import-hint i {
+            color: rgba(163,0,27,0.5);
+            margin-right: 5px;
+        }
+        
+        .opml-import-submit {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #a3001b 0%, #8a0016 100%);
+            border: 2px solid #a3001b;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .opml-import-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(163,0,27,0.4);
+        }
+        
+        .opml-import-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
         /* Hide old elements */
         #left, #right, #div1, #control, #menuicon, #player, #prev, .toggle, .itemContainer, .ready-player-1, audio {
             display: none !important;
@@ -1529,6 +1786,10 @@
                             Import OPML
                         </button>
                         <input type="file" id="opmlFileInput" accept=".opml,.xml" style="display: none;">
+                        <button class="import-btn" id="pasteOpmlBtn">
+                            <i class="fas fa-clipboard"></i>
+                            Paste OPML
+                        </button>
                         <div class="rss-input-group">
                             <input type="text" id="rssUrlInput" placeholder="Enter Podcast RSS feed URL...">
                             <button class="rss-add-btn" id="addRssBtn">
@@ -1685,6 +1946,55 @@
                 <div class="confirm-actions">
                     <button class="confirm-btn confirm-cancel" id="confirmCancel">Cancel</button>
                     <button class="confirm-btn confirm-ok" id="confirmOk">Confirm</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OPML Import Modal -->
+        <div class="opml-import-overlay" id="opmlImportOverlay">
+            <div class="opml-import-modal">
+                <div class="opml-import-header">
+                    <div class="opml-import-title">
+                        <i class="fas fa-file-import"></i>
+                        Import OPML
+                    </div>
+                    <div class="opml-import-close" id="opmlImportClose">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <div class="opml-import-tabs">
+                    <div class="opml-import-tab active" data-opml-tab="paste" id="opmlTabPaste">
+                        <i class="fas fa-clipboard"></i>
+                        Paste Content
+                    </div>
+                    <div class="opml-import-tab" data-opml-tab="url" id="opmlTabUrl">
+                        <i class="fas fa-link"></i>
+                        From URL
+                    </div>
+                </div>
+                <!-- Paste Panel -->
+                <div class="opml-import-panel active" id="opmlPanelPaste">
+                    <textarea class="opml-textarea" id="opmlTextarea" placeholder="Paste OPML XML content here..."></textarea>
+                    <div class="opml-import-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Copy the content of your OPML file and paste it here. Works on TV browsers where file selection is not available.
+                    </div>
+                    <button class="opml-import-submit" id="opmlPasteSubmit">
+                        <i class="fas fa-check"></i>
+                        Import from Pasted Content
+                    </button>
+                </div>
+                <!-- URL Panel -->
+                <div class="opml-import-panel" id="opmlPanelUrl">
+                    <input type="text" class="opml-url-input" id="opmlUrlInput" placeholder="Enter OPML file URL (e.g., https://example.com/subscriptions.opml)">
+                    <div class="opml-import-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Enter the URL of an OPML file. The content will be fetched through a proxy. Works on TV browsers.
+                    </div>
+                    <button class="opml-import-submit" id="opmlUrlSubmit">
+                        <i class="fas fa-download"></i>
+                        Import from URL
+                    </button>
                 </div>
             </div>
         </div>

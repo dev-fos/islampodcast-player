@@ -62,9 +62,71 @@ $(document).ready(function () {
     
     // ============ PODCAST EVENT HANDLERS ============
     
-    // OPML import button
+    // OPML import button (file picker - works on desktop/mobile)
     $('#importOpmlBtn').on('click', function () {
         $('#opmlFileInput').click();
+    });
+    
+    // Paste OPML button - opens modal with paste tab
+    $('#pasteOpmlBtn').on('click', function () {
+        showOpmlImportModal('paste');
+    });
+    
+    // OPML Import Modal - tab switching
+    $('.opml-import-tab').on('click', function () {
+        var tabId = $(this).data('opml-tab');
+        $('.opml-import-tab').removeClass('active');
+        $(this).addClass('active');
+        $('.opml-import-panel').removeClass('active');
+        if (tabId === 'paste') {
+            $('#opmlPanelPaste').addClass('active');
+        } else {
+            $('#opmlPanelUrl').addClass('active');
+        }
+    });
+    
+    // OPML Import Modal - close
+    $('#opmlImportClose').on('click', function () {
+        hideOpmlImportModal();
+    });
+    
+    // OPML Import Modal - click outside to close
+    $('#opmlImportOverlay').on('click', function (e) {
+        if (e.target === this) {
+            hideOpmlImportModal();
+        }
+    });
+    
+    // OPML Paste submit
+    $('#opmlPasteSubmit').on('click', function () {
+        var content = $('#opmlTextarea').val().trim();
+        if (!content) {
+            showToast('Please paste OPML content first.', 'warning');
+            return;
+        }
+        parseOpml(content);
+        hideOpmlImportModal();
+        $('#opmlTextarea').val('');
+    });
+    
+    // OPML URL submit
+    $('#opmlUrlSubmit').on('click', function () {
+        var url = $('#opmlUrlInput').val().trim();
+        if (!url) {
+            showToast('Please enter an OPML URL first.', 'warning');
+            return;
+        }
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = 'https://' + url;
+        }
+        fetchOpmlFromUrl(url);
+    });
+    
+    // OPML URL input enter key
+    $('#opmlUrlInput').on('keypress', function (e) {
+        if (e.which === 13) {
+            $('#opmlUrlSubmit').click();
+        }
     });
     
     // OPML file selected
@@ -223,6 +285,21 @@ $(document).ready(function () {
     // Show podcast search box, hide music search box (default tab is podcast)
     $('#podcastSearchBox').show();
     $('#musicSearchBox').hide();
+    
+    // Dynamic margin-top for tab-content-wrapper based on header height
+    function updateContentMargin() {
+        var headerHeight = $('.top-header').outerHeight();
+        $('.tab-content-wrapper').css('margin-top', headerHeight + 'px');
+    }
+    
+    // Update on load and resize
+    updateContentMargin();
+    $(window).on('resize', updateContentMargin);
+    
+    // Update after tab switch (header height may change due to search box)
+    $('.tab-btn').on('click', function () {
+        setTimeout(updateContentMargin, 50);
+    });
 });
 
 // ============ TOAST & CONFIRM FUNCTIONS ============
@@ -686,6 +763,81 @@ function escapeXml(text) {
     result = result.replace(/"/g, '\x26quot;');
     result = result.replace(/'/g, '\x26apos;');
     return result;
+}
+
+// ============ OPML IMPORT MODAL FUNCTIONS ============
+
+function showOpmlImportModal(tab) {
+    tab = tab || 'paste';
+    
+    // Reset state
+    $('#opmlTextarea').val('');
+    $('#opmlUrlInput').val('');
+    
+    // Set active tab
+    $('.opml-import-tab').removeClass('active');
+    $('.opml-import-panel').removeClass('active');
+    
+    if (tab === 'url') {
+        $('#opmlTabUrl').addClass('active');
+        $('#opmlPanelUrl').addClass('active');
+    } else {
+        $('#opmlTabPaste').addClass('active');
+        $('#opmlPanelPaste').addClass('active');
+    }
+    
+    // Show modal
+    $('#opmlImportOverlay').addClass('show');
+}
+
+function hideOpmlImportModal() {
+    $('#opmlImportOverlay').removeClass('show');
+}
+
+function fetchOpmlFromUrl(url) {
+    var $btn = $('#opmlUrlSubmit');
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Fetching...');
+    
+    $.ajax({
+        url: proxy[rand] + encodeURIComponent(url),
+        type: "GET",
+        dataType: "text",
+        success: function (data) {
+            $btn.prop('disabled', false).html('<i class="fas fa-download"></i> Import from URL');
+            
+            if (data && data.trim()) {
+                parseOpml(data);
+                hideOpmlImportModal();
+                $('#opmlUrlInput').val('');
+            } else {
+                showToast('The fetched OPML content is empty.', 'warning');
+            }
+        },
+        error: function () {
+            // Try alternate proxy
+            var altRand = (rand + 1) % Object.keys(proxy).length;
+            $.ajax({
+                url: proxy[altRand] + encodeURIComponent(url),
+                type: "GET",
+                dataType: "text",
+                success: function (data) {
+                    $btn.prop('disabled', false).html('<i class="fas fa-download"></i> Import from URL');
+                    
+                    if (data && data.trim()) {
+                        parseOpml(data);
+                        hideOpmlImportModal();
+                        $('#opmlUrlInput').val('');
+                    } else {
+                        showToast('The fetched OPML content is empty.', 'warning');
+                    }
+                },
+                error: function () {
+                    $btn.prop('disabled', false).html('<i class="fas fa-download"></i> Import from URL');
+                    showToast('Failed to fetch OPML from URL. Please check the URL or try pasting the content directly.', 'error');
+                }
+            });
+        }
+    });
 }
 
 // ============ MUSIC FUNCTIONS ============

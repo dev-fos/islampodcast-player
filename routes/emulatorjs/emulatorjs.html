@@ -46,6 +46,19 @@
     <main class="main-container">
         <!-- Upload Section -->
         <section class="upload-section" id="uploadSection">
+            <!-- Tab Switch -->
+            <div class="upload-tabs">
+                <div class="upload-tab active" id="tabFile" data-tab="file">
+                    <i class="fas fa-file-upload"></i>
+                    <span data-i18n="tabFile">File Upload</span>
+                </div>
+                <div class="upload-tab" id="tabUrl" data-tab="url">
+                    <i class="fas fa-link"></i>
+                    <span data-i18n="tabUrl">URL Input</span>
+                </div>
+            </div>
+
+            <!-- File Upload Box -->
             <div class="upload-box" id="uploadBox">
                 <div class="upload-icon">
                     <i class="fas fa-upload"></i>
@@ -57,6 +70,26 @@
                     <i class="fas fa-file-upload"></i>
                     <span data-i18n="selectRom">Select ROM File</span>
                 </button>
+            </div>
+
+            <!-- URL Input Box -->
+            <div class="url-box hidden" id="urlBox">
+                <div class="upload-icon">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h2 class="upload-title" data-i18n="urlTitle">Load ROM from URL</h2>
+                <p class="upload-desc" data-i18n="urlDesc">Enter the direct URL of a ROM file to load</p>
+                <div class="url-input-group">
+                    <input type="url" class="url-input" id="romUrlInput" placeholder="https://example.com/game.nes" data-i18n-placeholder="urlPlaceholder">
+                    <button class="url-load-btn" id="urlLoadBtn">
+                        <i class="fas fa-download"></i>
+                        <span data-i18n="loadRom">Load ROM</span>
+                    </button>
+                </div>
+                <p class="url-tip">
+                    <i class="fas fa-info-circle"></i>
+                    <span data-i18n="urlTip">Tip: Enter a direct link to the ROM file. Make sure the URL points to a downloadable file.</span>
+                </p>
             </div>
             
             <!-- Gamepad Status -->
