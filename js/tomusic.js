@@ -1,3 +1,6 @@
+// Music Page JS - Modern UI Version
+// Native JavaScript (No jQuery)
+
 var proxy = {
     0: 'https://api.codetabs.com/v1/proxy/?quest=',
     1: 'https://cors.luckydesigner.workers.dev/?',
@@ -24,94 +27,110 @@ var isPlaying = false;
 var podcastSubscriptions = [];
 var PODCAST_STORAGE_KEY = 'podcast_subscriptions';
 
-$(document).ready(function () {
+// Helper functions
+function $(selector) {
+    return document.querySelector(selector);
+}
+
+function $$(selector) {
+    return document.querySelectorAll(selector);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize audio player
     audioPlayer = document.getElementById('audioPlayer');
     
     // Back button
-    $('#backBtn').on('click', function () {
+    $('#backBtn').addEventListener('click', function () {
         window.history.back();
     });
     
     // Tab switching
-    $('.tab-btn').on('click', function () {
-        var tabId = $(this).data('tab');
-        
-        // Update tab buttons
-        $('.tab-btn').removeClass('active');
-        $(this).addClass('active');
-        
-        // Update tab content
-        $('.tab-content').removeClass('active');
-        $('#' + tabId).addClass('active');
-        
-        // Show/hide search box based on tab
-        if (tabId === 'podcast') {
-            $('#musicSearchBox').hide();
-            $('#podcastSearchBox').show();
-        } else {
-            $('#musicSearchBox').show();
-            $('#podcastSearchBox').hide();
-        }
-        
-        // Load music data on first switch if needed
-        if (tabId === 'music' && artists.length === 0 && !isLoading) {
-            loadArtists();
-        }
+    $$('.tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function () {
+            var tabId = this.dataset.tab;
+            
+            // Update tab buttons
+            $$('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+            this.classList.add('active');
+            
+            // Update tab content
+            $$('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+            $('#' + tabId).classList.add('active');
+            
+            // Show/hide search box based on tab
+            if (tabId === 'podcast') {
+                $('#musicSearchBox').style.display = 'none';
+                $('#podcastSearchBox').style.display = '';
+            } else {
+                $('#musicSearchBox').style.display = '';
+                $('#podcastSearchBox').style.display = 'none';
+            }
+            
+            // Load music data on first switch if needed
+            if (tabId === 'music' && artists.length === 0 && !isLoading) {
+                loadArtists();
+            }
+            
+            // Update content margin after tab switch
+            setTimeout(updateContentMargin, 50);
+        });
     });
     
     // ============ PODCAST EVENT HANDLERS ============
     
     // OPML import button (file picker - works on desktop/mobile)
-    $('#importOpmlBtn').on('click', function () {
+    $('#importOpmlBtn').addEventListener('click', function () {
         $('#opmlFileInput').click();
     });
     
     // Paste OPML button - opens modal with paste tab
-    $('#pasteOpmlBtn').on('click', function () {
+    $('#pasteOpmlBtn').addEventListener('click', function () {
         showOpmlImportModal('paste');
     });
     
     // OPML Import Modal - tab switching
-    $('.opml-import-tab').on('click', function () {
-        var tabId = $(this).data('opml-tab');
-        $('.opml-import-tab').removeClass('active');
-        $(this).addClass('active');
-        $('.opml-import-panel').removeClass('active');
-        if (tabId === 'paste') {
-            $('#opmlPanelPaste').addClass('active');
-        } else {
-            $('#opmlPanelUrl').addClass('active');
-        }
+    $$('.opml-import-tab').forEach(function(tab) {
+        tab.addEventListener('click', function () {
+            var tabId = this.dataset.opmlTab;
+            $$('.opml-import-tab').forEach(function(el) { el.classList.remove('active'); });
+            this.classList.add('active');
+            $$('.opml-import-panel').forEach(function(el) { el.classList.remove('active'); });
+            if (tabId === 'paste') {
+                $('#opmlPanelPaste').classList.add('active');
+            } else {
+                $('#opmlPanelUrl').classList.add('active');
+            }
+        });
     });
     
     // OPML Import Modal - close
-    $('#opmlImportClose').on('click', function () {
+    $('#opmlImportClose').addEventListener('click', function () {
         hideOpmlImportModal();
     });
     
     // OPML Import Modal - click outside to close
-    $('#opmlImportOverlay').on('click', function (e) {
+    $('#opmlImportOverlay').addEventListener('click', function (e) {
         if (e.target === this) {
             hideOpmlImportModal();
         }
     });
     
     // OPML Paste submit
-    $('#opmlPasteSubmit').on('click', function () {
-        var content = $('#opmlTextarea').val().trim();
+    $('#opmlPasteSubmit').addEventListener('click', function () {
+        var content = $('#opmlTextarea').value.trim();
         if (!content) {
             showToast('Please paste OPML content first.', 'warning');
             return;
         }
         parseOpml(content);
         hideOpmlImportModal();
-        $('#opmlTextarea').val('');
+        $('#opmlTextarea').value = '';
     });
     
     // OPML URL submit
-    $('#opmlUrlSubmit').on('click', function () {
-        var url = $('#opmlUrlInput').val().trim();
+    $('#opmlUrlSubmit').addEventListener('click', function () {
+        var url = $('#opmlUrlInput').value.trim();
         if (!url) {
             showToast('Please enter an OPML URL first.', 'warning');
             return;
@@ -123,14 +142,14 @@ $(document).ready(function () {
     });
     
     // OPML URL input enter key
-    $('#opmlUrlInput').on('keypress', function (e) {
-        if (e.which === 13) {
+    $('#opmlUrlInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' || e.which === 13) {
             $('#opmlUrlSubmit').click();
         }
     });
     
     // OPML file selected
-    $('#opmlFileInput').on('change', function (e) {
+    $('#opmlFileInput').addEventListener('change', function (e) {
         var file = e.target.files[0];
         if (!file) return;
         
@@ -139,29 +158,29 @@ $(document).ready(function () {
             var content = event.target.result;
             parseOpml(content);
             // Reset file input
-            $('#opmlFileInput').val('');
+            $('#opmlFileInput').value = '';
         };
         reader.readAsText(file);
     });
     
     // Add RSS feed
-    $('#addRssBtn').on('click', function () {
+    $('#addRssBtn').addEventListener('click', function () {
         addRssFeed();
     });
     
-    $('#rssUrlInput').on('keypress', function (e) {
-        if (e.which === 13) {
+    $('#rssUrlInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' || e.which === 13) {
             addRssFeed();
         }
     });
     
     // Export OPML
-    $('#exportOpmlBtn').on('click', function () {
+    $('#exportOpmlBtn').addEventListener('click', function () {
         exportOpml();
     });
     
     // Clear all podcasts
-    $('#clearPodcastsBtn').on('click', function () {
+    $('#clearPodcastsBtn').addEventListener('click', function () {
         showConfirm('Are you sure you want to remove all podcast subscriptions?', function () {
             podcastSubscriptions = [];
             savePodcastSubscriptions();
@@ -171,61 +190,66 @@ $(document).ready(function () {
     });
     
     // Confirm modal buttons
-    $('#confirmOk').on('click', function () {
+    $('#confirmOk').addEventListener('click', function () {
         if (confirmCallback) {
             confirmCallback();
         }
         hideConfirm();
     });
     
-    $('#confirmCancel').on('click', function () {
+    $('#confirmCancel').addEventListener('click', function () {
         hideConfirm();
     });
     
     // Remove individual podcast (delegated)
-    $('#podcastGrid').on('click', '.podcast-remove', function (e) {
-        e.stopPropagation();
-        e.preventDefault();
-        var feedUrl = $(this).data('feed');
-        podcastSubscriptions = podcastSubscriptions.filter(function (p) {
-            return p.feedUrl !== feedUrl;
-        });
-        savePodcastSubscriptions();
-        renderPodcastList();
+    $('#podcastGrid').addEventListener('click', function (e) {
+        if (e.target.closest('.podcast-remove')) {
+            e.stopPropagation();
+            e.preventDefault();
+            var feedUrl = e.target.closest('.podcast-remove').dataset.feed;
+            podcastSubscriptions = podcastSubscriptions.filter(function (p) {
+                return p.feedUrl !== feedUrl;
+            });
+            savePodcastSubscriptions();
+            renderPodcastList();
+        }
     });
     
     // ============ MUSIC EVENT HANDLERS ============
     
-    // Menu button - toggle sidebar
-    $('#menuBtn').on('click', function () {
-        if (window.innerWidth <= 768) {
-            $('#sidebar').toggleClass('show-mobile');
-        } else {
-            $('#sidebar').toggleClass('collapsed');
-            $('#mainContent').toggleClass('expanded');
-        }
-    });
+    // Menu button - toggle sidebar (if exists)
+    var menuBtn = $('#menuBtn');
+    if (menuBtn) {
+        menuBtn.addEventListener('click', function () {
+            toggleSidebar();
+        });
+    }
     
     // Toggle sidebar button
-    $('#toggleSidebar').on('click', function () {
-        if (window.innerWidth <= 768) {
-            $('#sidebar').toggleClass('show-mobile');
-        } else {
-            $('#sidebar').toggleClass('collapsed');
-            $('#mainContent').toggleClass('expanded');
-        }
+    $('#toggleSidebar').addEventListener('click', function () {
+        toggleSidebar();
     });
     
+    function toggleSidebar() {
+        if (window.innerWidth <= 768) {
+            $('#sidebar').classList.toggle('show-mobile');
+        } else {
+            $('#sidebar').classList.toggle('collapsed');
+            $('#mainContent').classList.toggle('expanded');
+        }
+    }
+    
     // Category selection
-    $('#categoryList').on('click', '.category-item', function () {
-        if (isLoading) return;
+    $('#categoryList').addEventListener('click', function (e) {
+        var item = e.target.closest('.category-item');
+        if (!item || isLoading) return;
         
-        $('.category-item').removeClass('active');
-        $(this).addClass('active');
+        $$('.category-item').forEach(function(el) { el.classList.remove('active'); });
+        item.classList.add('active');
         
         currentFilter = {
-            type: $(this).data('type'),
-            value: $(this).data('value')
+            type: item.dataset.type,
+            value: item.dataset.value
         };
         
         // Reset pagination
@@ -238,21 +262,21 @@ $(document).ready(function () {
     });
     
     // Search functionality
-    $('#searchInput').on('keypress', function (e) {
-        if (e.which === 13) {
+    $('#searchInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' || e.which === 13) {
             performSearch();
         }
     });
     
-    $('#searchBtn').on('click', function () {
+    $('#searchBtn').addEventListener('click', function () {
         performSearch();
     });
     
     // Infinite scroll - listen on main content area scroll
-    $('#mainContent').on('scroll', function () {
-        var scrollTop = $(this).scrollTop();
-        var scrollHeight = $(this)[0].scrollHeight;
-        var clientHeight = $(this).height();
+    $('#mainContent').addEventListener('scroll', function () {
+        var scrollTop = this.scrollTop;
+        var scrollHeight = this.scrollHeight;
+        var clientHeight = this.clientHeight;
         
         // Trigger when user scrolls near bottom (100px before end)
         if (scrollTop + clientHeight >= scrollHeight - 100) {
@@ -266,13 +290,13 @@ $(document).ready(function () {
     initPlayerControls();
     
     // Podcast search functionality
-    $('#podcastSearchInput').on('keypress', function (e) {
-        if (e.which === 13) {
+    $('#podcastSearchInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' || e.which === 13) {
             performPodcastSearch();
         }
     });
     
-    $('#podcastSearchBtn').on('click', function () {
+    $('#podcastSearchBtn').addEventListener('click', function () {
         performPodcastSearch();
     });
     
@@ -283,23 +307,18 @@ $(document).ready(function () {
     renderPodcastList();
     
     // Show podcast search box, hide music search box (default tab is podcast)
-    $('#podcastSearchBox').show();
-    $('#musicSearchBox').hide();
+    $('#podcastSearchBox').style.display = '';
+    $('#musicSearchBox').style.display = 'none';
     
     // Dynamic margin-top for tab-content-wrapper based on header height
     function updateContentMargin() {
-        var headerHeight = $('.top-header').outerHeight();
-        $('.tab-content-wrapper').css('margin-top', headerHeight + 'px');
+        var headerHeight = $('.top-header').offsetHeight;
+        $('.tab-content-wrapper').style.marginTop = headerHeight + 'px';
     }
     
     // Update on load and resize
     updateContentMargin();
-    $(window).on('resize', updateContentMargin);
-    
-    // Update after tab switch (header height may change due to search box)
-    $('.tab-btn').on('click', function () {
-        setTimeout(updateContentMargin, 50);
-    });
+    window.addEventListener('resize', updateContentMargin);
 });
 
 // ============ TOAST & CONFIRM FUNCTIONS ============
@@ -334,21 +353,23 @@ function showToast(message, type, duration) {
     toastHtml += '  <button class="toast-close" onclick="dismissToast(this)"><i class="fas fa-times"></i></button>';
     toastHtml += '</div>';
     
-    var $toast = $(toastHtml);
-    $('#toastContainer').append($toast);
+    var toastEl = document.createElement('div');
+    toastEl.innerHTML = toastHtml;
+    var toast = toastEl.firstElementChild;
+    $('#toastContainer').appendChild(toast);
     
     // Auto dismiss
     setTimeout(function () {
-        dismissToast($toast.find('.toast-close')[0]);
+        dismissToast(toast.querySelector('.toast-close'));
     }, duration);
 }
 
 function dismissToast(closeBtn) {
-    var $toast = $(closeBtn).closest('.toast');
-    if ($toast.hasClass('toast-exit')) return;
-    $toast.addClass('toast-exit');
+    var toast = closeBtn.closest('.toast');
+    if (toast.classList.contains('toast-exit')) return;
+    toast.classList.add('toast-exit');
     setTimeout(function () {
-        $toast.remove();
+        toast.remove();
     }, 300);
 }
 
@@ -358,23 +379,25 @@ function showConfirm(message, onConfirm, isDanger) {
     isDanger = isDanger || false;
     confirmCallback = onConfirm;
     
-    $('#confirmMessage').text(message);
+    $('#confirmMessage').textContent = message;
     
     if (isDanger) {
-        $('#confirmIcon').addClass('danger');
-        $('#confirmOk').addClass('danger');
-        $('#confirmIcon i').removeClass('fa-exclamation-triangle').addClass('fa-trash-alt');
+        $('#confirmIcon').classList.add('danger');
+        $('#confirmOk').classList.add('danger');
+        $('#confirmIcon i').classList.remove('fa-exclamation-triangle');
+        $('#confirmIcon i').classList.add('fa-trash-alt');
     } else {
-        $('#confirmIcon').removeClass('danger');
-        $('#confirmOk').removeClass('danger');
-        $('#confirmIcon i').removeClass('fa-trash-alt').addClass('fa-exclamation-triangle');
+        $('#confirmIcon').classList.remove('danger');
+        $('#confirmOk').classList.remove('danger');
+        $('#confirmIcon i').classList.remove('fa-trash-alt');
+        $('#confirmIcon i').classList.add('fa-exclamation-triangle');
     }
     
-    $('#confirmOverlay').addClass('show');
+    $('#confirmOverlay').classList.add('show');
 }
 
 function hideConfirm() {
-    $('#confirmOverlay').removeClass('show');
+    $('#confirmOverlay').classList.remove('show');
     confirmCallback = null;
 }
 
@@ -385,9 +408,9 @@ function loadPodcastSubscriptions() {
         var stored = localStorage.getItem(PODCAST_STORAGE_KEY);
         if (stored) {
             podcastSubscriptions = JSON.parse(stored);
+        } else {
         }
     } catch (e) {
-        console.error('Failed to load podcast subscriptions:', e);
         podcastSubscriptions = [];
     }
 }
@@ -452,7 +475,7 @@ function parseOpml(xmlContent) {
 }
 
 function addRssFeed() {
-    var url = $('#rssUrlInput').val().trim();
+    var url = $('#rssUrlInput').value.trim();
     if (!url) {
         showToast('Please enter a valid RSS feed URL.', 'warning');
         return;
@@ -498,7 +521,7 @@ function addRssFeed() {
     podcastSubscriptions.push(podcast);
     savePodcastSubscriptions();
     renderPodcastList();
-    $('#rssUrlInput').val('');
+    $('#rssUrlInput').value = '';
     
     showToast('Adding podcast... Fetching details from RSS feed.', 'info');
     
@@ -510,34 +533,32 @@ function extractPodcastImage(channel, xmlText) {
     var imageUrl = '';
     
     // Method 1: Find <image> child element and extract <url> text
-    // Browsers may convert <image> to <img>, so we need to handle both
-    var imageEl = channel.children('image').first();
-    if (imageEl.length) {
-        imageUrl = imageEl.children('url').first().text();
-    }
-    // Also try <img> since browsers auto-convert <image> in HTML parser
-    if (!imageUrl) {
-        imageEl = channel.children('img').first();
-        if (imageEl.length) {
-            imageUrl = imageEl.attr('src') || '';
+    var imageEl = channel.querySelector('image');
+    if (imageEl) {
+        var urlEl = imageEl.querySelector('url');
+        if (urlEl) {
+            imageUrl = urlEl.textContent;
         }
     }
     
-    // Method 2: itunes:image href attribute (try multiple selector variations)
+    // Method 2: itunes:image href attribute
     if (!imageUrl) {
-        imageUrl = channel.find('itunes\\:image').attr('href') || '';
+        var itunesImage = channel.querySelector('itunes:image');
+        if (itunesImage) {
+            imageUrl = itunesImage.getAttribute('href') || '';
+        }
     }
+    
+    // Method 3: Check all children for itunes:image (namespaced)
     if (!imageUrl) {
-        // Some browsers handle namespaced elements differently
-        channel.children().each(function () {
-            if (this.tagName && (this.tagName.toLowerCase() === 'itunes:image' || this.tagName.toLowerCase === 'itunes:image')) {
-                imageUrl = $(this).attr('href') || '';
-                if (imageUrl) return false; // break
+        channel.children.forEach(function (child) {
+            if (child.tagName && child.tagName.toLowerCase().indexOf('itunes:image') !== -1) {
+                imageUrl = child.getAttribute('href') || '';
             }
         });
     }
     
-    // Method 3: Regex fallback - extract from raw XML text
+    // Method 4: Regex fallback - extract from raw XML text
     if (!imageUrl && xmlText) {
         // Try <url>...</url> inside <image> block
         var urlMatch = xmlText.match(/<image[^>]*>[\s\S]*?<url>\s*(.*?)\s*<\/url>/i);
@@ -559,15 +580,14 @@ function extractPodcastImage(channel, xmlText) {
 function fetchPodcastInfo(podcast) {
     var apiUrl = podcast.feedUrl;
     
-    $.ajax({
-        url: proxy[rand] + encodeURIComponent(apiUrl),
-        type: "GET",
-        dataType: "xml",
-        success: function (data) {
+    fetch(proxy[rand] + encodeURIComponent(apiUrl))
+        .then(function(response) { return response.text(); })
+        .then(function(xmlText) {
             try {
-                var xmlText = data.xml || (new XMLSerializer()).serializeToString(data);
-                var channel = $(data).find('channel');
-                var title = channel.find('title').first().text() || podcast.name;
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(xmlText, 'text/xml');
+                var channel = doc.querySelector('channel');
+                var title = channel.querySelector('title').textContent || podcast.name;
                 var image = extractPodcastImage(channel, xmlText);
                 
                 // Update the podcast info
@@ -581,19 +601,18 @@ function fetchPodcastInfo(podcast) {
             } catch (e) {
                 console.error('Failed to parse podcast info:', e);
             }
-        },
-        error: function () {
+        })
+        .catch(function() {
             // Try alternate proxy
             var altRand = (rand + 1) % Object.keys(proxy).length;
-            $.ajax({
-                url: proxy[altRand] + encodeURIComponent(apiUrl),
-                type: "GET",
-                dataType: "xml",
-                success: function (data) {
+            fetch(proxy[altRand] + encodeURIComponent(apiUrl))
+                .then(function(response) { return response.text(); })
+                .then(function(xmlText) {
                     try {
-                        var xmlText = data.xml || (new XMLSerializer()).serializeToString(data);
-                        var channel = $(data).find('channel');
-                        var title = channel.find('title').first().text() || podcast.name;
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(xmlText, 'text/xml');
+                        var channel = doc.querySelector('channel');
+                        var title = channel.querySelector('title').textContent || podcast.name;
                         var image = extractPodcastImage(channel, xmlText);
                         
                         var idx = podcastSubscriptions.findIndex(function (p) { return p.feedUrl === podcast.feedUrl; });
@@ -606,8 +625,8 @@ function fetchPodcastInfo(podcast) {
                     } catch (e) {
                         console.error('Failed to parse podcast info (alt proxy):', e);
                     }
-                },
-                error: function () {
+                })
+                .catch(function() {
                     // Failed to fetch - update name to show it's unavailable
                     var idx = podcastSubscriptions.findIndex(function (p) { return p.feedUrl === podcast.feedUrl; });
                     if (idx !== -1 && podcastSubscriptions[idx].name === 'Loading...') {
@@ -623,23 +642,21 @@ function fetchPodcastInfo(podcast) {
                         showToast('Could not fetch podcast details for: ' + podcastSubscriptions[idx].name + '. The RSS feed may be unavailable.', 'error', 5000);
                     }
                     console.error('Failed to fetch podcast info for:', podcast.feedUrl);
-                }
-            });
-        }
-    });
+                });
+        });
 }
 
 function renderPodcastList() {
     if (podcastSubscriptions.length === 0) {
-        $('#podcastEmpty').show();
-        $('#podcastGrid').hide();
-        $('#podcastActions').hide();
+        $('#podcastEmpty').style.display = '';
+        $('#podcastGrid').style.display = 'none';
+        $('#podcastActions').style.display = 'none';
         return;
     }
     
-    $('#podcastEmpty').hide();
-    $('#podcastGrid').show();
-    $('#podcastActions').show();
+    $('#podcastEmpty').style.display = 'none';
+    $('#podcastGrid').style.display = '';
+    $('#podcastActions').style.display = '';
     
     var html = '';
     podcastSubscriptions.forEach(function (podcast) {
@@ -659,11 +676,11 @@ function renderPodcastList() {
         html += '</a>';
     });
     
-    $('#podcastGrid').html(html);
+    $('#podcastGrid').innerHTML = html;
 }
 
 function performPodcastSearch() {
-    var query = $('#podcastSearchInput').val().trim().toLowerCase();
+    var query = $('#podcastSearchInput').value.trim().toLowerCase();
     
     if (!query) {
         // If search is empty, show all podcasts
@@ -677,9 +694,9 @@ function performPodcastSearch() {
     });
     
     if (filtered.length === 0) {
-        $('#podcastGrid').html('<div class="podcast-empty"><i class="fas fa-search"></i><h3>No Results</h3><p>No podcasts matching "' + escapeHtml(query) + '"</p></div>');
-        $('#podcastGrid').show();
-        $('#podcastEmpty').hide();
+        $('#podcastGrid').innerHTML = '<div class="podcast-empty"><i class="fas fa-search"></i><h3>No Results</h3><p>No podcasts matching "' + escapeHtml(query) + '"</p></div>';
+        $('#podcastGrid').style.display = '';
+        $('#podcastEmpty').style.display = 'none';
         return;
     }
     
@@ -702,7 +719,7 @@ function performPodcastSearch() {
         html += '</a>';
     });
     
-    $('#podcastGrid').html(html);
+    $('#podcastGrid').innerHTML = html;
 }
 
 function exportOpml() {
@@ -771,141 +788,142 @@ function showOpmlImportModal(tab) {
     tab = tab || 'paste';
     
     // Reset state
-    $('#opmlTextarea').val('');
-    $('#opmlUrlInput').val('');
+    $('#opmlTextarea').value = '';
+    $('#opmlUrlInput').value = '';
     
     // Set active tab
-    $('.opml-import-tab').removeClass('active');
-    $('.opml-import-panel').removeClass('active');
+    $$('.opml-import-tab').forEach(function(el) { el.classList.remove('active'); });
+    $$('.opml-import-panel').forEach(function(el) { el.classList.remove('active'); });
     
     if (tab === 'url') {
-        $('#opmlTabUrl').addClass('active');
-        $('#opmlPanelUrl').addClass('active');
+        $('#opmlTabUrl').classList.add('active');
+        $('#opmlPanelUrl').classList.add('active');
     } else {
-        $('#opmlTabPaste').addClass('active');
-        $('#opmlPanelPaste').addClass('active');
+        $('#opmlTabPaste').classList.add('active');
+        $('#opmlPanelPaste').classList.add('active');
     }
     
     // Show modal
-    $('#opmlImportOverlay').addClass('show');
+    $('#opmlImportOverlay').classList.add('show');
 }
 
 function hideOpmlImportModal() {
-    $('#opmlImportOverlay').removeClass('show');
+    $('#opmlImportOverlay').classList.remove('show');
 }
 
 function fetchOpmlFromUrl(url) {
-    var $btn = $('#opmlUrlSubmit');
-    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Fetching...');
+    var btn = $('#opmlUrlSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
     
-    $.ajax({
-        url: proxy[rand] + encodeURIComponent(url),
-        type: "GET",
-        dataType: "text",
-        success: function (data) {
-            $btn.prop('disabled', false).html('<i class="fas fa-download"></i> Import from URL');
+    fetch(proxy[rand] + encodeURIComponent(url))
+        .then(function(response) { return response.text(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-download"></i> Import from URL';
             
             if (data && data.trim()) {
                 parseOpml(data);
                 hideOpmlImportModal();
-                $('#opmlUrlInput').val('');
+                $('#opmlUrlInput').value = '';
             } else {
                 showToast('The fetched OPML content is empty.', 'warning');
             }
-        },
-        error: function () {
+        })
+        .catch(function() {
             // Try alternate proxy
             var altRand = (rand + 1) % Object.keys(proxy).length;
-            $.ajax({
-                url: proxy[altRand] + encodeURIComponent(url),
-                type: "GET",
-                dataType: "text",
-                success: function (data) {
-                    $btn.prop('disabled', false).html('<i class="fas fa-download"></i> Import from URL');
+            fetch(proxy[altRand] + encodeURIComponent(url))
+                .then(function(response) { return response.text(); })
+                .then(function(data) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-download"></i> Import from URL';
                     
                     if (data && data.trim()) {
                         parseOpml(data);
                         hideOpmlImportModal();
-                        $('#opmlUrlInput').val('');
+                        $('#opmlUrlInput').value = '';
                     } else {
                         showToast('The fetched OPML content is empty.', 'warning');
                     }
-                },
-                error: function () {
-                    $btn.prop('disabled', false).html('<i class="fas fa-download"></i> Import from URL');
+                })
+                .catch(function() {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-download"></i> Import from URL';
                     showToast('Failed to fetch OPML from URL. Please check the URL or try pasting the content directly.', 'error');
-                }
-            });
-        }
-    });
+                });
+        });
 }
 
 // ============ MUSIC FUNCTIONS ============
 
 function initPlayerControls() {
     // Play/Pause button
-    $('#playPauseBtn').on('click', function () {
+    $('#playPauseBtn').addEventListener('click', function () {
         if (isPlaying) {
             audioPlayer.pause();
             isPlaying = false;
-            $('#playIcon').removeClass('fa-pause').addClass('fa-play');
+            $('#playIcon').classList.remove('fa-pause');
+            $('#playIcon').classList.add('fa-play');
         } else {
             audioPlayer.play();
             isPlaying = true;
-            $('#playIcon').removeClass('fa-play').addClass('fa-pause');
+            $('#playIcon').classList.remove('fa-play');
+            $('#playIcon').classList.add('fa-pause');
         }
     });
     
     // Previous button
-    $('#prevBtn').on('click', function () {
+    $('#prevBtn').addEventListener('click', function () {
         if (currentSongIndex > 0) {
             playSong(currentSongIndex - 1);
         }
     });
     
     // Next button
-    $('#nextBtn').on('click', function () {
+    $('#nextBtn').addEventListener('click', function () {
         if (currentSongIndex < currentPlaylist.length - 1) {
             playSong(currentSongIndex + 1);
         }
     });
     
     // Close player button
-    $('#closePlayerBtn').on('click', function () {
+    $('#closePlayerBtn').addEventListener('click', function () {
         audioPlayer.pause();
         isPlaying = false;
-        $('#bottomPlayer').removeClass('show');
-        $('#mainContent').removeClass('with-player');
-        $('#playIcon').removeClass('fa-pause').addClass('fa-play');
+        $('#bottomPlayer').classList.remove('show');
+        $('#mainContent').classList.remove('with-player');
+        $('#playIcon').classList.remove('fa-pause');
+        $('#playIcon').classList.add('fa-play');
     });
     
     // Progress bar click
-    $('#progressBar').on('click', function (e) {
-        var width = $(this).width();
+    $('#progressBar').addEventListener('click', function (e) {
+        var width = this.offsetWidth;
         var clickX = e.offsetX;
         var percentage = clickX / width;
         audioPlayer.currentTime = audioPlayer.duration * percentage;
     });
     
     // Volume slider click
-    $('#volumeSlider').on('click', function (e) {
-        var width = $(this).width();
+    $('#volumeSlider').addEventListener('click', function (e) {
+        var width = this.offsetWidth;
         var clickX = e.offsetX;
         var percentage = clickX / width;
         audioPlayer.volume = percentage;
-        $('#volumeBar').css('width', percentage * 100 + '%');
+        $('#volumeBar').style.width = percentage * 100 + '%';
         updateVolumeIcon(percentage);
     });
     
     // Volume icon click (mute/unmute)
-    $('#volumeIcon').on('click', function () {
+    $('#volumeIcon').addEventListener('click', function () {
         if (audioPlayer.volume > 0) {
             audioPlayer.volume = 0;
-            $('#volumeBar').css('width', '0%');
+            $('#volumeBar').style.width = '0%';
             updateVolumeIcon(0);
         } else {
             audioPlayer.volume = 0.7;
-            $('#volumeBar').css('width', '70%');
+            $('#volumeBar').style.width = '70%';
             updateVolumeIcon(0.7);
         }
     });
@@ -917,9 +935,9 @@ function initPlayerControls() {
         
         if (duration) {
             var percentage = (currentTime / duration) * 100;
-            $('#progressFill').css('width', percentage + '%');
-            $('#currentTime').text(formatTime(currentTime));
-            $('#totalTime').text(formatTime(duration));
+            $('#progressFill').style.width = percentage + '%';
+            $('#currentTime').textContent = formatTime(currentTime);
+            $('#totalTime').textContent = formatTime(duration);
         }
     });
     
@@ -928,31 +946,34 @@ function initPlayerControls() {
             playSong(currentSongIndex + 1);
         } else {
             isPlaying = false;
-            $('#playIcon').removeClass('fa-pause').addClass('fa-play');
+            $('#playIcon').classList.remove('fa-pause');
+            $('#playIcon').classList.add('fa-play');
         }
     });
     
     audioPlayer.addEventListener('play', function () {
         isPlaying = true;
-        $('#playIcon').removeClass('fa-play').addClass('fa-pause');
+        $('#playIcon').classList.remove('fa-play');
+        $('#playIcon').classList.add('fa-pause');
     });
     
     audioPlayer.addEventListener('pause', function () {
         isPlaying = false;
-        $('#playIcon').removeClass('fa-pause').addClass('fa-play');
+        $('#playIcon').classList.remove('fa-pause');
+        $('#playIcon').classList.add('fa-play');
     });
 }
 
 function updateVolumeIcon(volume) {
     var icon = $('#volumeIcon');
-    icon.removeClass('fa-volume-up fa-volume-down fa-volume-mute');
+    icon.classList.remove('fa-volume-up', 'fa-volume-down', 'fa-volume-mute');
     
     if (volume === 0) {
-        icon.addClass('fa-volume-mute');
+        icon.classList.add('fa-volume-mute');
     } else if (volume < 0.5) {
-        icon.addClass('fa-volume-down');
+        icon.classList.add('fa-volume-down');
     } else {
-        icon.addClass('fa-volume-up');
+        icon.classList.add('fa-volume-up');
     }
 }
 
@@ -969,15 +990,15 @@ function playSong(index) {
     var song = currentPlaylist[index];
     
     // Update player UI
-    $('#playerSongName').text(song.name || 'Unknown');
-    $('#playerArtistName').text(song.artistName || 'Unknown');
-    $('#playerCover').attr('src', song.cover || '../images/noimage.jpeg').onerror = function () {
-        this.src = '../images/noimage.jpeg';
-    };
+    $('#playerSongName').textContent = song.name || 'Unknown';
+    $('#playerArtistName').textContent = song.artistName || 'Unknown';
+    var coverImg = $('#playerCover');
+    coverImg.src = song.cover || '../images/noimage.jpeg';
+    coverImg.onerror = function () { this.src = '../images/noimage.jpeg'; };
     
     // Show player
-    $('#bottomPlayer').addClass('show');
-    $('#mainContent').addClass('with-player');
+    $('#bottomPlayer').classList.add('show');
+    $('#mainContent').classList.add('with-player');
     
     // Get song URL and play
     getSongUrl(song.id, function (url) {
@@ -993,38 +1014,32 @@ function playSong(index) {
 function getSongUrl(songId, callback) {
     var apiUrl = 'http://iwenwiki.com:3000/song/url?id=' + songId;
     
-    $.ajax({
-        url: proxy[rand] + encodeURIComponent(apiUrl),
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
+    fetch(proxy[rand] + encodeURIComponent(apiUrl))
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             console.log('Song URL response:', data);
             var url = null;
             if (data.data && data.data[0] && data.data[0].url) {
                 url = data.data[0].url;
             }
             callback(url);
-        },
-        error: function () {
+        })
+        .catch(function() {
             // Try alternate proxy
             var altRand = (rand + 1) % Object.keys(proxy).length;
-            $.ajax({
-                url: proxy[altRand] + encodeURIComponent(apiUrl),
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
+            fetch(proxy[altRand] + encodeURIComponent(apiUrl))
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
                     var url = null;
                     if (data.data && data.data[0] && data.data[0].url) {
                         url = data.data[0].url;
                     }
                     callback(url);
-                },
-                error: function () {
+                })
+                .catch(function() {
                     callback(null);
-                }
-            });
-        }
-    });
+                });
+        });
 }
 
 function loadArtists() {
@@ -1036,11 +1051,9 @@ function loadArtists() {
     var apiUrl = buildApiUrl();
     console.log('Loading artists, API URL:', apiUrl);
     
-    $.ajax({
-        url: proxy[rand] + encodeURIComponent(apiUrl),
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
+    fetch(proxy[rand] + encodeURIComponent(apiUrl))
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             console.log('Load artists response:', data);
             hideLoading();
             isLoading = false;
@@ -1051,16 +1064,14 @@ function loadArtists() {
             } else {
                 showNoResults();
             }
-        },
-        error: function (xhr, status, error) {
+        })
+        .catch(function(error) {
             console.log('Load artists failed with proxy 0, trying proxy 1...', error);
             // Try alternate proxy
             var altRand = (rand + 1) % Object.keys(proxy).length;
-            $.ajax({
-                url: proxy[altRand] + encodeURIComponent(apiUrl),
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
+            fetch(proxy[altRand] + encodeURIComponent(apiUrl))
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
                     console.log('Load artists response (proxy 1):', data);
                     hideLoading();
                     isLoading = false;
@@ -1071,34 +1082,30 @@ function loadArtists() {
                     } else {
                         showNoResults();
                     }
-                },
-                error: function () {
+                })
+                .catch(function() {
                     hideLoading();
                     isLoading = false;
                     showError('Failed to load artists');
-                }
-            });
-        }
-    });
+                });
+        });
 }
 
 function loadMoreArtists() {
     if (isLoading || !hasMore) return;
     isLoading = true;
     
-    $('#loadMore').show();
+    $('#loadMore').style.display = '';
     pageNum++;
     
     var apiUrl = buildApiUrl();
     console.log('Loading more artists, page:', pageNum, 'API URL:', apiUrl);
     
-    $.ajax({
-        url: proxy[rand] + encodeURIComponent(apiUrl),
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
+    fetch(proxy[rand] + encodeURIComponent(apiUrl))
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             console.log('Load more response:', data);
-            $('#loadMore').hide();
+            $('#loadMore').style.display = 'none';
             isLoading = false;
             
             if (data.artists && data.artists.length > 0) {
@@ -1120,18 +1127,16 @@ function loadMoreArtists() {
             } else {
                 hasMore = false;
             }
-        },
-        error: function (xhr, status, error) {
+        })
+        .catch(function(error) {
             console.log('Load more failed with proxy 0, trying proxy 1...', error);
             // Try alternate proxy
             var altRand = (rand + 1) % Object.keys(proxy).length;
-            $.ajax({
-                url: proxy[altRand] + encodeURIComponent(apiUrl),
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
+            fetch(proxy[altRand] + encodeURIComponent(apiUrl))
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
                     console.log('Load more response (proxy 1):', data);
-                    $('#loadMore').hide();
+                    $('#loadMore').style.display = 'none';
                     isLoading = false;
                     
                     if (data.artists && data.artists.length > 0) {
@@ -1151,15 +1156,13 @@ function loadMoreArtists() {
                     } else {
                         hasMore = false;
                     }
-                },
-                error: function () {
-                    $('#loadMore').hide();
+                })
+                .catch(function() {
+                    $('#loadMore').style.display = 'none';
                     isLoading = false;
                     pageNum--;
-                }
-            });
-        }
-    });
+                });
+        });
 }
 
 function buildApiUrl() {
@@ -1199,7 +1202,7 @@ function renderArtists(artistList) {
         html += '</a>';
     });
     
-    $('#artistGrid').html(html);
+    $('#artistGrid').innerHTML = html;
 }
 
 function appendArtists(artistList) {
@@ -1218,11 +1221,11 @@ function appendArtists(artistList) {
         html += '</a>';
     });
     
-    $('#artistGrid').append(html);
+    $('#artistGrid').insertAdjacentHTML('beforeend', html);
 }
 
 function performSearch() {
-    var query = $('#searchInput').val().trim();
+    var query = $('#searchInput').value.trim();
     
     if (!query) {
         // If search is empty, reload with current filter
@@ -1251,11 +1254,9 @@ function searchSongs(query) {
     
     console.log('Search API URL:', apiUrl);
     
-    $.ajax({
-        url: proxy[rand] + encodeURIComponent(apiUrl),
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
+    fetch(proxy[rand] + encodeURIComponent(apiUrl))
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             console.log('Search response:', data);
             hideLoading();
             isLoading = false;
@@ -1292,21 +1293,19 @@ function searchSongs(query) {
                 
                 // Show message that search results are limited
                 if (songs.length === 50) {
-                    $('#artistGrid').append('<div class="search-info" style="grid-column: 1 / -1; text-align: center; padding: 20px; color: rgba(255,255,255,0.5); font-size: 12px;"><i class="fas fa-info-circle"></i> Showing top 50 results. Use more specific keywords for better results.</div>');
+                    $('#artistGrid').insertAdjacentHTML('beforeend', '<div class="search-info" style="grid-column: 1 / -1; text-align: center; padding: 20px; color: rgba(255,255,255,0.5); font-size: 12px;"><i class="fas fa-info-circle"></i> Showing top 50 results. Use more specific keywords for better results.</div>');
                 }
             } else {
                 showNoResults();
             }
-        },
-        error: function (xhr, status, error) {
+        })
+        .catch(function(error) {
             console.log('Search failed with proxy 0, trying proxy 1...', error);
             // Try alternate proxy
             var altRand = (rand + 1) % Object.keys(proxy).length;
-            $.ajax({
-                url: proxy[altRand] + encodeURIComponent(apiUrl),
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
+            fetch(proxy[altRand] + encodeURIComponent(apiUrl))
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
                     console.log('Search response (proxy 1):', data);
                     hideLoading();
                     isLoading = false;
@@ -1341,21 +1340,19 @@ function searchSongs(query) {
                         
                         // Show message that search results are limited
                         if (songs.length === 50) {
-                            $('#artistGrid').append('<div class="search-info" style="grid-column: 1 / -1; text-align: center; padding: 20px; color: rgba(255,255,255,0.5); font-size: 12px;"><i class="fas fa-info-circle"></i> Showing top 50 results. Use more specific keywords for better results.</div>');
+                            $('#artistGrid').insertAdjacentHTML('beforeend', '<div class="search-info" style="grid-column: 1 / -1; text-align: center; padding: 20px; color: rgba(255,255,255,0.5); font-size: 12px;"><i class="fas fa-info-circle"></i> Showing top 50 results. Use more specific keywords for better results.</div>');
                         }
                     } else {
                         showNoResults();
                     }
-                },
-                error: function (xhr2, status2, error2) {
+                })
+                .catch(function(error2) {
                     console.log('Search failed completely:', error2);
                     hideLoading();
                     isLoading = false;
                     showError('Search failed: ' + error2);
-                }
-            });
-        }
-    });
+                });
+        });
 }
 
 function renderSearchResults(songs) {
@@ -1384,27 +1381,29 @@ function renderSearchResults(songs) {
         html += '</div>';
     });
     
-    $('#artistGrid').html(html);
+    $('#artistGrid').innerHTML = html;
     
     // Add click handler for song cards
-    $('.song-card').on('click', function () {
-        var index = parseInt($(this).data('index'));
-        playSong(index);
+    $$('.song-card').forEach(function(card) {
+        card.addEventListener('click', function () {
+            var index = parseInt(this.dataset.index);
+            playSong(index);
+        });
     });
 }
 
 function showLoading() {
-    $('#loadingOverlay').removeClass('hidden');
+    $('#loadingOverlay').classList.remove('hidden');
 }
 
 function hideLoading() {
-    $('#loadingOverlay').addClass('hidden');
+    $('#loadingOverlay').classList.add('hidden');
 }
 
 function showNoResults() {
-    $('#artistGrid').html('<div class="no-results" style="grid-column: 1 / -1;"><i class="fas fa-music"></i><p>No artists found</p></div>');
+    $('#artistGrid').innerHTML = '<div class="no-results" style="grid-column: 1 / -1;"><i class="fas fa-music"></i><p>No artists found</p></div>';
 }
 
 function showError(message) {
-    $('#artistGrid').html('<div class="no-results" style="grid-column: 1 / -1;"><i class="fas fa-exclamation-circle"></i><p>' + message + '</p></div>');
+    $('#artistGrid').innerHTML = '<div class="no-results" style="grid-column: 1 / -1;"><i class="fas fa-exclamation-circle"></i><p>' + message + '</p></div>';
 }

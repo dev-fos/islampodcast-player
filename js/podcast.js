@@ -1,3 +1,6 @@
+// Podcast Player JS
+// Native JavaScript (No jQuery)
+
 var proxy = {
     0: 'https://api.codetabs.com/v1/proxy/?quest=',
     1: 'https://cors.luckydesigner.workers.dev/?',
@@ -17,52 +20,52 @@ var playbackSpeeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
 var currentSpeedIndex = 2;
 var FAV_PREFIX = 'fav_podcast_';
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
     audioEl = document.getElementById('podcastAudio');
     var params = new URLSearchParams(window.location.search);
     feedUrl = params.get('feed') || '';
     if (!feedUrl) { showError('No podcast feed URL provided.'); return; }
     
     // Back button
-    $('#backBtn').on('click', function () { window.history.back(); });
+    document.getElementById('backBtn').addEventListener('click', function () { window.history.back(); });
     
     // Toggle sidebar - toggle episode list and toolbar visibility
     function toggleSidebar() {
-        var sidebar = $('#sidebar');
-        var toolbar = $('#top-toolbar');
+        var sidebar = document.getElementById('sidebar');
+        var toolbar = document.getElementById('top-toolbar');
         
         // Toggle sidebar
         if (window.innerWidth <= 768) {
-            sidebar.toggleClass('show-mobile');
+            sidebar.classList.toggle('show-mobile');
         } else {
-            sidebar.toggleClass('collapsed');
+            sidebar.classList.toggle('collapsed');
         }
         
         // Show toolbar when sidebar is expanded, hide when collapsed
-        var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
+        var isExpanded = (window.innerWidth <= 768) ? sidebar.classList.contains('show-mobile') : !sidebar.classList.contains('collapsed');
         
         if (isExpanded) {
-            toolbar.removeClass('hidden');
+            toolbar.classList.remove('hidden');
         } else {
-            toolbar.addClass('hidden');
+            toolbar.classList.add('hidden');
         }
     }
     
     // Toggle Sidebar button
-    $('#toggleSidebar').on('click', function () {
+    document.getElementById('toggleSidebar').addEventListener('click', function () {
         toggleSidebar();
     });
     
     // Episode search
-    $('#episodeSearch').on('keypress', function (e) {
-        if (e.which === 13) { searchEpisodes(); }
+    document.getElementById('episodeSearch').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') { searchEpisodes(); }
     });
-    $('#episodeSearch').on('input', function () {
-        if (!$(this).val().trim()) { searchEpisodes(); }
+    document.getElementById('episodeSearch').addEventListener('input', function () {
+        if (!this.value.trim()) { searchEpisodes(); }
     });
     
     // Cover play button
-    $('#coverPlayBtn').on('click', function () {
+    document.getElementById('coverPlayBtn').addEventListener('click', function () {
         if (currentEpisodeIndex === -1 && episodes.length > 0) {
             playEpisode(0);
         } else if (currentEpisodeIndex !== -1) {
@@ -71,7 +74,7 @@ $(document).ready(function () {
     });
     
     // Shuffle button
-    $('#shuffleBtn').on('click', function () {
+    document.getElementById('shuffleBtn').addEventListener('click', function () {
         if (episodes.length > 0) {
             var randomIndex = Math.floor(Math.random() * episodes.length);
             playEpisode(randomIndex);
@@ -79,19 +82,19 @@ $(document).ready(function () {
     });
     
     // Favorite Panel Toggle
-    $('#favoriteBtn').on('click', function () {
-        $('#favoritePanel').toggleClass('show');
+    document.getElementById('favoriteBtn').addEventListener('click', function () {
+        document.getElementById('favoritePanel').classList.toggle('show');
     });
     
     // Close panels when clicking outside
-    $(document).on('click', function (e) {
-        if (!$(e.target).closest('#favoritePanel, #favoriteBtn').length) {
-            $('#favoritePanel').removeClass('show');
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('#favoritePanel') && !e.target.closest('#favoriteBtn')) {
+            document.getElementById('favoritePanel').classList.remove('show');
         }
     });
     
     // GitHub button
-    $('#githubBtn').on('click', function () {
+    document.getElementById('githubBtn').addEventListener('click', function () {
         window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
     });
     
@@ -101,104 +104,119 @@ $(document).ready(function () {
 });
 
 function loadPodcastFeed() {
-    $('#loadingOverlay').removeClass('hidden');
-    $.ajax({
-        url: proxy[rand] + encodeURIComponent(feedUrl), type: "GET", dataType: "xml",
-        success: function (data) { $('#loadingOverlay').addClass('hidden'); parsePodcastFeed(data); },
-        error: function () {
+    document.getElementById('loadingOverlay').classList.remove('hidden');
+    fetch(proxy[rand] + encodeURIComponent(feedUrl))
+        .then(function(response) { return response.text(); })
+        .then(function(text) {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            var parser = new DOMParser();
+            var xmlData = parser.parseFromString(text, 'text/xml');
+            parsePodcastFeed(xmlData, text);
+        })
+        .catch(function() {
             var altRand = (rand + 1) % Object.keys(proxy).length;
-            $.ajax({
-                url: proxy[altRand] + encodeURIComponent(feedUrl), type: "GET", dataType: "xml",
-                success: function (data) { $('#loadingOverlay').addClass('hidden'); parsePodcastFeed(data); },
-                error: function () { $('#loadingOverlay').addClass('hidden'); showError('Failed to load podcast feed.'); }
-            });
-        }
-    });
+            fetch(proxy[altRand] + encodeURIComponent(feedUrl))
+                .then(function(response) { return response.text(); })
+                .then(function(text) {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    var parser = new DOMParser();
+                    var xmlData = parser.parseFromString(text, 'text/xml');
+                    parsePodcastFeed(xmlData, text);
+                })
+                .catch(function() {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    showError('Failed to load podcast feed.');
+                });
+        });
 }
 
 function extractPodcastImage(channel, xmlText) {
     var imageUrl = '';
     
-    var imageEl = channel.children('image').first();
-    if (imageEl.length) {
-        imageUrl = imageEl.children('url').first().text();
+    var imageEl = channel.querySelector('image');
+    if (imageEl) {
+        var urlEl = imageEl.querySelector('url');
+        if (urlEl) imageUrl = urlEl.textContent;
     }
     if (!imageUrl) {
-        imageEl = channel.children('img').first();
-        if (imageEl.length) {
-            imageUrl = imageEl.attr('src') || '';
-        }
+        var imgEl = channel.querySelector('img');
+        if (imgEl) imageUrl = imgEl.getAttribute('src') || '';
     }
     
     if (!imageUrl) {
-        imageUrl = channel.find('itunes\\:image').attr('href') || '';
+        var itunesImage = channel.querySelector('itunes\\:image, image[href]');
+        if (itunesImage) imageUrl = itunesImage.getAttribute('href') || '';
     }
+    
+    // Check all children for itunes:image
     if (!imageUrl) {
-        channel.children().each(function () {
-            if (this.tagName && (this.tagName.toLowerCase() === 'itunes:image' || this.tagName.toLowerCase === 'itunes:image')) {
-                imageUrl = $(this).attr('href') || '';
-                if (imageUrl) return false;
+        var children = channel.children;
+        for (var i = 0; i < children.length; i++) {
+            var tagName = children[i].tagName ? children[i].tagName.toLowerCase() : '';
+            if (tagName === 'itunes:image') {
+                imageUrl = children[i].getAttribute('href') || '';
+                if (imageUrl) break;
             }
-        });
+        }
     }
     
     if (!imageUrl && xmlText) {
         var urlMatch = xmlText.match(/<image[^>]*>[\s\S]*?<url>\s*(.*?)\s*<\/url>/i);
-        if (urlMatch && urlMatch[1]) {
-            imageUrl = urlMatch[1];
-        }
+        if (urlMatch && urlMatch[1]) imageUrl = urlMatch[1];
         if (!imageUrl) {
             var itunesMatch = xmlText.match(/<itunes:image\s+href=["']([^"']+)["']/i);
-            if (itunesMatch && itunesMatch[1]) {
-                imageUrl = itunesMatch[1];
-            }
+            if (itunesMatch && itunesMatch[1]) imageUrl = itunesMatch[1];
         }
     }
     
     return imageUrl;
 }
 
-function parsePodcastFeed(xmlData) {
+function parsePodcastFeed(xmlData, xmlText) {
     try {
-        var xmlText = xmlData.xml || (new XMLSerializer()).serializeToString(xmlData);
-        var channel = $(xmlData).find('channel');
+        var channel = xmlData.querySelector('channel');
         var imageUrl = extractPodcastImage(channel, xmlText) || '../images/noimage.jpeg';
         
         podcastInfo = {
-            title: channel.find('title').first().text() || 'Unknown Podcast',
-            description: channel.find('description').first().text() || '',
+            title: channel.querySelector('title') ? channel.querySelector('title').textContent : 'Unknown Podcast',
+            description: channel.querySelector('description') ? channel.querySelector('description').textContent : '',
             imageUrl: imageUrl,
-            link: channel.find('link').first().text() || ''
+            link: channel.querySelector('link') ? channel.querySelector('link').textContent : ''
         };
         
         // Update header
-        $('#headerTitle').text(podcastInfo.title);
-        $('#sidebarTitle').text(podcastInfo.title);
+        document.getElementById('headerTitle').textContent = podcastInfo.title;
+        document.getElementById('sidebarTitle').textContent = podcastInfo.title;
         
         // Update cover
         var coverSrc = podcastInfo.imageUrl && podcastInfo.imageUrl !== '../images/noimage.jpeg' 
             ? podcastInfo.imageUrl 
             : '../images/noimage.jpeg';
-        $('#podcastCover').attr('src', coverSrc).onerror = function () { this.src = '../images/noimage.jpeg'; };
+        var coverImg = document.getElementById('podcastCover');
+        coverImg.src = coverSrc;
+        coverImg.onerror = function () { this.src = '../images/noimage.jpeg'; };
         
         // Update info text
-        $('#podcastName').text(podcastInfo.title);
-        $('#podcastDesc').text(podcastInfo.description);
+        document.getElementById('podcastName').textContent = podcastInfo.title;
+        document.getElementById('podcastDesc').textContent = podcastInfo.description;
         
         // Parse episodes
         episodes = [];
-        channel.find('item').each(function () {
-            var item = $(this);
-            var enclosure = item.find('enclosure');
-            var audioUrl = enclosure.attr('url') || '';
+        var items = channel.querySelectorAll('item');
+        items.forEach(function(item) {
+            var enclosure = item.querySelector('enclosure');
+            var audioUrl = enclosure ? enclosure.getAttribute('url') : '';
             if (audioUrl) {
+                var itunesDuration = item.querySelector('itunes\\:duration, duration');
+                var itunesImage = item.querySelector('itunes\\:image');
+                
                 episodes.push({
-                    title: item.find('title').first().text() || 'Untitled Episode',
+                    title: item.querySelector('title') ? item.querySelector('title').textContent : 'Untitled Episode',
                     audioUrl: audioUrl,
-                    pubDate: formatDate(item.find('pubDate').first().text()),
-                    duration: formatDuration(item.find('itunes\\:duration').first().text()),
-                    description: item.find('description').first().text() || '',
-                    imageUrl: item.find('itunes\\:image').attr('href') || podcastInfo.imageUrl
+                    pubDate: formatDate(item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : ''),
+                    duration: formatDuration(itunesDuration ? itunesDuration.textContent : ''),
+                    description: item.querySelector('description') ? item.querySelector('description').textContent : '',
+                    imageUrl: itunesImage ? itunesImage.getAttribute('href') : podcastInfo.imageUrl
                 });
             }
         });
@@ -206,7 +224,7 @@ function parsePodcastFeed(xmlData) {
         if (episodes.length === 0) { showError('No episodes found in this podcast feed.'); return; }
         
         // Update episode count
-        $('#episodeCount').text(episodes.length);
+        document.getElementById('episodeCount').textContent = episodes.length;
         
         filteredEpisodes = episodes.slice();
         renderEpisodes(filteredEpisodes);
@@ -215,7 +233,7 @@ function parsePodcastFeed(xmlData) {
 
 function renderEpisodes(epList) {
     var html = '';
-    epList.forEach(function (ep, index) {
+    epList.forEach(function (ep) {
         // Find the real index in the full episodes array
         var realIndex = episodes.indexOf(ep);
         var isFavorite = localStorage.getItem(FAV_PREFIX + realIndex);
@@ -231,35 +249,39 @@ function renderEpisodes(epList) {
         html += '  <i class="fas fa-heart favorite-btn ' + (isFavorite ? 'active' : '') + '"></i>';
         html += '</div>';
     });
-    $('#episodeList').html(html);
+    document.getElementById('episodeList').innerHTML = html;
     
     // Click handler - play episode
-    $('#episodeList').on('click', '.episode-item', function (e) {
-        if (!$(e.target).hasClass('favorite-btn')) {
-            playEpisode(parseInt($(this).data('index')));
-        }
+    document.querySelectorAll('#episodeList .episode-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('favorite-btn')) {
+                playEpisode(parseInt(this.dataset.index));
+            }
+        });
     });
     
     // Click to toggle favorite
-    $('#episodeList').on('click', '.favorite-btn', function (e) {
-        e.stopPropagation();
-        var epItem = $(this).closest('.episode-item');
-        var index = epItem.data('index');
-        
-        if ($(this).hasClass('active')) {
-            localStorage.removeItem(FAV_PREFIX + index);
-            $(this).removeClass('active');
-        } else {
-            localStorage.setItem(FAV_PREFIX + index, episodes[index].title);
-            $(this).addClass('active');
-        }
-        
-        loadFavorites();
+    document.querySelectorAll('#episodeList .favorite-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var epItem = this.closest('.episode-item');
+            var index = epItem.dataset.index;
+            
+            if (this.classList.contains('active')) {
+                localStorage.removeItem(FAV_PREFIX + index);
+                this.classList.remove('active');
+            } else {
+                localStorage.setItem(FAV_PREFIX + index, episodes[index].title);
+                this.classList.add('active');
+            }
+            
+            loadFavorites();
+        });
     });
 }
 
 function searchEpisodes() {
-    var query = $('#episodeSearch').val().trim().toLowerCase();
+    var query = document.getElementById('episodeSearch').value.trim().toLowerCase();
     if (!query) {
         filteredEpisodes = episodes.slice();
         renderEpisodes(filteredEpisodes);
@@ -277,30 +299,40 @@ function playEpisode(index) {
     var ep = episodes[index];
     
     // Update sidebar active state
-    $('.episode-item').removeClass('active');
-    $('.episode-item[data-index="' + index + '"]').addClass('active');
-    $('.episode-item .ep-icon i').removeClass('fa-pause').addClass('fa-play');
-    $('.episode-item[data-index="' + index + '"] .ep-icon i').removeClass('fa-play').addClass('fa-pause');
+    document.querySelectorAll('.episode-item').forEach(function(item) {
+        item.classList.remove('active');
+        var icon = item.querySelector('.ep-icon i');
+        icon.classList.remove('fa-pause');
+        icon.classList.add('fa-play');
+    });
+    var activeItem = document.querySelector('.episode-item[data-index="' + index + '"]');
+    if (activeItem) {
+        activeItem.classList.add('active');
+        var activeIcon = activeItem.querySelector('.ep-icon i');
+        activeIcon.classList.remove('fa-play');
+        activeIcon.classList.add('fa-pause');
+    }
     
     // Update main display
-    $('#podcastInfoText').hide();
-    $('#currentEpInfo').show();
-    $('#epTitleDisplay').text(ep.title);
-    $('#epPodcastDisplay').text(podcastInfo.title);
+    document.getElementById('podcastInfoText').style.display = 'none';
+    document.getElementById('currentEpInfo').style.display = '';
+    document.getElementById('epTitleDisplay').textContent = ep.title;
+    document.getElementById('epPodcastDisplay').textContent = podcastInfo.title;
     
     // Update cover with episode image if available
     var epCover = ep.imageUrl || podcastInfo.imageUrl;
     if (epCover && epCover !== '../images/noimage.jpeg' && !epCover.startsWith('data:')) {
-        // Don't proxy cover images here - let them load directly or fall back
-        $('#podcastCover').attr('src', epCover).onerror = function () { this.src = '../images/noimage.jpeg'; };
+        var coverImg = document.getElementById('podcastCover');
+        coverImg.src = epCover;
+        coverImg.onerror = function () { this.src = '../images/noimage.jpeg'; };
     }
     
     // Show player controls and progress
-    $('#playerControlsBar').show();
-    $('#progressContainer').show();
+    document.getElementById('playerControlsBar').style.display = '';
+    document.getElementById('progressContainer').style.display = '';
     
     // Update visualizer
-    $('#soundWave').removeClass('paused');
+    document.getElementById('soundWave').classList.remove('paused');
     
     // Play audio
     audioEl.src = ep.audioUrl;
@@ -309,33 +341,34 @@ function playEpisode(index) {
 
 function initPlayerControls() {
     // Play/Pause
-    $('#pPlayPause').on('click', function () {
+    document.getElementById('pPlayPause').addEventListener('click', function () {
         if (currentEpisodeIndex === -1) return;
         if (isPlaying) { audioEl.pause(); } else { audioEl.play().catch(function(e){ console.error(e); }); }
     });
     
     // Rewind 15s
-    $('#pBackward').on('click', function () {
+    document.getElementById('pBackward').addEventListener('click', function () {
         if (currentEpisodeIndex !== -1) audioEl.currentTime = Math.max(0, audioEl.currentTime - 15);
     });
     
     // Forward 15s
-    $('#pForward').on('click', function () {
+    document.getElementById('pForward').addEventListener('click', function () {
         if (currentEpisodeIndex !== -1) audioEl.currentTime = Math.min(audioEl.duration || 0, audioEl.currentTime + 15);
     });
     
     // Speed control
-    $('#pSpeed').on('click', function () {
+    document.getElementById('pSpeed').addEventListener('click', function () {
         currentSpeedIndex = (currentSpeedIndex + 1) % playbackSpeeds.length;
         var speed = playbackSpeeds[currentSpeedIndex];
         audioEl.playbackRate = speed;
-        $('#pSpeed').text(speed + 'x');
+        this.textContent = speed + 'x';
     });
     
     // Progress bar click
-    $('#pProgressBar').on('click', function (e) {
+    document.getElementById('pProgressBar').addEventListener('click', function (e) {
         if (currentEpisodeIndex === -1) return;
-        var pct = e.offsetX / $(this).width();
+        var rect = this.getBoundingClientRect();
+        var pct = (e.clientX - rect.left) / rect.width;
         audioEl.currentTime = audioEl.duration * pct;
     });
     
@@ -343,22 +376,26 @@ function initPlayerControls() {
     audioEl.addEventListener('timeupdate', function () {
         var ct = audioEl.currentTime, dur = audioEl.duration;
         if (dur) {
-            $('#pProgressFill').css('width', (ct / dur) * 100 + '%');
-            $('#pCurrentTime').text(formatTime(ct));
-            $('#pTotalTime').text(formatTime(dur));
+            document.getElementById('pProgressFill').style.width = (ct / dur) * 100 + '%';
+            document.getElementById('pCurrentTime').textContent = formatTime(ct);
+            document.getElementById('pTotalTime').textContent = formatTime(dur);
         }
     });
     
     audioEl.addEventListener('play', function () {
         isPlaying = true;
-        $('#pPlayIcon').removeClass('fa-play').addClass('fa-pause');
-        $('#soundWave').removeClass('paused');
+        var playIcon = document.getElementById('pPlayIcon');
+        playIcon.classList.remove('fa-play');
+        playIcon.classList.add('fa-pause');
+        document.getElementById('soundWave').classList.remove('paused');
     });
     
     audioEl.addEventListener('pause', function () {
         isPlaying = false;
-        $('#pPlayIcon').removeClass('fa-pause').addClass('fa-play');
-        $('#soundWave').addClass('paused');
+        var playIcon = document.getElementById('pPlayIcon');
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+        document.getElementById('soundWave').classList.add('paused');
     });
     
     audioEl.addEventListener('ended', function () {
@@ -366,10 +403,16 @@ function initPlayerControls() {
             playEpisode(currentEpisodeIndex + 1);
         } else {
             isPlaying = false;
-            $('#pPlayIcon').removeClass('fa-pause').addClass('fa-play');
-            $('#soundWave').addClass('paused');
-            $('.episode-item').removeClass('active');
-            $('.episode-item .ep-icon i').removeClass('fa-pause').addClass('fa-play');
+            var playIcon = document.getElementById('pPlayIcon');
+            playIcon.classList.remove('fa-pause');
+            playIcon.classList.add('fa-play');
+            document.getElementById('soundWave').classList.add('paused');
+            document.querySelectorAll('.episode-item').forEach(function(item) {
+                item.classList.remove('active');
+                var icon = item.querySelector('.ep-icon i');
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+            });
         }
     });
 }
@@ -400,13 +443,14 @@ function escapeHtml(text) {
 }
 
 function showError(msg) {
-    $('#episodeList').html('<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Error</h3><p>' + msg + '</p></div>');
+    document.getElementById('episodeList').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Error</h3><p>' + msg + '</p></div>';
 }
 
 // Load favorites from localStorage
 function loadFavorites() {
     var favorites = [];
-    for (var key of Object.keys(localStorage)) {
+    for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
         if (key.startsWith(FAV_PREFIX)) {
             var epIndex = key.replace(FAV_PREFIX, '');
             var epTitle = localStorage.getItem(key);
@@ -414,15 +458,14 @@ function loadFavorites() {
         }
     }
     
-    $('#favCount').text(favorites.length);
+    document.getElementById('favCount').textContent = favorites.length;
     
     if (favorites.length === 0) {
-        $('#favoriteContent').html(
+        document.getElementById('favoriteContent').innerHTML =
             '<div class="empty-state" style="padding: 20px;">' +
             '<i class="fas fa-heart-broken" style="font-size: 24px;"></i>' +
             '<span style="font-size: 12px;">No favorites yet</span>' +
-            '</div>'
-        );
+            '</div>';
     } else {
         var html = '';
         favorites.forEach(function (fav) {
@@ -432,29 +475,34 @@ function loadFavorites() {
             html += '  <i class="fas fa-times delete-btn"></i>';
             html += '</div>';
         });
-        $('#favoriteContent').html(html);
+        document.getElementById('favoriteContent').innerHTML = html;
         
         // Click to play favorite
-        $('#favoriteContent').off('click', '.favorite-item').on('click', '.favorite-item', function (e) {
-            if (!$(e.target).hasClass('delete-btn')) {
-                var index = parseInt($(this).data('index'));
-                if (index >= 0 && index < episodes.length) {
-                    playEpisode(index);
-                    $('#favoritePanel').removeClass('show');
+        document.querySelectorAll('#favoriteContent .favorite-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('delete-btn')) {
+                    var index = parseInt(this.dataset.index);
+                    if (index >= 0 && index < episodes.length) {
+                        playEpisode(index);
+                        document.getElementById('favoritePanel').classList.remove('show');
+                    }
                 }
-            }
+            });
         });
         
         // Click to delete favorite
-        $('#favoriteContent').off('click', '.delete-btn').on('click', '.delete-btn', function (e) {
-            e.stopPropagation();
-            var favItem = $(this).closest('.favorite-item');
-            var index = favItem.data('index');
-            localStorage.removeItem(FAV_PREFIX + index);
-            loadFavorites();
-            
-            // Update episode list favorite icon
-            $('.episode-item[data-index="' + index + '"] .favorite-btn').removeClass('active');
+        document.querySelectorAll('#favoriteContent .delete-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var favItem = this.closest('.favorite-item');
+                var index = favItem.dataset.index;
+                localStorage.removeItem(FAV_PREFIX + index);
+                loadFavorites();
+                
+                // Update episode list favorite icon
+                var epItem = document.querySelector('.episode-item[data-index="' + index + '"] .favorite-btn');
+                if (epItem) epItem.classList.remove('active');
+            });
         });
     }
 }

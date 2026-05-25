@@ -1,6 +1,7 @@
 /**
  * Manga Reader - MangaDex API Integration
  * Using MangaDex API (free, no key required)
+ * Native JavaScript (No jQuery)
  */
 
 // API Base URL with CORS proxy pool
@@ -40,8 +41,8 @@ function getChapterId() {
     return params.get('chapter');
 }
 
-// Initialize
-$(document).ready(function() {
+// DOM Ready
+document.addEventListener('DOMContentLoaded', function() {
     const mangaId = getMangaId();
     const chapterId = getChapterId();
     
@@ -56,73 +57,73 @@ $(document).ready(function() {
 
 // Toggle sidebar - toggle chapter list and toolbar visibility
 function toggleSidebar() {
-    var sidebar = $('#sidebar');
-    var toolbar = $('.top-toolbar');
-    var readerArea = $('#readerWrapper');
+    var sidebar = document.getElementById('sidebar');
+    var toolbar = document.querySelector('.top-toolbar');
+    var readerArea = document.getElementById('readerWrapper');
     
     // Toggle sidebar
     if (window.innerWidth <= 768) {
-        sidebar.toggleClass('show-mobile');
+        sidebar.classList.toggle('show-mobile');
     } else {
-        sidebar.toggleClass('collapsed');
+        sidebar.classList.toggle('collapsed');
     }
     
     // Show toolbar when sidebar is expanded, hide when collapsed
-    var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
+    var isExpanded = (window.innerWidth <= 768) ? sidebar.classList.contains('show-mobile') : !sidebar.classList.contains('collapsed');
     
     if (isExpanded) {
-        toolbar.removeClass('hidden');
-        readerArea.removeClass('expanded');
+        toolbar.classList.remove('hidden');
+        readerArea.classList.remove('expanded');
     } else {
-        toolbar.addClass('hidden');
-        readerArea.addClass('expanded');
+        toolbar.classList.add('hidden');
+        readerArea.classList.add('expanded');
     }
 }
 
 // Setup Event Listeners
 function setupEventListeners() {
     // Toggle sidebar button
-    $('#toggleSidebar').click(function() {
+    document.getElementById('toggleSidebar').addEventListener('click', function() {
         toggleSidebar();
     });
     
     // Back button
-    $('#backBtn').click(function() {
+    document.getElementById('backBtn').addEventListener('click', function() {
         window.history.back();
     });
     
     // Chapter search
-    $('#chapterSearch').on('input', function() {
-        const query = $(this).val().toLowerCase();
-        $('.chapter-item').each(function() {
-            const name = $(this).find('.chapter-name').text().toLowerCase();
-            $(this).toggle(name.includes(query));
+    document.getElementById('chapterSearch').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('.chapter-item').forEach(function(item) {
+            const name = item.querySelector('.chapter-name').textContent.toLowerCase();
+            item.style.display = name.includes(query) ? '' : 'none';
         });
     });
     
     // Navigation buttons
-    $('#prevPageBtn').click(function() {
+    document.getElementById('prevPageBtn').addEventListener('click', function() {
         if (currentPageIndex > 0) {
             currentPageIndex--;
             displayCurrentPage();
         }
     });
     
-    $('#nextPageBtn').click(function() {
+    document.getElementById('nextPageBtn').addEventListener('click', function() {
         if (currentPageIndex < currentPages.length - 1) {
             currentPageIndex++;
             displayCurrentPage();
         }
     });
     
-    $('#prevChapterBtn').click(function() {
+    document.getElementById('prevChapterBtn').addEventListener('click', function() {
         const currentIndex = chapters.findIndex(c => c.id === currentChapter);
         if (currentIndex < chapters.length - 1) {
             loadChapter(chapters[currentIndex + 1].id);
         }
     });
     
-    $('#nextChapterBtn').click(function() {
+    document.getElementById('nextChapterBtn').addEventListener('click', function() {
         const currentIndex = chapters.findIndex(c => c.id === currentChapter);
         if (currentIndex > 0) {
             loadChapter(chapters[currentIndex - 1].id);
@@ -130,7 +131,7 @@ function setupEventListeners() {
     });
     
     // Random chapter button
-    $('#scrollModeBtn').click(function() {
+    document.getElementById('scrollModeBtn').addEventListener('click', function() {
         if (chapters.length > 0) {
             const randomIndex = Math.floor(Math.random() * chapters.length);
             loadChapter(chapters[randomIndex].id);
@@ -138,48 +139,52 @@ function setupEventListeners() {
     });
     
     // Info panel
-    $('#infoBtn').click(function() {
-        $('#mangaInfoPanel').toggleClass('show');
+    document.getElementById('infoBtn').addEventListener('click', function() {
+        document.getElementById('mangaInfoPanel').classList.toggle('show');
     });
     
     // Fullscreen
-    $('#fullscreenBtn').click(function() {
+    document.getElementById('fullscreenBtn').addEventListener('click', function() {
+        const icon = this.querySelector('i');
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
-            $(this).find('i').removeClass('fa-expand').addClass('fa-compress');
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-compress');
         } else {
             document.exitFullscreen();
-            $(this).find('i').removeClass('fa-compress').addClass('fa-expand');
+            icon.classList.remove('fa-compress');
+            icon.classList.add('fa-expand');
         }
     });
     
     // GitHub
-    $('#githubBtn').click(function() {
+    document.getElementById('githubBtn').addEventListener('click', function() {
         window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
     });
     
     // Keyboard navigation
-    $(document).keydown(function(e) {
+    document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowLeft') {
-            $('#prevPageBtn').click();
+            document.getElementById('prevPageBtn').click();
         } else if (e.key === 'ArrowRight') {
-            $('#nextPageBtn').click();
+            document.getElementById('nextPageBtn').click();
         } else if (e.key === 'ArrowUp') {
-            $('#prevChapterBtn').click();
+            document.getElementById('prevChapterBtn').click();
         } else if (e.key === 'ArrowDown') {
-            $('#nextChapterBtn').click();
+            document.getElementById('nextChapterBtn').click();
         }
     });
     
     // Click on reader area to navigate
-    $('#readerWrapper').click(function(e) {
-        const width = $(this).width();
-        const clickX = e.pageX - $(this).offset().left;
+    document.getElementById('readerWrapper').addEventListener('click', function(e) {
+        const width = this.offsetWidth;
+        const rect = this.getBoundingClientRect();
+        const clickX = e.pageX - rect.left;
         
         if (clickX < width / 3) {
-            $('#prevPageBtn').click();
+            document.getElementById('prevPageBtn').click();
         } else if (clickX > width * 2 / 3) {
-            $('#nextPageBtn').click();
+            document.getElementById('nextPageBtn').click();
         }
     });
 }
@@ -231,14 +236,14 @@ function updateMangaInfo() {
                   Object.values(mangaInfo.attributes.title)[0] || 
                   'Unknown Title';
     
-    $('#mangaTitle').text(title);
-    $('#mangaInfoTitle').text(title);
+    document.getElementById('mangaTitle').textContent = title;
+    document.getElementById('mangaInfoTitle').textContent = title;
     
     // Get cover
     const coverArt = mangaInfo.relationships.find(r => r.type === 'cover_art');
     if (coverArt) {
         const coverUrl = `${MANGADEX_COVER}/${mangaInfo.id}/${coverArt.attributes?.fileName || 'cover.jpg'}`;
-        $('#mangaCover').attr('src', coverUrl);
+        document.getElementById('mangaCover').src = coverUrl;
     }
     
     // Get tags
@@ -248,7 +253,7 @@ function updateMangaInfo() {
         .slice(0, 5);
     
     if (tags.length > 0) {
-        $('#mangaTags').html(tags.map(t => `<span class="tag">${t}</span>`).join(''));
+        document.getElementById('mangaTags').innerHTML = tags.map(t => `<span class="tag">${t}</span>`).join('');
     }
     
     // Get description
@@ -256,22 +261,22 @@ function updateMangaInfo() {
                         Object.values(mangaInfo.attributes.description)[0] || 
                         'No description available.';
     
-    $('#mangaInfoContent').html(`<p>${description}</p>`);
+    document.getElementById('mangaInfoContent').innerHTML = `<p>${description}</p>`;
 }
 
 // Display Chapters
 function displayChapters() {
     if (chapters.length === 0) {
-        $('#chapterList').html(`
+        document.getElementById('chapterList').innerHTML = `
             <div class="no-chapters">
                 <i class="fas fa-book"></i>
                 <span>No chapters available</span>
             </div>
-        `);
+        `;
         return;
     }
     
-    $('#chapterCount').text(chapters.length);
+    document.getElementById('chapterCount').textContent = chapters.length;
     
     let html = '';
     chapters.forEach((chapter, index) => {
@@ -289,12 +294,14 @@ function displayChapters() {
         `;
     });
     
-    $('#chapterList').html(html);
+    document.getElementById('chapterList').innerHTML = html;
     
     // Click handler
-    $('.chapter-item').click(function() {
-        const id = $(this).data('id');
-        loadChapter(id);
+    document.querySelectorAll('.chapter-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            const id = this.dataset.id;
+            loadChapter(id);
+        });
     });
 }
 
@@ -304,8 +311,13 @@ async function loadChapter(chapterId) {
         currentChapter = chapterId;
         
         // Update active state
-        $('.chapter-item').removeClass('active');
-        $(`.chapter-item[data-id="${chapterId}"]`).addClass('active');
+        document.querySelectorAll('.chapter-item').forEach(function(item) {
+            item.classList.remove('active');
+        });
+        const activeItem = document.querySelector(`.chapter-item[data-id="${chapterId}"]`);
+        if (activeItem) {
+            activeItem.classList.add('active');
+        }
         
         showLoading('Loading chapter pages...');
         
@@ -326,7 +338,7 @@ async function loadChapter(chapterId) {
             if (chapter) {
                 const chapterNum = chapter.attributes.chapter || '?';
                 const title = chapter.attributes.title || '';
-                $('#currentChapter').text(`Ch. ${chapterNum}: ${title}`);
+                document.getElementById('currentChapter').textContent = `Ch. ${chapterNum}: ${title}`;
             }
             
             displayPages();
@@ -344,16 +356,16 @@ async function loadChapter(chapterId) {
 // Display Pages
 function displayPages() {
     if (currentPages.length === 0) {
-        $('#readerWrapper').html(`
+        document.getElementById('readerWrapper').innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-image"></i>
                 <p>No pages available</p>
             </div>
-        `);
+        `;
         return;
     }
     
-    $('#navButtons').show();
+    document.getElementById('navButtons').style.display = '';
     
     if (isScrollMode) {
         // Scroll mode - show all pages vertically
@@ -361,8 +373,8 @@ function displayPages() {
         currentPages.forEach((page, index) => {
             html += `<img src="${page}" class="manga-page" alt="Page ${index + 1}" loading="lazy">`;
         });
-        $('#readerWrapper').html(html);
-        $('#pageText').text(`Total: ${currentPages.length} pages`);
+        document.getElementById('readerWrapper').innerHTML = html;
+        document.getElementById('pageText').textContent = `Total: ${currentPages.length} pages`;
     } else {
         // Single page mode
         displayCurrentPage();
@@ -374,45 +386,45 @@ function displayCurrentPage() {
     if (currentPages.length === 0) return;
     
     const pageUrl = currentPages[currentPageIndex];
-    $('#readerWrapper').html(`
+    document.getElementById('readerWrapper').innerHTML = `
         <img src="${pageUrl}" class="manga-page" alt="Page ${currentPageIndex + 1}">
-    `);
+    `;
     
-    $('#pageText').text(`Page ${currentPageIndex + 1} / ${currentPages.length}`);
+    document.getElementById('pageText').textContent = `Page ${currentPageIndex + 1} / ${currentPages.length}`;
     updateNavigation();
 }
 
 // Update Navigation
 function updateNavigation() {
     // Page navigation
-    $('#prevPageBtn').prop('disabled', currentPageIndex === 0);
-    $('#nextPageBtn').prop('disabled', currentPageIndex >= currentPages.length - 1);
+    document.getElementById('prevPageBtn').disabled = currentPageIndex === 0;
+    document.getElementById('nextPageBtn').disabled = currentPageIndex >= currentPages.length - 1;
     
     // Chapter navigation
     const currentIndex = chapters.findIndex(c => c.id === currentChapter);
-    $('#prevChapterBtn').prop('disabled', currentIndex >= chapters.length - 1);
-    $('#nextChapterBtn').prop('disabled', currentIndex <= 0);
+    document.getElementById('prevChapterBtn').disabled = currentIndex >= chapters.length - 1;
+    document.getElementById('nextChapterBtn').disabled = currentIndex <= 0;
 }
 
 // Show Loading
 function showLoading(message) {
-    $('#readerWrapper').html(`
+    document.getElementById('readerWrapper').innerHTML = `
         <div class="loading-state">
             <i class="fas fa-spinner"></i>
             <span>${message}</span>
         </div>
-    `);
-    $('#navButtons').hide();
+    `;
+    document.getElementById('navButtons').style.display = 'none';
 }
 
 // Show Error
 function showError(message) {
-    $('#readerWrapper').html(`
+    document.getElementById('readerWrapper').innerHTML = `
         <div class="empty-state">
             <i class="fas fa-exclamation-circle"></i>
             <p>${message}</p>
             <p style="font-size: 12px; margin-top: 10px;">Please try another manga or check back later.</p>
         </div>
-    `);
-    $('#navButtons').hide();
+    `;
+    document.getElementById('navButtons').style.display = 'none';
 }

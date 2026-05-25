@@ -1,4 +1,6 @@
 // Novel List Page JS - Modern UI Version
+// Native JavaScript (No jQuery)
+
 // Proxy for CORS
 var proxy = {
     0: 'https://cors.luckydesigner.workers.dev/?',
@@ -28,115 +30,131 @@ function showToast(message, type = 'info') {
     };
     
     // Remove existing toasts
-    $('.toast-notification').remove();
+    document.querySelectorAll('.toast-notification').forEach(function(el) {
+        el.remove();
+    });
     
-    var toast = $(`
-        <div class="toast-notification ${type}" style="
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            padding: 15px 20px;
-            background: rgba(0,0,0,0.9);
-            border: 2px solid ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#a3001b'};
-            border-radius: 10px;
-            color: #fff;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.3s ease;
-        ">
-            <i class="fas ${iconMap[type]}" style="color: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#a3001b'}"></i>
-            <span>${message}</span>
-        </div>
-    `);
+    var toast = document.createElement('div');
+    toast.className = 'toast-notification ' + type;
+    toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 15px 20px;
+        background: rgba(0,0,0,0.9);
+        border: 2px solid ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#a3001b'};
+        border-radius: 10px;
+        color: #fff;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideIn 0.3s ease;
+    `;
     
-    $('body').append(toast);
+    var icon = document.createElement('i');
+    icon.className = 'fas ' + iconMap[type];
+    icon.style.color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#a3001b';
+    
+    var span = document.createElement('span');
+    span.textContent = message;
+    
+    toast.appendChild(icon);
+    toast.appendChild(span);
+    document.body.appendChild(toast);
     
     setTimeout(function() {
-        toast.fadeOut(300, function() {
-            $(this).remove();
-        });
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(function() {
+            toast.remove();
+        }, 300);
     }, 3000);
 }
 
 // Show/Hide loading
 function showLoading(show = true) {
-    if (show) {
-        $('#loadMoreIndicator').show();
-    } else {
-        $('#loadMoreIndicator').hide();
+    var indicator = document.getElementById('loadMoreIndicator');
+    if (indicator) {
+        indicator.style.display = show ? '' : 'none';
     }
 }
 
 // Toggle sidebar
 function toggleSidebar() {
-    var sidebar = $('#sidebar');
+    var sidebar = document.getElementById('sidebar');
     
     if (window.innerWidth <= 768) {
-        sidebar.toggleClass('show-mobile');
+        sidebar.classList.toggle('show-mobile');
     } else {
-        sidebar.toggleClass('collapsed');
+        sidebar.classList.toggle('collapsed');
     }
 }
 
 // Render novel cards
 function renderNovels(novels, append = false) {
-    var grid = $('#contentGrid');
+    var grid = document.getElementById('contentGrid');
     
     if (!append) {
-        grid.empty();
-        grid.addClass('has-results');
+        grid.innerHTML = '';
+        grid.classList.add('has-results');
     }
     
     novels.forEach(function(novel) {
-        var card = $(`
-            <a href="../catalogues/novelplay.html?web=${novel.url}" class="card-item">
-                <img class="card-image" src="${novel.image}" alt="${novel.title}" onerror="this.src='../images/noimage.jpeg'">
-                <div class="card-overlay"></div>
-                <div class="card-play-icon">
-                    <i class="fas fa-book-open"></i>
-                </div>
-                <div class="card-info">
-                    <div class="card-type">Novel</div>
-                    <h3 class="card-title">${novel.title}</h3>
-                    <p class="card-author">${novel.author ? '[' + novel.author + ']' : ''}</p>
-                </div>
-            </a>
-        `);
-        grid.append(card);
+        var card = document.createElement('a');
+        card.href = '../catalogues/novelplay.html?web=' + novel.url;
+        card.className = 'card-item';
+        card.innerHTML = `
+            <img class="card-image" src="${novel.image}" alt="${novel.title}" onerror="this.src='../images/noimage.jpeg'">
+            <div class="card-overlay"></div>
+            <div class="card-play-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="card-info">
+                <div class="card-type">Novel</div>
+                <h3 class="card-title">${novel.title}</h3>
+                <p class="card-author">${novel.author ? '[' + novel.author + ']' : ''}</p>
+            </div>
+        `;
+        grid.appendChild(card);
     });
 }
 
 // Render categories
 function renderCategories(categories) {
-    var list = $('#categoryList');
-    list.empty();
+    var list = document.getElementById('categoryList');
+    list.innerHTML = '';
     
     categories.forEach(function(cat, index) {
-        var item = $(`
-            <div class="category-item ${index === 0 ? 'active' : ''}" data-url="${cat.url}" data-name="${cat.name}">
-                <i class="fas fa-bookmark"></i>
-                <span>${cat.name}</span>
-            </div>
-        `);
-        list.append(item);
+        var item = document.createElement('div');
+        item.className = 'category-item' + (index === 0 ? ' active' : '');
+        item.dataset.url = cat.url;
+        item.dataset.name = cat.name;
+        item.innerHTML = `
+            <i class="fas fa-bookmark"></i>
+            <span>${cat.name}</span>
+        `;
+        list.appendChild(item);
     });
     
     // Bind click events
-    $('.category-item').on('click', function() {
-        $('.category-item').removeClass('active');
-        $(this).addClass('active');
-        
-        var url = $(this).data('url');
-        currentCategory = url;
-        pnum = 1;
-        loadNovels(url, false);
-        
-        // Hide sidebar on mobile
-        if (window.innerWidth <= 768) {
-            $('#sidebar').removeClass('show-mobile');
-        }
+    document.querySelectorAll('.category-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.category-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            var url = this.dataset.url;
+            currentCategory = url;
+            pnum = 1;
+            loadNovels(url, false);
+            
+            // Hide sidebar on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('show-mobile');
+            }
+        });
     });
 }
 
@@ -148,21 +166,25 @@ function loadNovels(url, append = true) {
     
     var fullUrl = getRandomProxy() + url;
     
-    $.ajax({
-        url: fullUrl,
-        type: 'GET',
-        dataType: 'html',
-        success: function(data) {
-            var html = $.parseHTML(data);
+    fetch(fullUrl)
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(data) {
+            var parser = new DOMParser();
+            var html = parser.parseFromString(data, 'text/html');
             var novels = [];
             
             if (currentSource.indexOf('royalroad.com') > -1) {
                 // Royal Road
-                $(html).find('.fiction-list-item').each(function() {
-                    var title = $(this).find('.fiction-title a').text().trim();
-                    var novelUrl = 'https://www.royalroad.com' + $(this).find('.fiction-title a').attr('href');
-                    var image = $(this).find('img').attr('src');
-                    var author = $(this).find('.author a').text().trim();
+                html.querySelectorAll('.fiction-list-item').forEach(function(item) {
+                    var titleEl = item.querySelector('.fiction-title a');
+                    var title = titleEl ? titleEl.textContent.trim() : '';
+                    var novelUrl = titleEl ? 'https://www.royalroad.com' + titleEl.getAttribute('href') : '';
+                    var imageEl = item.querySelector('img');
+                    var image = imageEl ? imageEl.getAttribute('src') : '';
+                    var authorEl = item.querySelector('.author a');
+                    var author = authorEl ? authorEl.textContent.trim() : '';
                     
                     if (title && novelUrl) {
                         novels.push({
@@ -178,25 +200,23 @@ function loadNovels(url, append = true) {
             renderNovels(novels, append);
             isLoading = false;
             showLoading(false);
-        },
-        error: function() {
+        })
+        .catch(function(error) {
             showToast('Failed to load novels', 'error');
             isLoading = false;
             showLoading(false);
-        }
-    });
+        });
 }
 
 // Load categories from source
 function loadCategories(sourceUrl) {
-    $('#categoryList').html('<div class="loading-state"><i class="fas fa-spinner"></i><span>Loading...</span></div>');
+    document.getElementById('categoryList').innerHTML = '<div class="loading-state"><i class="fas fa-spinner"></i><span>Loading...</span></div>';
     
-    $.ajax({
-        url: getRandomProxy() + sourceUrl,
-        type: 'GET',
-        dataType: 'html',
-        success: function(data) {
-            var html = $.parseHTML(data);
+    fetch(getRandomProxy() + sourceUrl)
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(data) {
             var categories = [];
             
             if (sourceUrl.indexOf('royalroad.com') > -1) {
@@ -222,11 +242,10 @@ function loadCategories(sourceUrl) {
                 pnum = 1;
                 loadNovels(categories[0].url, false);
             }
-        },
-        error: function() {
+        })
+        .catch(function(error) {
             showToast('Failed to load categories', 'error');
-        }
-    });
+        });
 }
 
 // Search novels
@@ -248,69 +267,95 @@ function searchNovels(keyword) {
 }
 
 // Initialize
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     console.log('=== Novel List Page Loaded ===');
     
     // Load source options - only Royal Road (other sources are defunct)
-    $('#sourceSelect').append('<option value="https://www.royalroad.com/">Royal Road</option>');
-    
-    // Set initial source
-    currentSource = $('#sourceSelect').val();
+    var sourceSelect = document.getElementById('sourceSelect');
+    if (sourceSelect) {
+        var option = document.createElement('option');
+        option.value = 'https://www.royalroad.com/';
+        option.textContent = 'Royal Road';
+        sourceSelect.appendChild(option);
+        
+        // Set initial source
+        currentSource = sourceSelect.value;
+    }
     
     // Load initial data
     loadCategories(currentSource);
     
     // Source change handler
-    $('#sourceSelect').on('change', function() {
-        currentSource = $(this).val();
-        pnum = 1;
-        loadCategories(currentSource);
-    });
+    if (sourceSelect) {
+        sourceSelect.addEventListener('change', function() {
+            currentSource = this.value;
+            pnum = 1;
+            loadCategories(currentSource);
+        });
+    }
     
     // Back button
-    $('#backBtn').on('click', function() {
-        window.history.back();
-    });
+    var backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            window.history.back();
+        });
+    }
     
     // Menu toggle
-    $('#menuBtn').on('click', function() {
-        toggleSidebar();
-    });
+    var menuBtn = document.getElementById('menuBtn');
+    if (menuBtn) {
+        menuBtn.addEventListener('click', function() {
+            toggleSidebar();
+        });
+    }
     
-    $('#toggleSidebar').on('click', function() {
-        toggleSidebar();
-    });
+    var toggleSidebarBtn = document.getElementById('toggleSidebar');
+    if (toggleSidebarBtn) {
+        toggleSidebarBtn.addEventListener('click', function() {
+            toggleSidebar();
+        });
+    }
     
     // Search handlers
-    $('#searchInput').on('keypress', function(e) {
-        if (e.which === 13) {
-            var keyword = $(this).val().trim();
-            if (keyword) {
-                searchNovels(keyword);
+    var searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                var keyword = this.value.trim();
+                if (keyword) {
+                    searchNovels(keyword);
+                }
             }
-        }
-    });
+        });
+    }
     
-    $('#sidebarSearch').on('keypress', function(e) {
-        if (e.which === 13) {
-            var keyword = $(this).val().trim();
-            if (keyword) {
-                searchNovels(keyword);
+    var sidebarSearch = document.getElementById('sidebarSearch');
+    if (sidebarSearch) {
+        sidebarSearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                var keyword = this.value.trim();
+                if (keyword) {
+                    searchNovels(keyword);
+                }
             }
-        }
-    });
+        });
+    }
     
     // Scroll to load more
-    $('#contentArea').on('scroll', function() {
-        var scrollTop = $(this).scrollTop();
-        var scrollHeight = $(this)[0].scrollHeight;
-        var height = $(this).height();
-        
-        if (scrollTop + height >= scrollHeight - 100) {
-            if (!isLoading && currentCategory) {
-                pnum++;
-                // Load more logic would go here based on source
+    var contentArea = document.getElementById('contentArea');
+    if (contentArea) {
+        contentArea.addEventListener('scroll', function() {
+            var scrollTop = this.scrollTop;
+            var scrollHeight = this.scrollHeight;
+            var height = this.offsetHeight;
+            
+            if (scrollTop + height >= scrollHeight - 100) {
+                if (!isLoading && currentCategory) {
+                    pnum++;
+                    // Load more logic would go here based on source
+                }
             }
-        }
-    });
+        });
+    }
 });

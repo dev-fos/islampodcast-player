@@ -1,17 +1,20 @@
 // Easy Web TV Service Worker
-const CACHE_NAME = 'easy-web-tv-v2';
-const OFFLINE_URL = 'offline.html';
+const CACHE_NAME = 'easy-web-tv-v4';
 
-// Assets to cache on install
+// Assets to cache on install - only local assets that exist
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
+  '/favicon.ico',
   '/css/style.css',
   '/css/main.css',
-  '/js/jquery-3.6.0.min.js',
   '/js/index.js',
   '/js/translator.js',
+  '/js/locales/translations.js',
+  '/js/core/dom.js',
   '/images/logo.png',
+  '/images/logo-192.png',
+  '/images/logo-512.png',
   '/images/bg.jpg',
   '/images/menuicon.png',
   '/images/tv.svg',
@@ -21,7 +24,24 @@ const PRECACHE_ASSETS = [
   '/images/manga.svg',
   '/images/music.svg',
   '/images/game.svg',
+  '/images/category.svg',
+  '/images/language.svg',
+  '/images/earth.svg',
   '/manifest.json'
+];
+
+// External domains to skip caching (CDN, cross-origin resources)
+const SKIP_CACHE_DOMAINS = [
+  'vjs.zencdn.net',
+  'cdnjs.cloudflare.com',
+  'cdn.jsdelivr.net',
+  'unpkg.com',
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+  'iptv-org.github.io',
+  'api.',
+  'ipdata.co',
+  'locationiq.com'
 ];
 
 // Install event - cache core assets
@@ -61,11 +81,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip API requests (they need fresh data)
-  if (event.request.url.includes('api.') || 
-      event.request.url.includes('ipdata.co') ||
-      event.request.url.includes('locationiq.com')) {
+  // Skip non-http(s) requests (chrome-extension, etc.)
+  if (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://')) {
     return;
+  }
+
+  // Skip external domains (CDN, cross-origin) - they should not be cached
+  const requestUrl = new URL(event.request.url);
+  for (const domain of SKIP_CACHE_DOMAINS) {
+    if (requestUrl.hostname.includes(domain) || event.request.url.includes(domain)) {
+      // Just fetch from network, don't cache
+      event.respondWith(fetch(event.request).catch(() => console.log('[ServiceWorker] External fetch failed, but that is expected for:', event.request.url)));
+      return;
+    }
   }
 
   event.respondWith(
@@ -94,8 +122,11 @@ async function fetchAndCache(request) {
   try {
     const response = await fetch(request);
     
-    // Only cache successful responses
-    if (response.ok && response.status === 200) {
+    // Only cache successful responses from same origin
+    const requestUrl = new URL(request.url);
+    const isSameOrigin = requestUrl.origin === self.location.origin;
+    
+    if (response.ok && response.status === 200 && isSameOrigin) {
       const cache = await caches.open(CACHE_NAME);
       // Clone the response since it can only be consumed once
       cache.put(request.url, response.clone());
@@ -103,7 +134,7 @@ async function fetchAndCache(request) {
     
     return response;
   } catch (error) {
-    console.error('[ServiceWorker] Fetch failed:', error);
+    console.error('[ServiceWorker] Fetch failed for:', request.url, error);
     throw error;
   }
 }

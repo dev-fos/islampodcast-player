@@ -1,4 +1,5 @@
-// Adult Player JS - Adapted for new adultplay.html structure
+// Adult Player JS - Native JavaScript (No jQuery)
+
 // Proxy for CORS
 var proxy = {
     0: 'https://cors.luckydesigner.workers.dev/?',
@@ -7,8 +8,8 @@ var proxy = {
 };
 var rand = Math.floor(Math.random() * Object.keys(proxy).length);
 
-// Favorite prefix for localStorage - ensures only this app's favorites are shown
-const FAV_PREFIX = 'fav_adult_';
+// Favorite prefix for localStorage
+var FAV_PREFIX = 'fav_adult_';
 
 // Global variables
 var currentApiUrl = '';
@@ -17,17 +18,26 @@ var currentVideoName = '';
 var currentPlayUrl = '';
 var player = null;
 var favorites = [];
-var playItems = [];  // Store all playable items
-var currentPlayIndex = -1;  // Track current playing index
+var playItems = [];
+var currentPlayIndex = -1;
 
-$(document).ready(function() {
+// Helper functions
+function $(selector) {
+    return document.querySelector(selector);
+}
+
+function $$(selector) {
+    return document.querySelectorAll(selector);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
     console.log('=== Adult Player JS Loaded ===');
     
     // Initialize Video.js player
     player = videojs(document.querySelector('#video1'));
     console.log('Video.js player initialized');
     
-    // Error handling - prevent loading spinner and error icon showing simultaneously
+    // Error handling
     player.on('error', function() {
         player.removeClass('vjs-waiting');
         player.removeClass('vjs-loading');
@@ -40,9 +50,8 @@ $(document).ready(function() {
             var nextIndex = currentPlayIndex + 1;
             console.log('Auto-playing next episode:', nextIndex + 1);
             playVideo(playItems[nextIndex].url, playItems[nextIndex].name);
-            // Update active state in playlist
-            $('.channel-item').removeClass('active');
-            $('.channel-item').eq(nextIndex).addClass('active');
+            $$('.channel-item').forEach(function(el) { el.classList.remove('active'); });
+            $$('.channel-item')[nextIndex].classList.add('active');
         } else {
             console.log('No more episodes to play');
         }
@@ -57,15 +66,14 @@ $(document).ready(function() {
     console.log('  - web (API URL):', currentApiUrl);
     console.log('  - tab (Video ID):', currentVideoId);
     
-    // Load favorites from localStorage
+    // Load favorites
     loadFavorites();
     
-    // If we have both API URL and video ID, load video detail
+    // Load video detail
     if (currentApiUrl && currentVideoId) {
         console.log('Loading video detail...');
         loadVideoDetail(currentApiUrl, currentVideoId);
     } else if (currentApiUrl) {
-        // Only API URL, check if it's a direct play link (youxijian format)
         var initlink = decodeURIComponent(window.location.href).split('web=')[1];
         console.log('Direct play link:', initlink);
         if (initlink && initlink.indexOf('youxijian') > 1) {
@@ -73,12 +81,7 @@ $(document).ready(function() {
         }
     } else {
         console.warn('No API URL or Video ID provided');
-        $('#channelList').html(`
-            <div class="no-channels">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>No video specified</span>
-            </div>
-        `);
+        $('#channelList').innerHTML = '<div class="no-channels"><i class="fas fa-exclamation-triangle"></i><span>No video specified</span></div>';
     }
     
     // Setup UI interactions
@@ -104,14 +107,10 @@ function buildApiUrl(link, action, params) {
     }
     
     var selectedProxy = proxy[rand];
-    if (selectedProxy.indexOf('allorigins') > -1) {
-        return selectedProxy + encodeURIComponent(url);
-    } else {
-        return selectedProxy + encodeURIComponent(url);
-    }
+    return selectedProxy + encodeURIComponent(url);
 }
 
-// Parse API response (handles both JSON and XML)
+// Parse API response
 function parseApiResponse(data) {
     console.log('Parsing API response...');
     
@@ -120,7 +119,7 @@ function parseApiResponse(data) {
         return data;
     }
     
-    // Try to parse as JSON first
+    // Try JSON first
     try {
         var jsonData = JSON.parse(data);
         console.log('Response parsed as JSON');
@@ -129,42 +128,41 @@ function parseApiResponse(data) {
         console.log('Not JSON, trying XML...');
     }
     
-    // Try to parse as XML
+    // Try XML
     try {
-        var xmlDoc = $.parseXML(data);
-        var $xml = $(xmlDoc);
+        var parser = new DOMParser();
+        var xmlDoc = parser.parseFromString(data, 'text/xml');
         var result = {};
         
         console.log('Response parsed as XML');
         
         // Parse list page
-        var $list = $xml.find('list');
-        result.page = parseInt($list.attr('page') || '1');
-        result.pagecount = parseInt($list.attr('pagecount') || '0');
-        result.recordcount = parseInt($list.attr('recordcount') || '0');
+        var listEl = xmlDoc.querySelector('list');
+        result.page = parseInt(listEl.getAttribute('page') || '1');
+        result.pagecount = parseInt(listEl.getAttribute('pagecount') || '0');
+        result.recordcount = parseInt(listEl.getAttribute('recordcount') || '0');
         
         // Parse video list
         result.list = [];
-        $xml.find('video').each(function() {
-            var $video = $(this);
+        xmlDoc.querySelectorAll('video').forEach(function(videoEl) {
             var videoData = {
-                vod_id: $video.find('id').text(),
-                vod_name: $video.find('name').text(),
-                vod_pic: $video.find('pic').text() || '../images/noimage.jpeg',
-                type_id: $video.find('tid').text(),
-                type_name: $video.find('type').text(),
-                vod_remarks: $video.find('note').text(),
-                vod_content: $video.find('des').text(),
-                vod_play_url: $video.find('dl').text(),
-                vod_play_from: $video.find('from').text()
+                vod_id: videoEl.querySelector('id') ? videoEl.querySelector('id').textContent : '',
+                vod_name: videoEl.querySelector('name') ? videoEl.querySelector('name').textContent : '',
+                vod_pic: videoEl.querySelector('pic') ? videoEl.querySelector('pic').textContent : '../images/noimage.jpeg',
+                type_id: videoEl.querySelector('tid') ? videoEl.querySelector('tid').textContent : '',
+                type_name: videoEl.querySelector('type') ? videoEl.querySelector('type').textContent : '',
+                vod_remarks: videoEl.querySelector('note') ? videoEl.querySelector('note').textContent : '',
+                vod_content: videoEl.querySelector('des') ? videoEl.querySelector('des').textContent : '',
+                vod_play_url: videoEl.querySelector('dl') ? videoEl.querySelector('dl').textContent : '',
+                vod_play_from: videoEl.querySelector('from') ? videoEl.querySelector('from').textContent : ''
             };
             
-            // Also try alternative field names
+            // Alternative field names
             if (!videoData.vod_play_url) {
-                videoData.vod_play_url = $video.find('vod_play_url').text();
+                videoData.vod_play_url = videoEl.querySelector('vod_play_url') ? videoEl.querySelector('vod_play_url').textContent : '';
             }
             if (!videoData.vod_play_url) {
-                videoData.vod_play_url = $video.find('play_url').text();
+                videoData.vod_play_url = videoEl.querySelector('play_url') ? videoEl.querySelector('play_url').textContent : '';
             }
             
             console.log('Parsed video:', videoData.vod_name, 'Play URL:', videoData.vod_play_url ? 'Found' : 'Not found');
@@ -181,239 +179,147 @@ function parseApiResponse(data) {
 // Load video detail
 function loadVideoDetail(apiUrl, videoId) {
     console.log('=== Loading Video Detail ===');
-    console.log('API URL:', apiUrl);
-    console.log('Video ID:', videoId);
     
-    $('#channelList').html(`
-        <div class="loading-state">
-            <i class="fas fa-spinner"></i>
-            <span>Loading playlist...</span>
-        </div>
-    `);
+    $('#channelList').innerHTML = '<div class="loading-state"><i class="fas fa-spinner"></i><span>Loading playlist...</span></div>';
     
     var detailUrl = buildApiUrl(apiUrl, 'detail', { ids: videoId });
     console.log('Detail API URL:', detailUrl);
     
-    $.ajax({
-        type: 'GET',
-        url: detailUrl,
-        dataType: 'text',
-        timeout: 30000,
-        success: function(data) {
+    fetch(detailUrl)
+        .then(function(response) { return response.text(); })
+        .then(function(data) {
             console.log('API Response received, length:', data.length);
-            console.log('Raw response preview:', data.substring(0, 500));
             
             var parsedData = parseApiResponse(data);
             
             if (!parsedData) {
-                console.error('Failed to parse API response');
-                $('#channelList').html(`
-                    <div class="no-channels">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>Failed to parse response</span>
-                    </div>
-                `);
+                $('#channelList').innerHTML = '<div class="no-channels"><i class="fas fa-exclamation-triangle"></i><span>Failed to parse response</span></div>';
                 return;
             }
             
-            console.log('Parsed data:', parsedData);
-            
             if (!parsedData.list || parsedData.list.length === 0) {
-                console.error('No video list in response');
-                $('#channelList').html(`
-                    <div class="no-channels">
-                        <i class="fas fa-video-slash"></i>
-                        <span>No video found</span>
-                    </div>
-                `);
+                $('#channelList').innerHTML = '<div class="no-channels"><i class="fas fa-video-slash"></i><span>No video found</span></div>';
                 return;
             }
             
             var video = parsedData.list[0];
-            console.log('Video data:', video);
-            
             currentVideoName = video.vod_name || video.name || 'Unknown';
             var videoContent = video.vod_content || video.des || video.content || '暂无简介';
             
-            // Try multiple possible field names for play URL
             var playUrlRaw = video.vod_play_url || video.vpath || video.play_url || video.url || video.dl || '';
             
             console.log('Video name:', currentVideoName);
             console.log('Play URL raw:', playUrlRaw);
             
-            // Update title
-            $('#currentChannel').text(currentVideoName);
-            $('#videoTitle').text('Playlist');
+            $('#currentChannel').textContent = currentVideoName;
+            $('#videoTitle').textContent = 'Playlist';
             document.title = currentVideoName + ' - Adult Player';
             
-            // Update detail panel
-            $('#detailContent').html(`
-                <h4 style="color: #ff004c; margin-bottom: 10px;">${currentVideoName}</h4>
-                <p>${videoContent}</p>
-            `);
+            $('#detailContent').innerHTML = '<h4 style="color: #ff004c; margin-bottom: 10px;">' + currentVideoName + '</h4><p>' + videoContent + '</p>';
             
-            // Parse play URLs
-            var playItems = parsePlayUrls(playUrlRaw, apiUrl);
-            console.log('Parsed play items:', playItems.length);
+            var items = parsePlayUrls(playUrlRaw, apiUrl);
+            console.log('Parsed play items:', items.length);
             
-            if (playItems.length === 0) {
-                console.warn('No playable sources found');
-                $('#channelList').html(`
-                    <div class="no-channels">
-                        <i class="fas fa-video-slash"></i>
-                        <span>No playable sources found</span>
-                        <small style="margin-top: 10px; font-size: 11px;">Raw data: ${playUrlRaw ? playUrlRaw.substring(0, 100) + '...' : 'Empty'}</small>
-                    </div>
-                `);
+            if (items.length === 0) {
+                $('#channelList').innerHTML = '<div class="no-channels"><i class="fas fa-video-slash"></i><span>No playable sources found</span><small style="margin-top: 10px; font-size: 11px;">Raw data: ' + (playUrlRaw ? playUrlRaw.substring(0, 100) + '...' : 'Empty') + '</small></div>';
                 return;
             }
             
-            // Update channel count
-            $('#channelCount').text(playItems.length);
+            $('#channelCount').textContent = items.length;
+            renderPlaylist(items);
             
-            // Render playlist
-            renderPlaylist(playItems);
-            
-            // Auto play first item
-            if (playItems[0]) {
-                console.log('Auto-playing first item:', playItems[0].name);
-                playVideo(playItems[0].url, playItems[0].name);
-                $('.channel-item').first().addClass('active');
+            if (items[0]) {
+                playVideo(items[0].url, items[0].name);
+                $$('.channel-item')[0].classList.add('active');
             }
-        },
-        error: function(xhr, textStatus, errorThrown) {
-            console.error('API Error:', textStatus, errorThrown);
-            console.error('Status:', xhr.status);
-            console.error('Response:', xhr.responseText);
-            
-            $('#channelList').html(`
-                <div class="no-channels">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Failed to load</span>
-                    <small style="margin-top: 10px; font-size: 11px;">${textStatus}: ${errorThrown}</small>
-                </div>
-            `);
-        }
-    });
+        })
+        .catch(function(error) {
+            console.error('API Error:', error);
+            $('#channelList').innerHTML = '<div class="no-channels"><i class="fas fa-exclamation-triangle"></i><span>Failed to load</span></div>';
+        });
 }
 
-// Parse play URLs from various formats
+// Parse play URLs
 function parsePlayUrls(playUrlRaw, apiUrl) {
     var items = [];
     
-    console.log('=== Parsing Play URLs ===');
-    console.log('Raw play URL:', playUrlRaw);
+    if (!playUrlRaw) return items;
     
-    if (!playUrlRaw) {
-        console.warn('Empty play URL');
-        return items;
-    }
-    
-    // Format 1: 第1集$url1#第2集$url2#... (most common)
+    // Format 1: name$url#name$url
     if (playUrlRaw.indexOf('$') > -1 && playUrlRaw.indexOf('#') > -1) {
-        console.log('Format: name$url#name$url');
         var parts = playUrlRaw.split('#');
-        for (var i = 0; i < parts.length; i++) {
-            var part = parts[i];
+        parts.forEach(function(part, i) {
             if (part.indexOf('$') > -1) {
                 var nameUrl = part.split('$');
                 var name = nameUrl[0] || 'Episode ' + (i + 1);
                 var url = nameUrl[1] || '';
-                if (url) {
-                    items.push({ name: name, url: url });
-                }
+                if (url) items.push({ name: name, url: url });
             }
-        }
+        });
     }
-    // Format 2: url1#url2#url3 (just URLs separated by #)
+    // Format 2: url#url#url
     else if (playUrlRaw.indexOf('#') > -1) {
-        console.log('Format: url#url#url');
         var parts = playUrlRaw.split('#');
-        for (var i = 0; i < parts.length; i++) {
-            var url = parts[i].trim();
+        parts.forEach(function(url, i) {
+            url = url.trim();
             if (url && (url.indexOf('http') > -1 || url.indexOf('.m3u8') > -1)) {
                 items.push({ name: 'Episode ' + (i + 1), url: url });
             }
-        }
+        });
     }
-    // Format 3: Single URL with $ separator
+    // Format 3: name$url
     else if (playUrlRaw.indexOf('$') > -1) {
-        console.log('Format: name$url');
         var nameUrl = playUrlRaw.split('$');
         var name = nameUrl[0] || 'Play';
         var url = nameUrl[1] || '';
-        if (url) {
-            items.push({ name: name, url: url });
-        }
+        if (url) items.push({ name: name, url: url });
     }
-    // Format 4: Just URL
+    // Format 4: Single URL
     else if (playUrlRaw.indexOf('http') > -1 || playUrlRaw.indexOf('.m3u8') > -1) {
-        console.log('Format: single URL');
         items.push({ name: 'Play', url: playUrlRaw });
     }
-    // Format 5: Try to extract URLs using regex
+    // Format 5: Regex extraction
     else {
-        console.log('Format: unknown, trying regex extraction');
         var urlPattern = /https?:\/\/[^\s#$]+/g;
         var matches = playUrlRaw.match(urlPattern);
         if (matches) {
-            for (var i = 0; i < matches.length; i++) {
-                items.push({ name: 'Episode ' + (i + 1), url: matches[i] });
-            }
+            matches.forEach(function(url, i) {
+                items.push({ name: 'Episode ' + (i + 1), url: url });
+            });
         }
-    }
-    
-    console.log('Parsed items count:', items.length);
-    if (items.length > 0) {
-        console.log('First item:', items[0]);
     }
     
     return items;
 }
 
-// Render playlist to sidebar
+// Render playlist
 function renderPlaylist(items) {
-    playItems = items;  // Store items globally for auto-play
-    $('#channelList').empty();
+    playItems = items;
+    $('#channelList').innerHTML = '';
     
-    for (var i = 0; i < items.length; i++) {
-        var item = items[i];
+    items.forEach(function(item, i) {
         var displayName = currentVideoName + ' - ' + item.name;
-        var isFavorite = checkFavorite(item.url, displayName);
+        var isFav = checkFavorite(item.url, displayName);
         
-        var itemHtml = `
-            <div class="channel-item" data-url="${item.url}" data-name="${item.name}">
-                <div class="channel-icon">
-                    <i class="fas fa-play"></i>
-                </div>
-                <span class="channel-name">${item.name}</span>
-                <i class="fas fa-heart favorite-btn ${isFavorite ? 'active' : ''}" data-url="${item.url}" data-name="${displayName}"></i>
-            </div>
-        `;
-        $('#channelList').append(itemHtml);
-    }
-    
-    // Click handler for playlist items
-    $('.channel-item').on('click', function() {
-        var url = $(this).data('url');
-        var name = $(this).data('name');
+        var div = document.createElement('div');
+        div.className = 'channel-item';
+        div.dataset.url = item.url;
+        div.dataset.name = item.name;
+        div.innerHTML = '<div class="channel-icon"><i class="fas fa-play"></i></div><span class="channel-name">' + item.name + '</span><i class="fas fa-heart favorite-btn ' + (isFav ? 'active' : '') + '"></i>';
         
-        console.log('Channel clicked:', name, url);
+        div.addEventListener('click', function() {
+            $$('.channel-item').forEach(function(el) { el.classList.remove('active'); });
+            div.classList.add('active');
+            playVideo(item.url, item.name);
+        });
         
-        // Set active state
-        $('.channel-item').removeClass('active');
-        $(this).addClass('active');
+        var favBtn = div.querySelector('.favorite-btn');
+        favBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleFavorite(item.url, displayName, favBtn);
+        });
         
-        // Play video
-        playVideo(url, name);
-    });
-    
-    // Favorite button click handler
-    $('.favorite-btn').on('click', function(e) {
-        e.stopPropagation();
-        var url = $(this).data('url');
-        var name = $(this).data('name');
-        toggleFavorite(url, name, $(this));
+        $('#channelList').appendChild(div);
     });
 }
 
@@ -426,22 +332,14 @@ function playVideo(url, name) {
     currentPlayUrl = url;
     
     // Update current play index
-    for (var i = 0; i < playItems.length; i++) {
-        if (playItems[i].url === url) {
-            currentPlayIndex = i;
-            break;
-        }
-    }
+    playItems.forEach(function(item, i) {
+        if (item.url === url) currentPlayIndex = i;
+    });
     
-    // Update title
-    $('#currentChannel').text(name || currentVideoName);
+    $('#currentChannel').textContent = name || currentVideoName;
     
-    // Set video source and play
     try {
-        player.src({
-            src: url,
-            type: 'application/x-mpegURL'
-        });
+        player.src({ src: url, type: 'application/x-mpegURL' });
         player.play();
         console.log('Video source set successfully');
     } catch (e) {
@@ -449,245 +347,217 @@ function playVideo(url, name) {
     }
 }
 
-// Handle direct play (youxijian format)
+// Handle direct play
 function handleDirectPlay(initlink) {
-    console.log('Handling direct play:', initlink);
-    
     var parts = initlink.split('&');
     var playUrl = parts[0];
     var videoName = parts[1] || 'Custom URL';
     
     currentVideoName = videoName;
     var displayName = videoName;
-    var isFavorite = checkFavorite(playUrl, displayName);
+    var isFav = checkFavorite(playUrl, displayName);
     
-    $('#currentChannel').text(videoName);
-    $('#videoTitle').text('Playlist');
-    $('#channelCount').text('1');
+    $('#currentChannel').textContent = videoName;
+    $('#videoTitle').textContent = 'Playlist';
+    $('#channelCount').textContent = '1';
     
-    $('#channelList').html(`
-        <div class="channel-item active" data-url="${playUrl}" data-name="${videoName}">
-            <div class="channel-icon">
-                <i class="fas fa-play"></i>
-            </div>
-            <span class="channel-name">${videoName}</span>
-            <i class="fas fa-heart favorite-btn ${isFavorite ? 'active' : ''}" data-url="${playUrl}" data-name="${displayName}"></i>
-        </div>
-    `);
+    var div = document.createElement('div');
+    div.className = 'channel-item active';
+    div.dataset.url = playUrl;
+    div.dataset.name = videoName;
+    div.innerHTML = '<div class="channel-icon"><i class="fas fa-play"></i></div><span class="channel-name">' + videoName + '</span><i class="fas fa-heart favorite-btn ' + (isFav ? 'active' : '') + '"></i>';
     
-    playVideo(playUrl, videoName);
-    
-    $('.channel-item').on('click', function() {
-        var url = $(this).data('url');
-        var name = $(this).data('name');
-        $('.channel-item').removeClass('active');
-        $(this).addClass('active');
-        playVideo(url, name);
+    div.addEventListener('click', function() {
+        $$('.channel-item').forEach(function(el) { el.classList.remove('active'); });
+        div.classList.add('active');
+        playVideo(playUrl, videoName);
     });
     
-    $('.favorite-btn').on('click', function(e) {
+    var favBtn = div.querySelector('.favorite-btn');
+    favBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        var url = $(this).data('url');
-        var name = $(this).data('name');
-        toggleFavorite(url, name, $(this));
+        toggleFavorite(playUrl, displayName, favBtn);
     });
+    
+    $('#channelList').appendChild(div);
+    playVideo(playUrl, videoName);
 }
 
 // Toggle favorite
 function toggleFavorite(url, name, btn) {
-    if (!window.localStorage) {
-        console.log("Browser does not support localStorage");
-        return;
-    }
-    
     var favKey = FAV_PREFIX + url;
-    var isFavorited = window.localStorage.getItem(favKey) === name;
+    var isFavorited = localStorage.getItem(favKey) === name;
     
     if (isFavorited) {
-        window.localStorage.removeItem(favKey);
-        btn.removeClass('active');
+        localStorage.removeItem(favKey);
+        btn.classList.remove('active');
     } else {
-        window.localStorage.setItem(favKey, name);
-        btn.addClass('active');
+        localStorage.setItem(favKey, name);
+        btn.classList.add('active');
     }
     
-    // Refresh favorites panel
     loadFavorites();
 }
 
-// Favorites management
+// Load favorites
 function loadFavorites() {
     favorites = [];
     
-    // Only load favorites with FAV_PREFIX
-    for (var key of Object.keys(localStorage)) {
+    Object.keys(localStorage).forEach(function(key) {
         if (key.startsWith(FAV_PREFIX)) {
             favorites.push({
                 url: key.replace(FAV_PREFIX, ''),
                 name: localStorage.getItem(key)
             });
         }
-    }
+    });
     
-    $('#favCount').text(favorites.length);
+    $('#favCount').textContent = favorites.length;
     
     if (favorites.length === 0) {
-        $('#favoriteContent').html(`
-            <div class="no-channels" style="padding: 20px;">
-                <i class="fas fa-heart-broken" style="font-size: 24px;"></i>
-                <span style="font-size: 12px;">No favorites yet</span>
-            </div>
-        `);
-    } else {
-        $('#favoriteContent').empty();
-        for (var i = 0; i < favorites.length; i++) {
-            var fav = favorites[i];
-            var itemHtml = `
-                <div class="favorite-item" data-url="${fav.url}">
-                    <i class="fas fa-play-circle"></i>
-                    <span>${fav.name}</span>
-                    <i class="fas fa-times remove-fav" title="Remove"></i>
-                </div>
-            `;
-            $('#favoriteContent').append(itemHtml);
-        }
+        $('#favoriteContent').innerHTML = '<div class="no-channels" style="padding: 20px;"><i class="fas fa-heart-broken" style="font-size: 24px;"></i><span style="font-size: 12px;">No favorites yet</span></div>';
+        return;
+    }
+    
+    $('#favoriteContent').innerHTML = '';
+    favorites.forEach(function(fav) {
+        var div = document.createElement('div');
+        div.className = 'favorite-item';
+        div.dataset.url = fav.url;
+        div.innerHTML = '<i class="fas fa-play-circle"></i><span>' + fav.name + '</span><i class="fas fa-times remove-fav" title="Remove"></i>';
         
-        $('.favorite-item').on('click', function(e) {
-            if (!$(e.target).hasClass('remove-fav')) {
-                var url = $(this).data('url');
-                var name = $(this).find('span').text();
-                
-                $('#favoritePanel').removeClass('show');
-                playVideo(url, name);
-                
-                $('.channel-item').removeClass('active');
-                $('#currentChannel').text(name);
+        div.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('remove-fav')) {
+                $('#favoritePanel').classList.remove('show');
+                playVideo(fav.url, fav.name);
+                $$('.channel-item').forEach(function(el) { el.classList.remove('active'); });
+                $('#currentChannel').textContent = fav.name;
             }
         });
         
-        $('.remove-fav').on('click', function(e) {
+        var removeBtn = div.querySelector('.remove-fav');
+        removeBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            var item = $(this).closest('.favorite-item');
-            var url = item.data('url');
-            localStorage.removeItem(FAV_PREFIX + url);
+            localStorage.removeItem(FAV_PREFIX + fav.url);
             loadFavorites();
-            renderPlaylist();
         });
-    }
+        
+        $('#favoriteContent').appendChild(div);
+    });
 }
 
 function checkFavorite(url, name) {
-    var favKey = FAV_PREFIX + url;
-    return localStorage.getItem(favKey) === name;
+    return localStorage.getItem(FAV_PREFIX + url) === name;
 }
 
 // Setup UI interactions
 function setupUIInteractions() {
-    console.log('Setting up UI interactions...');
-    
-    // Toggle Sidebar - with top-toolbar sync
-    $('#toggleSidebar').on('click', function() {
+    // Toggle Sidebar
+    $('#toggleSidebar').addEventListener('click', function() {
         var sidebar = $('#sidebar');
         var toolbar = $('#top-toolbar');
         
-        // Toggle sidebar
         if (window.innerWidth <= 768) {
-            sidebar.toggleClass('show-mobile');
+            sidebar.classList.toggle('show-mobile');
         } else {
-            sidebar.toggleClass('collapsed');
+            sidebar.classList.toggle('collapsed');
         }
         
-        // Show toolbar when sidebar is expanded, hide when collapsed
-        var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
+        var isExpanded = (window.innerWidth <= 768) ? sidebar.classList.contains('show-mobile') : !sidebar.classList.contains('collapsed');
         
         if (isExpanded) {
-            toolbar.removeClass('hidden');
+            toolbar.classList.remove('hidden');
         } else {
-            toolbar.addClass('hidden');
+            toolbar.classList.add('hidden');
         }
     });
     
-    // Toggle Link Input
-    $('#linkBtn').on('click', function() {
-        $('#linkInputWrapper').toggleClass('show');
+    // Link Input
+    $('#linkBtn').addEventListener('click', function() {
+        $('#linkInputWrapper').classList.toggle('show');
         $('#linkInput').focus();
     });
     
-    // Play custom link
-    $('#playLinkBtn').on('click', function() {
-        var url = $('#linkInput').val().trim();
+    $('#playLinkBtn').addEventListener('click', function() {
+        var url = $('#linkInput').value.trim();
         if (url) {
             playVideo(url, 'Custom URL');
-            $('#currentChannel').text('Custom URL');
-            $('#linkInputWrapper').removeClass('show');
-            $('#linkInput').val('');
+            $('#currentChannel').textContent = 'Custom URL';
+            $('#linkInputWrapper').classList.remove('show');
+            $('#linkInput').value = '';
         }
     });
     
-    // Enter key for link input
-    $('#linkInput').on('keypress', function(e) {
-        if (e.which === 13) {
+    $('#linkInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
             $('#playLinkBtn').click();
         }
     });
     
-    // Toggle Favorite Panel
-    $('#favoriteBtn').on('click', function() {
-        $('#favoritePanel').toggleClass('show');
-        $('#detailPanel').removeClass('show');
+    // Panels
+    $('#favoriteBtn').addEventListener('click', function() {
+        $('#favoritePanel').classList.toggle('show');
+        $('#detailPanel').classList.remove('show');
     });
     
-    // Toggle Detail Panel
-    $('#detailBtn').on('click', function() {
-        $('#detailPanel').toggleClass('show');
-        $('#favoritePanel').removeClass('show');
+    $('#detailBtn').addEventListener('click', function() {
+        $('#detailPanel').classList.toggle('show');
+        $('#favoritePanel').classList.remove('show');
     });
     
-    // Shuffle Button
-    $('#shuffleBtn').on('click', function() {
-        var channels = $('.channel-item');
+    // Shuffle
+    $('#shuffleBtn').addEventListener('click', function() {
+        var channels = $$('.channel-item');
         if (channels.length > 0) {
             var randomIndex = Math.floor(Math.random() * channels.length);
-            channels.eq(randomIndex).click();
+            channels[randomIndex].click();
         }
     });
     
-    // GitHub Button
-    $('#githubBtn').on('click', function() {
+    // GitHub
+    $('#githubBtn').addEventListener('click', function() {
         window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
     });
     
-    // Back Button
-    $('#backBtn').on('click', function() {
+    // Back
+    $('#backBtn').addEventListener('click', function() {
         window.history.back();
     });
     
-    // Channel Search
-    $('#channelSearch').on('input', function() {
-        var query = $(this).val().toLowerCase();
-        $('.channel-item').each(function() {
-            var name = $(this).find('.channel-name').text().toLowerCase();
-            $(this).toggle(name.indexOf(query) > -1);
+    // Search
+    $('#channelSearch').addEventListener('input', function() {
+        var query = this.value.toLowerCase();
+        $$('.channel-item').forEach(function(item) {
+            var name = item.querySelector('.channel-name').textContent.toLowerCase();
+            item.style.display = name.indexOf(query) > -1 ? '' : 'none';
         });
     });
     
-    // Close panels when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#favoritePanel, #favoriteBtn').length) {
-            $('#favoritePanel').removeClass('show');
+    // Close panels on outside click
+    document.addEventListener('click', function(e) {
+        var favPanel = $('#favoritePanel');
+        var favBtn = $('#favoriteBtn');
+        if (!favPanel.contains(e.target) && !favBtn.contains(e.target)) {
+            favPanel.classList.remove('show');
         }
-        if (!$(e.target).closest('#detailPanel, #detailBtn').length) {
-            $('#detailPanel').removeClass('show');
+        
+        var detailPanel = $('#detailPanel');
+        var detailBtn = $('#detailBtn');
+        if (!detailPanel.contains(e.target) && !detailBtn.contains(e.target)) {
+            detailPanel.classList.remove('show');
         }
-        if (!$(e.target).closest('#linkInputWrapper, #linkBtn').length) {
-            $('#linkInputWrapper').removeClass('show');
+        
+        var linkWrapper = $('#linkInputWrapper');
+        var linkBtn = $('#linkBtn');
+        if (!linkWrapper.contains(e.target) && !linkBtn.contains(e.target)) {
+            linkWrapper.classList.remove('show');
         }
     });
     
     // Show toolbar on mouse move near top
-    $(document).on('mousemove', function(e) {
+    document.addEventListener('mousemove', function(e) {
         if (e.clientY < 100) {
-            $('#top-toolbar').removeClass('hidden');
+            $('#top-toolbar').classList.remove('hidden');
         }
     });
 }

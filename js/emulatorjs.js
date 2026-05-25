@@ -642,8 +642,6 @@ function processRomBlob(blob, filename) {
         document.getElementById('loadingOverlay').classList.remove('hidden');
         
         // Show action buttons
-        document.getElementById('saveBtn').style.display = 'flex';
-        document.getElementById('loadBtn').style.display = 'flex';
         document.getElementById('fullscreenBtn').style.display = 'flex';
         document.getElementById('settingsBtn').style.display = 'flex';
         
@@ -762,188 +760,6 @@ var currentGame = {
     romData: null
 };
 
-// IndexedDB for saves
-var db = null;
-var DB_NAME = 'EmulatorSaves';
-var DB_VERSION = 1;
-
-// Initialize IndexedDB
-function initDB() {
-    return new Promise(function(resolve, reject) {
-        var request = indexedDB.open(DB_NAME, DB_VERSION);
-        
-        request.onerror = function(event) {
-            reject('IndexedDB error: ' + event.target.error);
-        };
-        
-        request.onsuccess = function(event) {
-            db = event.target.result;
-            resolve(db);
-        };
-        
-        request.onupgradeneeded = function(event) {
-            db = event.target.result;
-            if (!db.objectStoreNames.contains('saves')) {
-                var store = db.createObjectStore('saves', { keyPath: 'id' });
-                store.createIndex('game', 'game', { unique: false });
-                store.createIndex('slot', 'slot', { unique: false });
-            }
-        };
-    });
-}
-
-// Save game state
-function saveGameState(slot) {
-    if (!window.EJS_emulator || !currentGame.name) {
-        showToast(t('noGame'));
-        return;
-    }
-    
-    var state = window.EJS_emulator.saveState();
-    var saveData = {
-        id: currentGame.name + '_slot_' + slot,
-        game: currentGame.name,
-        slot: slot,
-        data: state,
-        date: new Date().toISOString()
-    };
-    
-    var transaction = db.transaction(['saves'], 'readwrite');
-    var store = transaction.objectStore('saves');
-    var request = store.put(saveData);
-    
-    request.onsuccess = function() {
-        showToast(t('savedToSlot') + ' ' + slot + '!');
-        closeSaveModal();
-    };
-    
-    request.onerror = function(event) {
-        showToast(t('saveFailed') + event.target.error);
-    };
-}
-
-// Load game state
-function loadGameState(slot) {
-    if (!window.EJS_emulator) {
-        showToast(t('noGame'));
-        return;
-    }
-    
-    var id = currentGame.name + '_slot_' + slot;
-    var transaction = db.transaction(['saves'], 'readonly');
-    var store = transaction.objectStore('saves');
-    var request = store.get(id);
-    
-    request.onsuccess = function(event) {
-        var saveData = event.target.result;
-        if (saveData) {
-            window.EJS_emulator.loadState(saveData.data);
-            showToast(t('loadedFromSlot') + ' ' + slot + '!');
-            closeSaveModal();
-        } else {
-            showToast(t('noSaveInSlot'));
-        }
-    };
-    
-    request.onerror = function(event) {
-        showToast(t('loadFailed') + event.target.error);
-    };
-}
-
-// Get all saves for current game
-function getSavesForGame() {
-    return new Promise(function(resolve, reject) {
-        if (!currentGame.name) {
-            resolve([]);
-            return;
-        }
-        
-        var transaction = db.transaction(['saves'], 'readonly');
-        var store = transaction.objectStore('saves');
-        var index = store.index('game');
-        var request = index.getAll(currentGame.name);
-        
-        request.onsuccess = function(event) {
-            resolve(event.target.result);
-        };
-        
-        request.onerror = function(event) {
-            reject(event.target.error);
-        };
-    });
-}
-
-// Delete save
-function deleteSave(slot) {
-    var id = currentGame.name + '_slot_' + slot;
-    var transaction = db.transaction(['saves'], 'readwrite');
-    var store = transaction.objectStore('saves');
-    var request = store.delete(id);
-    
-    request.onsuccess = function() {
-        showToast(t('slotDeleted'));
-        showSaveModal('load');
-    };
-    
-    request.onerror = function(event) {
-        showToast(t('deleteFailed') + event.target.error);
-    };
-}
-
-// Show save modal
-function showSaveModal(mode) {
-    var modal = document.getElementById('saveModal');
-    var title = document.getElementById('modalTitle');
-    var slotsContainer = document.getElementById('saveSlots');
-    
-    title.textContent = mode === 'save' ? t('saveGame') : t('loadGame');
-    
-    getSavesForGame().then(function(saves) {
-        slotsContainer.innerHTML = '';
-        
-        for (var i = 1; i <= 5; i++) {
-            var save = saves.find(function(s) { return s.slot === i; });
-            var dateText = save ? new Date(save.date).toLocaleString() : t('empty');
-            
-            var slotHtml = '<div class="save-slot" data-slot="' + i + '">' +
-                '<div class="save-slot-info">' +
-                    '<div class="save-slot-number">' + i + '</div>' +
-                    '<div>' +
-                        '<div class="save-slot-name">' + t('slot') + ' ' + i + '</div>' +
-                        '<div class="save-slot-date">' + dateText + '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="save-slot-actions">' +
-                    (save && mode === 'load' ? '<button class="save-slot-btn delete" onclick="deleteSave(' + i + ')"><i class="fas fa-trash"></i></button>' : '') +
-                '</div>' +
-            '</div>';
-            
-            slotsContainer.innerHTML += slotHtml;
-        }
-        
-        // Add click handlers
-        var slots = slotsContainer.querySelectorAll('.save-slot');
-        slots.forEach(function(slot) {
-            slot.addEventListener('click', function(e) {
-                if (e.target.closest('.delete')) return;
-                var slotNum = parseInt(this.dataset.slot);
-                if (mode === 'save') {
-                    saveGameState(slotNum);
-                } else {
-                    loadGameState(slotNum);
-                }
-            });
-        });
-        
-        modal.classList.add('active');
-    });
-}
-
-// Close save modal
-function closeSaveModal() {
-    document.getElementById('saveModal').classList.remove('active');
-}
-
 // Show toast
 function showToast(message) {
     var toast = document.getElementById('toast');
@@ -989,9 +805,7 @@ function handleRomUpload(file) {
         // Show loading overlay
         document.getElementById('loadingOverlay').classList.remove('hidden');
         
-        // Show action buttons
-        document.getElementById('saveBtn').style.display = 'flex';
-        document.getElementById('loadBtn').style.display = 'flex';
+        // Show action buttons (only fullscreen and settings)
         document.getElementById('fullscreenBtn').style.display = 'flex';
         document.getElementById('settingsBtn').style.display = 'flex';
         
@@ -1178,13 +992,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Apply translations
     applyTranslations();
     
-    // Initialize IndexedDB
-    initDB().then(function() {
-        console.log('IndexedDB initialized');
-    }).catch(function(error) {
-        console.error(error);
-    });
-    
     // Back button
     document.getElementById('backBtn').addEventListener('click', function() {
         window.history.back();
@@ -1260,16 +1067,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Save button
-    document.getElementById('saveBtn').addEventListener('click', function() {
-        showSaveModal('save');
-    });
-    
-    // Load button
-    document.getElementById('loadBtn').addEventListener('click', function() {
-        showSaveModal('load');
-    });
-    
     // Fullscreen button
     document.getElementById('fullscreenBtn').addEventListener('click', function() {
         if (window.EJS_emulator) {
@@ -1296,16 +1093,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             showToast(t('gameNotLoaded'));
-        }
-    });
-    
-    // Modal close
-    document.getElementById('modalClose').addEventListener('click', closeSaveModal);
-    
-    // Close modal on overlay click
-    document.getElementById('saveModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeSaveModal();
         }
     });
     

@@ -1,3 +1,18 @@
+// Source ID to URL mapping for Porn sources
+// Native JavaScript (No jQuery)
+
+var pornSources = {
+    'msnii': { url: 'https://www.msnii.com/api.php/provide/vod/at/json', name: '美少女资源站' },
+    'xrbsp': { url: 'https://www.xrbsp.com/api.php/provide/vod/at/json', name: '淫水机资源站' },
+    'slapibf': { url: 'https://slapibf.com/api.php/provide/vod/at/json', name: '森林资源站' },
+    'lbapi9': { url: 'https://lbapi9.com/api.php/provide/vod/at/json', name: '乐播资源站' },
+    'dadiapi': { url: 'https://dadiapi.net/api.php/provide/vod/at/json', name: '大地资源网' },
+    '155api': { url: 'https://155api.com/api.php/provide/vod/at/json', name: '155资源站' },
+    'apilsbzy2': { url: 'https://apilsbzy2.com/api.php/provide/vod/at/json', name: '老色逼' },
+    'thzy1': { url: 'https://thzy1.com/api.php/provide/vod/at/json', name: '桃花资源' },
+    'xiangjiaozyw': { url: 'https://xiangjiaozyw.com/api.php/provide/vod/at/json', name: '香蕉资源网' }
+};
+
 // Proxy for CORS
 var proxy = {
     0: 'https://cors.luckydesigner.workers.dev/?',
@@ -24,61 +39,115 @@ var pageNum = 1;
 var isLoading = false;
 var isSearchMode = false;
 
-$(document).ready(function() {
+// Initialize source select from localStorage
+function initSourceSelect() {
+    var savedSources = localStorage.getItem('porn');
+    var sourceSelect = document.getElementById('sourceSelect');
+    
+    // Clear existing options
+    sourceSelect.innerHTML = '';
+    
+    if (savedSources) {
+        // Parse saved sources
+        var sourceIds = savedSources.split(',');
+        var hasValidSource = false;
+        
+        // Add only saved sources
+        sourceIds.forEach(function(id) {
+            if (pornSources[id]) {
+                var option = document.createElement('option');
+                option.value = pornSources[id].url;
+                option.textContent = pornSources[id].name;
+                sourceSelect.appendChild(option);
+                hasValidSource = true;
+            }
+        });
+        
+        // If no valid sources found, add all sources
+        if (!hasValidSource) {
+            Object.keys(pornSources).forEach(function(id) {
+                var option = document.createElement('option');
+                option.value = pornSources[id].url;
+                option.textContent = pornSources[id].name;
+                sourceSelect.appendChild(option);
+            });
+        }
+    } else {
+        // No saved settings, add all sources
+        Object.keys(pornSources).forEach(function(id) {
+            var option = document.createElement('option');
+            option.value = pornSources[id].url;
+            option.textContent = pornSources[id].name;
+            sourceSelect.appendChild(option);
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize source select from localStorage
+    initSourceSelect();
+    
     // Initialize
-    currentLink = $('#sourceSelect').val();
+    currentLink = document.getElementById('sourceSelect').value;
     loadCategories(currentLink);
     loadVideos(currentLink, '', 1);
     
     // Back button
-    $('#backBtn').on('click', function() {
+    document.getElementById('backBtn').addEventListener('click', function() {
         window.history.back();
     });
     
     // Toggle sidebar
-    $('#toggleSidebar, #menuBtn').on('click', function() {
-        var sidebar = $('#sidebar');
-        var mainContent = $('#mainContent');
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var mainContent = document.getElementById('mainContent');
         
         if (window.innerWidth <= 768) {
-            sidebar.toggleClass('show-mobile');
+            sidebar.classList.toggle('show-mobile');
         } else {
-            sidebar.toggleClass('collapsed');
-            mainContent.toggleClass('expanded');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
         }
-    });
+    }
+    
+    document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
+    document.getElementById('menuBtn').addEventListener('click', toggleSidebar);
     
     // Source select change
-    $('#sourceSelect').on('change', function() {
-        currentLink = $(this).val();
+    document.getElementById('sourceSelect').addEventListener('change', function() {
+        currentLink = this.value;
         currentCategory = '';
         pageNum = 1;
         isSearchMode = false;
-        $('#searchInput').val('');
+        document.getElementById('searchInput').value = '';
         loadCategories(currentLink);
         loadVideos(currentLink, '', 1);
     });
     
     // Search
-    $('#searchInput').on('keyup', function(e) {
-        if (e.which == 13) {
-            var searchTerm = $(this).val().trim();
+    document.getElementById('searchInput').addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            var searchTerm = this.value.trim();
             
             if (searchTerm) {
                 currentCategory = '';
                 pageNum = 1;
                 isSearchMode = true;
                 // Clear category selection
-                $('.category-item').removeClass('active');
+                document.querySelectorAll('.category-item').forEach(function(el) {
+                    el.classList.remove('active');
+                });
                 // Show loading state
-                $('#mainContent').find('.loading-state').remove();
-                $('#contentGrid').hide();
-                $('#mainContent').prepend(`
-                    <div class="loading-state search-loading">
-                        <i class="fas fa-spinner"></i>
-                        <span>Searching...</span>
-                    </div>
-                `);
+                var mainContent = document.getElementById('mainContent');
+                if (mainContent) {
+                    var existingLoading = mainContent.querySelector('.loading-state');
+                    if (existingLoading) existingLoading.remove();
+                    document.getElementById('contentGrid').style.display = 'none';
+                    var loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'loading-state search-loading';
+                    loadingDiv.innerHTML = '<i class="fas fa-spinner"></i><span>Searching...</span>';
+                    mainContent.insertBefore(loadingDiv, mainContent.firstChild);
+                }
                 searchVideos(currentLink, searchTerm, 1);
             } else {
                 isSearchMode = false;
@@ -88,15 +157,15 @@ $(document).ready(function() {
     });
     
     // Infinite scroll on content area
-    $('#contentArea').scroll(function() {
-        var scrollTop = $(this).scrollTop();
-        var scrollHeight = $(this)[0].scrollHeight;
-        var clientHeight = $(this).height();
+    document.getElementById('contentArea').addEventListener('scroll', function() {
+        var scrollTop = this.scrollTop;
+        var scrollHeight = this.scrollHeight;
+        var clientHeight = this.clientHeight;
         
         if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading) {
             pageNum++;
             if (isSearchMode) {
-                var searchTerm = $('#searchInput').val().trim();
+                var searchTerm = document.getElementById('searchInput').value.trim();
                 if (searchTerm) {
                     searchVideos(currentLink, searchTerm, pageNum);
                 }
@@ -153,36 +222,44 @@ function parseApiResponse(data) {
     
     // Try to parse as XML
     try {
-        var xmlDoc = $.parseXML(data);
-        var $xml = $(xmlDoc);
+        var parser = new DOMParser();
+        var xmlDoc = parser.parseFromString(data, 'text/xml');
         var result = {};
         
         // Parse list page
-        var $list = $xml.find('list');
-        result.page = parseInt($list.attr('page') || '1');
-        result.pagecount = parseInt($list.attr('pagecount') || '0');
-        result.recordcount = parseInt($list.attr('recordcount') || '0');
+        var listEl = xmlDoc.querySelector('list');
+        result.page = parseInt(listEl ? listEl.getAttribute('page') || '1' : '1');
+        result.pagecount = parseInt(listEl ? listEl.getAttribute('pagecount') || '0' : '0');
+        result.recordcount = parseInt(listEl ? listEl.getAttribute('recordcount') || '0' : '0');
         
         // Parse class categories
         result.class = [];
-        $xml.find('class > ty').each(function() {
+        var classItems = xmlDoc.querySelectorAll('class > ty');
+        classItems.forEach(function(item) {
             result.class.push({
-                type_id: $(this).attr('id'),
-                type_name: $(this).text()
+                type_id: item.getAttribute('id'),
+                type_name: item.textContent
             });
         });
         
         // Parse video list
         result.list = [];
-        $xml.find('video').each(function() {
-            var $video = $(this);
+        var videos = xmlDoc.querySelectorAll('video');
+        videos.forEach(function(video) {
+            var idEl = video.querySelector('id');
+            var nameEl = video.querySelector('name');
+            var picEl = video.querySelector('pic');
+            var tidEl = video.querySelector('tid');
+            var typeEl = video.querySelector('type');
+            var noteEl = video.querySelector('note');
+            
             result.list.push({
-                vod_id: $video.find('id').text(),
-                vod_name: $video.find('name').text(),
-                vod_pic: $video.find('pic').text() || '../images/noimage.jpeg',
-                type_id: $video.find('tid').text(),
-                type_name: $video.find('type').text(),
-                vod_remarks: $video.find('note').text()
+                vod_id: idEl ? idEl.textContent : '',
+                vod_name: nameEl ? nameEl.textContent : '',
+                vod_pic: picEl ? picEl.textContent : '../images/noimage.jpeg',
+                type_id: tidEl ? tidEl.textContent : '',
+                type_name: typeEl ? typeEl.textContent : '',
+                vod_remarks: noteEl ? noteEl.textContent : ''
             });
         });
         
@@ -197,31 +274,29 @@ function parseApiResponse(data) {
 function loadCategories(link) {
     var apiUrl = buildApiUrl(link, 'list', { pg: 1 });
     
-    $.ajax({
-        type: 'GET',
-        url: apiUrl,
-        dataType: 'text',
-        success: function(data) {
+    fetch(apiUrl)
+        .then(function(response) { return response.text(); })
+        .then(function(data) {
             var parsedData = parseApiResponse(data);
             if (!parsedData) {
-                $('#categoryList').html(`
+                document.getElementById('categoryList').innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Failed to parse response</p>
                     </div>
-                `);
+                `;
                 return;
             }
             
-            $('#categoryList').empty();
+            var categoryList = document.getElementById('categoryList');
+            categoryList.innerHTML = '';
             
             // Add "Latest Update" category
-            $('#categoryList').append(`
-                <div class="category-item active" data-id="">
-                    <i class="fas fa-clock"></i>
-                    <span>最新更新</span>
-                </div>
-            `);
+            var latestCat = document.createElement('div');
+            latestCat.className = 'category-item active';
+            latestCat.dataset.id = '';
+            latestCat.innerHTML = '<i class="fas fa-clock"></i><span>最新更新</span>';
+            categoryList.appendChild(latestCat);
             
             // Use class data from API if available
             var categories = parsedData.class || [];
@@ -232,12 +307,11 @@ function loadCategories(link) {
                     var catId = cat.type_id;
                     var catName = cat.type_name;
                     if (catId && catName) {
-                        $('#categoryList').append(`
-                            <div class="category-item" data-id="${catId}">
-                                <i class="fas fa-folder"></i>
-                                <span>${catName}</span>
-                            </div>
-                        `);
+                        var catItem = document.createElement('div');
+                        catItem.className = 'category-item';
+                        catItem.dataset.id = catId;
+                        catItem.innerHTML = '<i class="fas fa-folder"></i><span>' + catName + '</span>';
+                        categoryList.appendChild(catItem);
                     }
                 }
             } else {
@@ -256,36 +330,38 @@ function loadCategories(link) {
                 // Add extracted categories
                 for (var id in categoryMap) {
                     if (categoryMap.hasOwnProperty(id)) {
-                        $('#categoryList').append(`
-                            <div class="category-item" data-id="${id}">
-                                <i class="fas fa-folder"></i>
-                                <span>${categoryMap[id]}</span>
-                            </div>
-                        `);
+                        var catItem = document.createElement('div');
+                        catItem.className = 'category-item';
+                        catItem.dataset.id = id;
+                        catItem.innerHTML = '<i class="fas fa-folder"></i><span>' + categoryMap[id] + '</span>';
+                        categoryList.appendChild(catItem);
                     }
                 }
             }
             
             // Click handler
-            $('.category-item').on('click', function() {
-                $('.category-item').removeClass('active');
-                $(this).addClass('active');
-                currentCategory = $(this).data('id');
-                pageNum = 1;
-                isSearchMode = false;
-                $('#searchInput').val('');
-                loadVideos(currentLink, currentCategory, 1);
+            document.querySelectorAll('.category-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.category-item').forEach(function(el) {
+                        el.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    currentCategory = this.dataset.id;
+                    pageNum = 1;
+                    isSearchMode = false;
+                    document.getElementById('searchInput').value = '';
+                    loadVideos(currentLink, currentCategory, 1);
+                });
             });
-        },
-        error: function() {
-            $('#categoryList').html(`
+        })
+        .catch(function() {
+            document.getElementById('categoryList').innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-exclamation-triangle"></i>
                     <p>Failed to load categories</p>
                 </div>
-            `);
-        }
-    });
+            `;
+        });
 }
 
 // Load videos
@@ -295,16 +371,17 @@ function loadVideos(link, category, page) {
     
     // Show load more indicator for pagination
     if (page > 1) {
-        $('#loadMoreIndicator').show();
+        document.getElementById('loadMoreIndicator').style.display = '';
     }
     
     if (page === 1) {
-        $('#contentGrid').html(`
+        document.getElementById('contentGrid').innerHTML = `
             <div class="loading-state">
                 <i class="fas fa-spinner"></i>
                 <span>Loading videos...</span>
             </div>
-        `).show();
+        `;
+        document.getElementById('contentGrid').style.display = '';
     }
     
     var params = { pg: page };
@@ -314,61 +391,58 @@ function loadVideos(link, category, page) {
     
     var apiUrl = buildApiUrl(link, 'videolist', params);
     
-    $.ajax({
-        type: 'GET',
-        url: apiUrl,
-        dataType: 'text',
-        success: function(data) {
+    fetch(apiUrl)
+        .then(function(response) { return response.text(); })
+        .then(function(data) {
             var parsedData = parseApiResponse(data);
             if (!parsedData) {
                 if (page === 1) {
-                    $('#contentGrid').html(`
+                    document.getElementById('contentGrid').innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-exclamation-triangle"></i>
                             <p>Failed to parse response</p>
                         </div>
-                    `);
+                    `;
                 }
-                $('#loadMoreIndicator').hide();
+                document.getElementById('loadMoreIndicator').style.display = 'none';
                 isLoading = false;
                 return;
             }
             
             if (page === 1) {
-                $('#contentGrid').empty();
+                document.getElementById('contentGrid').innerHTML = '';
             }
             
             var videos = parsedData.list || [];
             
             if (videos.length === 0 && page === 1) {
-                $('#contentGrid').html(`
+                document.getElementById('contentGrid').innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-video-slash"></i>
                         <p>No videos found</p>
                     </div>
-                `);
+                `;
             } else {
                 renderVideos(videos, link, page === 1);
             }
             
             // Hide load more indicator
-            $('#loadMoreIndicator').hide();
+            document.getElementById('loadMoreIndicator').style.display = 'none';
             isLoading = false;
-        },
-        error: function() {
+        })
+        .catch(function() {
             if (page === 1) {
-                $('#contentGrid').html(`
+                document.getElementById('contentGrid').innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Failed to load videos</p>
                     </div>
-                `);
+                `;
             }
             // Hide load more indicator
-            $('#loadMoreIndicator').hide();
+            document.getElementById('loadMoreIndicator').style.display = 'none';
             isLoading = false;
-        }
-    });
+        });
 }
 
 // Search videos
@@ -379,75 +453,76 @@ function searchVideos(link, term, page) {
     
     // Show load more indicator for pagination
     if (page > 1) {
-        $('#loadMoreIndicator').show();
+        document.getElementById('loadMoreIndicator').style.display = '';
     }
     
     var apiUrl = buildApiUrl(link, 'videolist', { wd: term, pg: page || 1 });
     
-    $.ajax({
-        type: 'GET',
-        url: apiUrl,
-        dataType: 'text',
-        success: function(data) {
+    fetch(apiUrl)
+        .then(function(response) { return response.text(); })
+        .then(function(data) {
             // Remove loading state first
-            $('.search-loading').remove();
-            $('#contentGrid').show();
+            var searchLoading = document.querySelector('.search-loading');
+            if (searchLoading) searchLoading.remove();
+            document.getElementById('contentGrid').style.display = '';
             
             var parsedData = parseApiResponse(data);
             if (!parsedData) {
-                $('#contentGrid').html(`
+                document.getElementById('contentGrid').innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Failed to parse response</p>
                     </div>
-                `);
-                $('#loadMoreIndicator').hide();
+                `;
+                document.getElementById('loadMoreIndicator').style.display = 'none';
                 isLoading = false;
                 return;
             }
             
             // Clear the grid for page 1
             if (page === 1) {
-                $('#contentGrid').removeClass('has-results').empty();
+                var contentGrid = document.getElementById('contentGrid');
+                contentGrid.classList.remove('has-results');
+                contentGrid.innerHTML = '';
             }
             
             var videos = parsedData.list || [];
             
             if (videos.length === 0 && page === 1) {
-                $('#contentGrid').html(`
+                document.getElementById('contentGrid').innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-search"></i>
                         <p>No results found for "${term}"</p>
                     </div>
-                `);
+                `;
             } else if (videos.length > 0) {
                 // Add has-results class to change positioning
-                $('#contentGrid').addClass('has-results');
+                document.getElementById('contentGrid').classList.add('has-results');
                 renderVideos(videos, link, page === 1);
             }
             
             // Hide load more indicator
-            $('#loadMoreIndicator').hide();
+            document.getElementById('loadMoreIndicator').style.display = 'none';
             isLoading = false;
-        },
-        error: function() {
+        })
+        .catch(function() {
             // Remove loading state on error too
-            $('.search-loading').remove();
-            $('#contentGrid').show();
+            var searchLoading = document.querySelector('.search-loading');
+            if (searchLoading) searchLoading.remove();
+            document.getElementById('contentGrid').style.display = '';
             
             if (page === 1) {
-                $('#contentGrid').html(`
+                document.getElementById('contentGrid').innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Search failed</p>
                     </div>
-                `);
+                `;
             }
             // Hide load more indicator
-            $('#loadMoreIndicator').hide();
+            document.getElementById('loadMoreIndicator').style.display = 'none';
             isLoading = false;
-        }
-    });
+        });
 }
 
 // Filter ad text from category names
@@ -458,6 +533,8 @@ function filterTypeName(name) {
 
 // Render videos to grid
 function renderVideos(videos, link, clear) {
+    var contentGrid = document.getElementById('contentGrid');
+    
     for (var i = 0; i < videos.length; i++) {
         var video = videos[i];
         var videoId = video.vod_id;
@@ -480,6 +557,6 @@ function renderVideos(videos, link, clear) {
                 </div>
             </a>
         `;
-        $('#contentGrid').append(cardHtml);
+        contentGrid.insertAdjacentHTML('beforeend', cardHtml);
     }
 }

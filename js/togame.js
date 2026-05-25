@@ -1,4 +1,5 @@
 // Game Page JS - Modern UI Version
+// Native JavaScript (No jQuery)
 
 // Game data
 var games = [
@@ -314,12 +315,20 @@ var games = [
         category: 'others',
         image: '../gamebox/tic-tac-toe/tictactoe.png',
         url: '../catalogues/gameplay.html?game=tic-tac-toe'
-    },
-    
+    }
 ];
 
 var currentCategory = 'all';
 var searchQuery = '';
+
+// Helper functions
+function $(selector) {
+    return document.querySelector(selector);
+}
+
+function $$(selector) {
+    return document.querySelectorAll(selector);
+}
 
 // Render games
 function renderGames() {
@@ -339,136 +348,125 @@ function renderGames() {
         });
     }
     
-    var $grid = $('#gameGrid');
-    $grid.empty();
+    var grid = $('#gameGrid');
+    grid.innerHTML = '';
     
     if (filteredGames.length === 0) {
-        $grid.html(`
-            <div class="no-results">
-                <i class="fas fa-gamepad"></i>
-                <p>No games found</p>
-            </div>
-        `);
+        grid.innerHTML = '<div class="no-results"><i class="fas fa-gamepad"></i><p>No games found</p></div>';
         return;
     }
     
+    var html = '';
     filteredGames.forEach(function(game) {
-        var cardHtml = `
-            <a href="${game.url}" class="game-card">
-                <div class="game-image-wrapper">
-                    <img class="game-image" src="${game.image}" alt="${game.name}" onerror="this.src='../images/noimage.jpeg'">
-                </div>
-                <div class="game-overlay"></div>
-                <div class="play-icon">
-                    <i class="fas fa-play"></i>
-                </div>
-                <div class="game-info">
-                    <span class="game-platform">${game.platform}</span>
-                    <h4 class="game-name">${game.name}</h4>
-                </div>
-            </a>
-        `;
-        $grid.append(cardHtml);
+        html += '<a href="' + game.url + '" class="game-card">';
+        html += '  <div class="game-image-wrapper">';
+        html += '    <img class="game-image" src="' + game.image + '" alt="' + game.name + '" onerror="this.src=\'../images/noimage.jpeg\'">';
+        html += '  </div>';
+        html += '  <div class="game-overlay"></div>';
+        html += '  <div class="play-icon"><i class="fas fa-play"></i></div>';
+        html += '  <div class="game-info">';
+        html += '    <span class="game-platform">' + game.platform + '</span>';
+        html += '    <h4 class="game-name">' + game.name + '</h4>';
+        html += '  </div>';
+        html += '</a>';
     });
+    
+    grid.innerHTML = html;
 }
 
 // Toggle sidebar
 function toggleSidebar() {
-    var $sidebar = $('#sidebar');
-    var $mainContent = $('#mainContent');
+    var sidebar = $('#sidebar');
+    var mainContent = $('#mainContent');
     
     if (window.innerWidth <= 768) {
-        $sidebar.toggleClass('show-mobile');
+        sidebar.classList.toggle('show-mobile');
     } else {
-        $sidebar.toggleClass('collapsed');
-        $mainContent.toggleClass('expanded');
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
     }
 }
 
 // Show toast notification
 function showToast(message, type) {
     type = type || 'info';
-    $('.toast-notification').remove();
     
-    var toast = $(`
-        <div class="toast-notification ${type}" style="
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            padding: 15px 20px;
-            background: rgba(0,0,0,0.9);
-            border: 2px solid #a3001b;
-            border-radius: 10px;
-            color: #fff;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        ">
-            <i class="fas fa-info-circle" style="color: #a3001b"></i>
-            <span>${message}</span>
-        </div>
-    `);
+    // Remove existing toast
+    var existingToast = $('.toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
     
-    $('body').append(toast);
+    var toast = document.createElement('div');
+    toast.className = 'toast-notification ' + type;
+    toast.style.cssText = 'position: fixed; top: 80px; right: 20px; padding: 15px 20px; background: rgba(0,0,0,0.9); border: 2px solid #a3001b; border-radius: 10px; color: #fff; z-index: 9999; display: flex; align-items: center; gap: 10px;';
+    toast.innerHTML = '<i class="fas fa-info-circle" style="color: #a3001b"></i><span>' + message + '</span>';
+    
+    document.body.appendChild(toast);
     
     setTimeout(function() {
-        toast.fadeOut(300, function() {
-            $(this).remove();
-        });
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(function() {
+            toast.remove();
+        }, 300);
     }, 3000);
 }
 
 // Initialize
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     console.log('=== Game Page Loaded ===');
     
     // Render initial games
     renderGames();
     
     // Back button
-    $('#backBtn').on('click', function() {
+    $('#backBtn').addEventListener('click', function() {
         window.history.back();
     });
     
     // Menu toggle
-    $('#menuBtn').on('click', function() {
+    $('#menuBtn').addEventListener('click', function() {
         toggleSidebar();
     });
     
     // Toggle sidebar button
-    $('#toggleSidebar').on('click', function() {
+    $('#toggleSidebar').addEventListener('click', function() {
         toggleSidebar();
     });
     
     // Category selection
-    $('.category-item').on('click', function() {
-        $('.category-item').removeClass('active');
-        $(this).addClass('active');
-        currentCategory = $(this).data('category');
-        renderGames();
-        
-        // Hide sidebar on mobile
-        if (window.innerWidth <= 768) {
-            $('#sidebar').removeClass('show-mobile');
-        }
+    $$('.category-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            $$('.category-item').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            this.classList.add('active');
+            currentCategory = this.dataset.category;
+            renderGames();
+            
+            // Hide sidebar on mobile
+            if (window.innerWidth <= 768) {
+                $('#sidebar').classList.remove('show-mobile');
+            }
+        });
     });
     
     // Search functionality
-    $('#searchInput').on('keyup', function(e) {
-        searchQuery = $(this).val().trim();
+    $('#searchInput').addEventListener('keyup', function(e) {
+        searchQuery = this.value.trim();
         renderGames();
     });
     
-    $('#searchBtn').on('click', function() {
-        searchQuery = $('#searchInput').val().trim();
+    $('#searchBtn').addEventListener('click', function() {
+        searchQuery = $('#searchInput').value.trim();
         renderGames();
     });
     
     // Handle window resize
-    $(window).on('resize', function() {
+    window.addEventListener('resize', function() {
         if (window.innerWidth > 768) {
-            $('#sidebar').removeClass('show-mobile');
+            $('#sidebar').classList.remove('show-mobile');
         }
     });
 });

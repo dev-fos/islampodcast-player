@@ -9,7 +9,7 @@
     <meta name="keywords" content="iptv, movie, github, online tv, web tv, series tv...">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="../css/main.css" rel="stylesheet" />
-    <script src="../js/jquery-3.6.0.min.js"></script>
+    
     <style>
         /* Reset main.css conflicts */
         .reader-container,
@@ -418,12 +418,22 @@
         
         /* Reader Navigation */
         .reader-nav {
+            position: fixed;
+            bottom: 0;
+            left: 300px;
+            right: 0;
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 30px 40px;
-            background: rgba(26, 26, 46, 0.95);
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(26, 26, 46, 0.98);
             border-top: 1px solid rgba(163,0,27,0.3);
+            z-index: 100;
+            transition: left 0.3s ease;
+        }
+        
+        .sidebar.collapsed ~ .main-content .reader-nav {
+            left: 0;
         }
         
         .nav-btn {
@@ -431,14 +441,19 @@
             background: linear-gradient(135deg, #a3001b 0%, #8a0016 100%);
             border: none;
             border-radius: 25px;
-            color: #fff;
+            color: #fff !important;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
+            display: inline-flex !important;
+            flex-direction: row !important;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
+            position: relative;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
         
         .nav-btn:hover:not(:disabled) {
@@ -447,8 +462,15 @@
         }
         
         .nav-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.3) !important;
+        }
+        
+        .nav-btn:disabled i {
+            color: rgba(255,255,255,0.3);
         }
         
         .nav-btn i {
@@ -934,6 +956,11 @@
                 z-index: 200;
             }
             
+            /* Mobile: reader-nav full width */
+            .reader-nav {
+                left: 0;
+            }
+            
             .toggle-sidebar {
                 left: 0;
             }
@@ -1018,14 +1045,12 @@
             }
             
             .reader-nav {
-                flex-wrap: wrap;
-                gap: 10px;
+                padding: 15px 20px;
             }
             
             .nav-btn {
-                flex: 1;
-                min-width: 120px;
-                justify-content: center;
+                padding: 8px 15px;
+                font-size: 12px;
             }
         }
         
@@ -1230,7 +1255,7 @@
             <!-- Reader Area -->
             <div class="reader-area" id="readerArea">
                 <div class="reader-content-wrapper">
-                    <h1 class="chapter-title" id="chapterTitle">Loading...</h1>
+                    <h1 class="chapter-title" id="chapterTitleDisplay">Loading...</h1>
                     <div class="reader-content" id="readerContent">
                         <p>Please select a chapter from the sidebar to start reading.</p>
                     </div>

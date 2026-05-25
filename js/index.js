@@ -1,3 +1,9 @@
+/**
+ * Easy Web TV - Main Application
+ * Native JavaScript (No jQuery)
+ * @version 8.5.0
+ */
+
 // Adult content translations for all supported languages
 const AdultTranslations = {
     getButtonText: function(lang) {
@@ -27,7 +33,7 @@ const AdultTranslations = {
             'default': 'Porn Videos...',
             'zh': '色情视频...', 'zh-CN': '色情视频...', 'zh-HK': '色情影片...', 'zh-TW': '色情影片...',
             'ja': 'ポルノビデオ...', 'ko': '포르노 비디오...', 'vi': 'Video khiêu dâm ...', 'th': 'วิดีโอโป๊...',
-            'es': 'Vídeos porno ...', 'pt': 'Vídeos pornôs ...', 'pt-BR': 'Vídeos pornôs ...', 'pt-PT': 'Vídeos pornô...',
+            'es': 'Vídeos porno ...', 'pt': 'Vídeos pornôs ...', 'pt-BR': 'Vídeos pornô...', 'pt-PT': 'Vídeos pornô...',
             'fr': 'Vidéos porno...', 'fr-CA': 'Vidéos porno...', 'fr-FR': 'Vidéos porno...', 'fr-CH': 'Vidéos porno...',
             'de': 'Pornovideos...', 'de-AT': 'Pornovideos...', 'de-DE': 'Pornovideos...', 'de-CH': 'Pornovideos...',
             'it': 'Video porno...', 'it-IT': 'Video porno...', 'it-CH': 'Video porno...',
@@ -48,25 +54,28 @@ const AdultTranslations = {
 // Loading and Error handling utilities
 const LoadingManager = {
     show: function() {
-        $('#loading-overlay').addClass('active');
+        DOM.addClass('#loading-overlay', 'active');
     },
     hide: function() {
-        $('#loading-overlay').removeClass('active');
+        DOM.removeClass('#loading-overlay', 'active');
     }
 };
 
 const ErrorToast = {
     show: function(message, duration) {
         duration = duration || 3000;
-        var $toast = $('#error-toast');
-        $toast.find('.error-message').text(message);
-        $toast.addClass('show');
+        var toast = DOM.$('#error-toast');
+        var errorMsg = DOM.find(toast, '.error-message');
+        if (errorMsg) {
+            errorMsg.textContent = message;
+        }
+        DOM.addClass(toast, 'show');
         setTimeout(function() {
-            $toast.removeClass('show');
+            DOM.removeClass(toast, 'show');
         }, duration);
     },
     hide: function() {
-        $('#error-toast').removeClass('show');
+        DOM.removeClass('#error-toast', 'show');
     }
 };
 
@@ -92,9 +101,9 @@ const KeyboardManager = {
     
     bindEvents: function() {
         // Keyboard shortcuts
-        $(document).on('keydown', function(e) {
+        document.addEventListener('keydown', function(e) {
             // Ignore shortcuts when typing in input fields
-            if ($(e.target).is('input, textarea, select')) {
+            if (e.target.matches('input, textarea, select')) {
                 return;
             }
             
@@ -141,23 +150,23 @@ const KeyboardManager = {
         });
         
         // Close modal on overlay click
-        $('#keyboard-modal-overlay').on('click', function() {
+        DOM.on('#keyboard-modal-overlay', 'click', function() {
             KeyboardManager.hideModal();
         });
         
         // Close modal on close button click
-        $('#keyboard-modal .close-btn').on('click', function() {
+        DOM.on('#keyboard-modal .close-btn', 'click', function() {
             KeyboardManager.hideModal();
         });
         
         // Close guide tooltip
-        $('#guide-tooltip .close-guide').on('click', function() {
+        DOM.on('#guide-tooltip .close-guide', 'click', function() {
             KeyboardManager.hideGuide();
             localStorage.setItem('guideShown', 'true');
         });
         
         // Keyboard help button in header
-        $('#keyboard-help-btn').on('click', function(e) {
+        DOM.on('#keyboard-help-btn', 'click', function(e) {
             e.stopPropagation();
             KeyboardManager.showModal();
         });
@@ -174,14 +183,14 @@ const KeyboardManager = {
     },
     
     showModal: function() {
-        $('#keyboard-modal').addClass('show');
-        $('#keyboard-modal-overlay').addClass('show');
+        DOM.addClass('#keyboard-modal', 'show');
+        DOM.addClass('#keyboard-modal-overlay', 'show');
         this.modalVisible = true;
     },
     
     hideModal: function() {
-        $('#keyboard-modal').removeClass('show');
-        $('#keyboard-modal-overlay').removeClass('show');
+        DOM.removeClass('#keyboard-modal', 'show');
+        DOM.removeClass('#keyboard-modal-overlay', 'show');
         this.modalVisible = false;
     },
     
@@ -190,50 +199,61 @@ const KeyboardManager = {
         this.hideModal();
         
         // Close side navigation
-        if ($('#mySidenav').is(':visible')) {
-            $('#main').css('marginRight', '0');
-            $('#mySidenav').hide();
-            $('#menu-toggle-btn').attr('aria-expanded', 'false');
+        var sidenav = DOM.$('#mySidenav');
+        var main = DOM.$('#main');
+        var btn = DOM.$('#menu-toggle-btn');
+        
+        if (DOM.isVisible(sidenav)) {
+            main.style.marginRight = '0';
+            DOM.hide(sidenav);
+            btn.setAttribute('aria-expanded', 'false');
         }
         
         // Close any open dialogs
-        if ($('#popupbox').is(':visible')) {
+        var popupbox = DOM.$('#popupbox');
+        var sourcebox = DOM.$('#sourcebox');
+        var logbox = DOM.$('#logbox');
+        var infobox = DOM.$('#infobox');
+        
+        if (popupbox && DOM.isVisible(popupbox)) {
             window.location.href = '#';
         }
-        if ($('#sourcebox').is(':visible')) {
+        if (sourcebox && DOM.isVisible(sourcebox)) {
             window.location.href = '#';
         }
-        if ($('#logbox').is(':visible')) {
+        if (logbox && DOM.isVisible(logbox)) {
             window.location.href = '#';
         }
-        if ($('#infobox').is(':visible')) {
+        if (infobox && DOM.isVisible(infobox)) {
             window.location.href = '#';
         }
         
         // Close age confirmation modal
-        if ($('#age-confirm-modal').hasClass('show')) {
-            $('#age-confirm-modal').removeClass('show');
-            $('#age-confirm-overlay').removeClass('show');
+        var ageModal = DOM.$('#age-confirm-modal');
+        var ageOverlay = DOM.$('#age-confirm-overlay');
+        if (DOM.hasClass(ageModal, 'show')) {
+            DOM.removeClass(ageModal, 'show');
+            DOM.removeClass(ageOverlay, 'show');
         }
     },
     
     toggleMenu: function() {
-        var $sidenav = $('#mySidenav');
-        var $main = $('#main');
-        var $btn = $('#menu-toggle-btn');
+        var sidenav = DOM.$('#mySidenav');
+        var main = DOM.$('#main');
+        var btn = DOM.$('#menu-toggle-btn');
         
-        if ($sidenav.is(':visible')) {
-            $main.css('marginRight', '0');
-            $sidenav.hide();
-            $btn.attr('aria-expanded', 'false');
+        if (DOM.isVisible(sidenav)) {
+            main.style.marginRight = '0';
+            DOM.hide(sidenav);
+            btn.setAttribute('aria-expanded', 'false');
         } else {
-            if ($(window).width() > 640) {
-                $main.css('marginRight', '400px');
+            if (window.innerWidth > 640) {
+                main.style.marginRight = '400px';
             } else {
-                $main.css('marginRight', '250px');
+                main.style.marginRight = '250px';
             }
-            $sidenav.show();
-            $btn.attr('aria-expanded', 'true');
+            DOM.show(sidenav);
+            btn.setAttribute('aria-expanded', 'true');
         }
     },
     
@@ -241,7 +261,7 @@ const KeyboardManager = {
         // Show guide tooltip on first visit
         if (!localStorage.getItem('guideShown')) {
             setTimeout(function() {
-                $('#guide-tooltip').addClass('show');
+                DOM.addClass('#guide-tooltip', 'show');
                 // Auto hide after 8 seconds (longer for better visibility)
                 setTimeout(function() {
                     KeyboardManager.hideGuide();
@@ -252,7 +272,7 @@ const KeyboardManager = {
     },
     
     hideGuide: function() {
-        $('#guide-tooltip').removeClass('show');
+        DOM.removeClass('#guide-tooltip', 'show');
     }
 };
 
@@ -270,9 +290,9 @@ const ThemeManager = {
     
     setTheme: function(theme) {
         if (theme === 'dark') {
-            $('html').attr('data-theme', 'dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
         } else {
-            $('html').removeAttr('data-theme');
+            document.documentElement.removeAttribute('data-theme');
         }
         localStorage.setItem('theme', theme);
     },
@@ -285,12 +305,12 @@ const ThemeManager = {
     
     bindEvents: function() {
         // Theme toggle button in menu
-        $('#theme-toggle-menu').on('click', function() {
+        DOM.on('#theme-toggle-menu', 'click', function() {
             ThemeManager.toggleTheme();
         });
         
         // Theme toggle button in header
-        $('#theme-toggle').on('click', function(e) {
+        DOM.on('#theme-toggle', 'click', function(e) {
             e.stopPropagation();
             ThemeManager.toggleTheme();
         });
@@ -305,12 +325,12 @@ const ShareManager = {
     
     bindEvents: function() {
         // Share button in menu
-        $('#share-btn-menu').on('click', function() {
+        DOM.on('#share-btn-menu', 'click', function() {
             ShareManager.share();
         });
         
         // Share button in header
-        $('#share-btn').on('click', function(e) {
+        DOM.on('#share-btn', 'click', function(e) {
             e.stopPropagation();
             ShareManager.share();
         });
@@ -394,7 +414,7 @@ const InstallManager = {
             // Show install prompt after a delay
             setTimeout(function() {
                 if (!localStorage.getItem('pwaInstallDismissed')) {
-                    $('#install-prompt').addClass('show');
+                    DOM.addClass('#install-prompt', 'show');
                 }
             }, 3000);
         });
@@ -402,17 +422,17 @@ const InstallManager = {
         // Listen for successful installation
         window.addEventListener('appinstalled', function() {
             InstallManager.deferredPrompt = null;
-            $('#install-prompt').removeClass('show');
+            DOM.removeClass('#install-prompt', 'show');
             ErrorToast.show('App installed successfully!', 3000);
         });
     },
     
     bindEvents: function() {
-        $('#install-accept').on('click', function() {
+        DOM.on('#install-accept', 'click', function() {
             InstallManager.install();
         });
         
-        $('#install-dismiss').on('click', function() {
+        DOM.on('#install-dismiss', 'click', function() {
             InstallManager.dismiss();
         });
     },
@@ -428,13 +448,13 @@ const InstallManager = {
                         console.log('User dismissed the install prompt');
                     }
                     InstallManager.deferredPrompt = null;
-                    $('#install-prompt').removeClass('show');
+                    DOM.removeClass('#install-prompt', 'show');
                 });
         }
     },
     
     dismiss: function() {
-        $('#install-prompt').removeClass('show');
+        DOM.removeClass('#install-prompt', 'show');
         localStorage.setItem('pwaInstallDismissed', 'true');
     }
 };
@@ -451,7 +471,7 @@ const ScrollAnimationManager = {
             var observer = new IntersectionObserver(function(entries) {
                 entries.forEach(function(entry) {
                     if (entry.isIntersecting) {
-                        $(entry.target).addClass('visible');
+                        entry.target.classList.add('visible');
                     }
                 });
             }, {
@@ -459,18 +479,429 @@ const ScrollAnimationManager = {
                 rootMargin: '0px 0px -50px 0px'
             });
             
-            $('.fade-in').each(function() {
-                observer.observe(this);
+            DOM.$$('.fade-in').forEach(function(el) {
+                observer.observe(el);
             });
         } else {
             // Fallback for browsers without Intersection Observer
-            $('.fade-in').addClass('visible');
+            DOM.$$('.fade-in').forEach(function(el) {
+                el.classList.add('visible');
+            });
         }
     }
 };
 
-$(document).ready(function() {
-    // Initialize keyboard navigation
+// Update Adult Content Item text when language changes
+function updateAdultContentItem(lang) {
+    var adultItem = document.querySelector('li[data-adult="true"]');
+    if (adultItem) {
+        var buttonText = AdultTranslations.getButtonText(lang);
+        var descText = AdultTranslations.getDescriptionText(lang);
+        
+        // Update button text
+        var button = adultItem.querySelector('button.stylebtn');
+        if (button) {
+            button.textContent = buttonText;
+        }
+        
+        // Update description text
+        var desc = adultItem.querySelector('p');
+        if (desc) {
+            desc.textContent = descText;
+        }
+    }
+}
+
+// Expose function globally for translator.js to call
+window.updateAdultContentItem = updateAdultContentItem;
+
+// Age Confirmation Modal Manager
+const AgeConfirmModal = {
+    pendingCheckbox: null,
+    
+    init: function() {
+        this.bindEvents();
+    },
+    
+    bindEvents: function() {
+        // Yes button click
+        DOM.on('#age-confirm-yes', 'click', function() {
+            AgeConfirmModal.confirmYes();
+        });
+        
+        // No button click
+        DOM.on('#age-confirm-no', 'click', function() {
+            AgeConfirmModal.confirmNo();
+        });
+        
+        // Close on overlay click
+        DOM.on('#age-confirm-overlay', 'click', function() {
+            AgeConfirmModal.confirmNo();
+        });
+        
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && DOM.hasClass('#age-confirm-modal', 'show')) {
+                AgeConfirmModal.confirmNo();
+            }
+        });
+    },
+    
+    show: function(checkbox) {
+        this.pendingCheckbox = checkbox;
+        DOM.addClass('#age-confirm-modal', 'show');
+        DOM.addClass('#age-confirm-overlay', 'show');
+        var modal = DOM.$('#age-confirm-modal');
+        var overlay = DOM.$('#age-confirm-overlay');
+        if (modal) modal.setAttribute('aria-hidden', 'false');
+        if (overlay) overlay.setAttribute('aria-hidden', 'false');
+    },
+    
+    hide: function() {
+        DOM.removeClass('#age-confirm-modal', 'show');
+        DOM.removeClass('#age-confirm-overlay', 'show');
+        var modal = DOM.$('#age-confirm-modal');
+        var overlay = DOM.$('#age-confirm-overlay');
+        if (modal) modal.setAttribute('aria-hidden', 'true');
+        if (overlay) overlay.setAttribute('aria-hidden', 'true');
+        this.pendingCheckbox = null;
+    },
+    
+    confirmYes: function() {
+        if (this.pendingCheckbox) {
+            this.pendingCheckbox.checked = true;
+            var currentLang = window.localStorage.getItem('languages') || 'en';
+            var buttonText = AdultTranslations.getButtonText(currentLang);
+            var descText = AdultTranslations.getDescriptionText(currentLang);
+            var mobile = DOM.$('.mobile');
+            if (mobile) {
+                DOM.append(mobile, `<li data-adult="true"><img src="images/sex.svg" /><dd><a href="routes/adult.html"><button class="stylebtn">${buttonText}</button></a></dd><p>${descText}</p></li>`);
+            }
+            window.localStorage.setItem('adult', 'open');
+        }
+        this.hide();
+    },
+    
+    confirmNo: function() {
+        if (this.pendingCheckbox) {
+            this.pendingCheckbox.checked = false;
+        }
+        // Remove the adult content item by its unique identifier
+        var mobile = DOM.$('.mobile');
+        if (mobile) {
+            var adultItem = mobile.querySelector('li[data-adult="true"]');
+            if (adultItem) adultItem.remove();
+        }
+        localStorage.removeItem('adult');
+        this.hide();
+    }
+};
+
+// Settings Modal Manager - Paginated Settings
+const SettingsModal = {
+    currentPage: 'main',
+    isOpen: false,
+    
+    init: function() {
+        this.bindEvents();
+        this.syncLanguageSelect();
+        this.syncThemeToggle();
+    },
+    
+    bindEvents: function() {
+        // Open settings modal via menu toggle button
+        var menuToggleBtn = DOM.$('#menu-toggle-btn');
+        if (menuToggleBtn) {
+            menuToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (SettingsModal.isOpen) {
+                    SettingsModal.hide();
+                } else {
+                    SettingsModal.show();
+                }
+            });
+        }
+        
+        // Close settings modal on overlay click
+        DOM.on('#settings-modal-overlay', 'click', function() {
+            SettingsModal.hide();
+        });
+        
+        // Close button
+        DOM.on('#settings-modal .close-btn', 'click', function() {
+            SettingsModal.hide();
+        });
+        
+        // Back buttons - use direct event binding for reliability
+        var backBtns = DOM.$$('#settings-modal .back-btn');
+        backBtns.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                SettingsModal.showPage('main');
+            });
+        });
+        
+        // Navigation items
+        DOM.$$('.settings-nav-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                var target = this.getAttribute('data-target');
+                if (target) {
+                    SettingsModal.showPage(target);
+                }
+            });
+        });
+        
+        // Clear cache button
+        DOM.on('#clear-cache-btn', 'click', function() {
+            SettingsModal.clearCache();
+        });
+        
+        // Theme toggle in settings
+        DOM.on('#settings-theme-toggle', 'change', function() {
+            ThemeManager.setTheme(this.checked ? 'dark' : 'light');
+        });
+        
+        // Language change in settings - use direct event binding for reliability
+        var settingsLangSelect = DOM.$('#settings-languages');
+        if (settingsLangSelect) {
+            settingsLangSelect.addEventListener('change', function(e) {
+                var selectedLang = this.value;
+                // Use window.setLanguage to ensure proper language switching
+                if (window.setLanguage) {
+                    window.setLanguage(selectedLang);
+                } else {
+                    // Fallback: save to both keys for compatibility
+                    window.localStorage.setItem('preferredLanguage', selectedLang);
+                    window.localStorage.setItem('languages', selectedLang);
+                    if (typeof applyTranslation === 'function') {
+                        applyTranslation(selectedLang);
+                    }
+                }
+                // Sync with main language selector
+                var mainLangSelect = DOM.$('#languages');
+                if (mainLangSelect) {
+                    mainLangSelect.value = selectedLang;
+                }
+            });
+        }
+        
+        // Adult content toggle in settings
+        var adultbanToggle = DOM.$('#adultban');
+        if (adultbanToggle) {
+            // Initialize state from localStorage
+            if (window.localStorage.getItem('adult') === 'open') {
+                adultbanToggle.checked = true;
+            }
+            
+            adultbanToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    // Prevent the checkbox from being checked immediately
+                    this.checked = false;
+                    // Show custom modal
+                    AgeConfirmModal.show(this);
+                } else {
+                    var mobile = DOM.$('.mobile');
+                    if (mobile) {
+                        // Remove the adult content item by its unique identifier
+                        var adultItem = mobile.querySelector('li[data-adult="true"]');
+                        if (adultItem) adultItem.remove();
+                    }
+                    localStorage.removeItem('adult');
+                }
+            });
+        }
+        
+        // ESC key to close
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && SettingsModal.isOpen) {
+                SettingsModal.hide();
+            }
+        });
+    },
+    
+    show: function() {
+        var overlay = DOM.$('#settings-modal-overlay');
+        var modal = DOM.$('#settings-modal');
+        
+        if (overlay && modal) {
+            // Use only CSS classes for proper transition handling
+            DOM.addClass(overlay, 'show');
+            DOM.addClass(modal, 'show');
+            
+            this.isOpen = true;
+            this.showPage('main');
+            
+            // Update button aria-expanded
+            var btn = DOM.$('#menu-toggle-btn');
+            if (btn) {
+                btn.setAttribute('aria-expanded', 'true');
+                btn.setAttribute('aria-label', 'Close settings');
+            }
+        }
+    },
+    
+    hide: function() {
+        var overlay = DOM.$('#settings-modal-overlay');
+        var modal = DOM.$('#settings-modal');
+        
+        if (overlay && modal) {
+            // Use only CSS classes for proper transition handling
+            DOM.removeClass(overlay, 'show');
+            DOM.removeClass(modal, 'show');
+            
+            this.isOpen = false;
+            
+            // Update button aria-expanded
+            var btn = DOM.$('#menu-toggle-btn');
+            if (btn) {
+                btn.setAttribute('aria-expanded', 'false');
+                btn.setAttribute('aria-label', 'Open menu');
+            }
+        }
+    },
+    
+    showPage: function(pageName) {
+        var currentPageEl = DOM.$('.settings-page.active');
+        var targetPage = DOM.$('.settings-page[data-page="' + pageName + '"]');
+        
+        // If no current page is active, just activate the target
+        if (!currentPageEl) {
+            if (targetPage) {
+                DOM.addClass(targetPage, 'active');
+                this.currentPage = pageName;
+            }
+            return;
+        }
+        
+        if (targetPage && currentPageEl !== targetPage) {
+            DOM.removeClass(currentPageEl, 'active');
+            DOM.addClass(currentPageEl, 'exiting');
+            
+            setTimeout(function() {
+                DOM.removeClass(currentPageEl, 'exiting');
+            }, 300);
+            
+            DOM.addClass(targetPage, 'active');
+            this.currentPage = pageName;
+        }
+    },
+    
+    syncLanguageSelect: function() {
+        var settingsLang = DOM.$('#settings-languages');
+        var mainLang = DOM.$('#languages');
+        
+        // Get saved language from both keys for compatibility
+        var savedLang = window.localStorage.getItem('preferredLanguage') || 
+                        window.localStorage.getItem('languages') || 'en';
+        
+        // Sync both selectors with the same value
+        if (settingsLang) {
+            settingsLang.value = savedLang;
+        }
+        if (mainLang) {
+            mainLang.value = savedLang;
+        }
+    },
+    
+    syncThemeToggle: function() {
+        var themeToggle = DOM.$('#settings-theme-toggle');
+        if (themeToggle) {
+            var currentTheme = window.localStorage.getItem('theme') || 'light';
+            themeToggle.checked = currentTheme === 'dark';
+        }
+    },
+    
+    initSourceControl: function() {
+        // Source type button click handler
+        DOM.$$('.source-type-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                DOM.$$('.source-type-btn').forEach(function(b) {
+                    DOM.removeClass(b, 'active');
+                });
+                // Add active class to clicked button
+                DOM.addClass(this, 'active');
+                
+                // Hide all source options
+                DOM.$$('.source-options').forEach(function(opt) {
+                    DOM.addClass(opt, 'hidden');
+                });
+                
+                // Show selected source options
+                var sourceType = this.getAttribute('data-source-type');
+                var targetOptions = DOM.$('.source-options[data-source-type="' + sourceType + '"]');
+                if (targetOptions) {
+                    DOM.removeClass(targetOptions, 'hidden');
+                }
+            });
+        });
+        
+        // Load saved sources from localStorage
+        this.loadSavedSources();
+        
+        // Save button click handler
+        DOM.on('#save-source-btn', 'click', function() {
+            SettingsModal.saveSources();
+        });
+    },
+    
+    loadSavedSources: function() {
+        var sourceTypes = ['movie', 'novel', 'manga', 'music', 'porn'];
+        sourceTypes.forEach(function(type) {
+            var saved = window.localStorage.getItem(type);
+            if (saved) {
+                var savedArr = saved.split(',');
+                var checkboxes = document.querySelectorAll('input[name="settings-' + type + '"]');
+                checkboxes.forEach(function(cb) {
+                    cb.checked = savedArr.includes(cb.value);
+                });
+            }
+        });
+    },
+    
+    saveSources: function() {
+        var sourceTypes = ['movie', 'novel', 'manga', 'music', 'porn'];
+        var hasError = false;
+        
+        sourceTypes.forEach(function(type) {
+            var checked = [];
+            document.querySelectorAll('input[name="settings-' + type + '"]:checked').forEach(function(cb) {
+                checked.push(cb.value);
+            });
+            
+            if (checked.length === 0) {
+                hasError = true;
+            } else {
+                window.localStorage.setItem(type, checked.join(','));
+            }
+        });
+        
+        if (hasError) {
+            ErrorToast.show('Please select at least one source for each category', 3000);
+        } else {
+            ErrorToast.show('Sources saved successfully!', 2000);
+        }
+    },
+    
+    clearCache: function() {
+        if (confirm("Are you sure you want to clear all cache?")) {
+            localStorage.clear();
+            ErrorToast.show('Cache cleared successfully!', 2000);
+            // Reset theme and other settings
+            ThemeManager.setTheme('light');
+            this.syncThemeToggle();
+        }
+    }
+};
+
+// Initialize application
+DOM.ready(function() {
+    // Initialize Settings Modal FIRST (to properly bind menu button)
+    SettingsModal.init();
+    
+    // Initialize keyboard navigation (will use SettingsModal for menu toggle)
     KeyboardManager.init();
     
     // Initialize scroll animations
@@ -485,332 +916,284 @@ $(document).ready(function() {
     // Initialize PWA install manager
     InstallManager.init();
     
-    //Check user IP belongs to if in China, North Korea
-    if (window.localStorage.getItem('bannedcountries') != 'true') {
-        getUserIp();
-    } else {
-        $('#mySidenav div:eq(0)').hide();
-    }
-    //Append select language options
-    $("#languages").append(`
-    <option value="selectbox">==Select==</option>
-    <option value="af">Afrikaans</option>
-    <option value="sq">Albanian - shqip</option>
-    <option value="am">Amharic - አማርኛ</option>
-    <option value="ar">Arabic - العربية</option>
-    <option value="hy">Armenian - հայերեն</option>
-    <option value="az">Azerbaijani - azərbaycan dili</option>
-    <option value="eu">Basque - euskara</option>
-    <option value="be">Belarusian - беларуская</option>
-    <option value="bn">Bangla - বাংলা</option>
-    <option value="bs">Bosnian - bosanski</option>
-    <option value="bg">Bulgarian - български</option>
-    <option value="ca">Catalan - català</option>
-    <option value="zh">Chinese - 中文</option>
-    <option value="zh-HK">Chinese (Hong Kong) - 中文（香港）</option>
-    <option value="zh-CN">Chinese (Simplified) - 中文（简体）</option>
-    <option value="zh-TW">Chinese (Traditional) - 中文（繁體）</option>
-    <option value="co">Corsican</option>
-    <option value="hr">Croatian - hrvatski</option>
-    <option value="cs">Czech - čeština</option>
-    <option value="da">Danish - dansk</option>
-    <option value="nl">Dutch - Nederlands</option>
-    <option value="en">English</option>
-    <option value="en-AU">English (Australia)</option>
-    <option value="en-CA">English (Canada)</option>
-    <option value="en-IN">English (India)</option>
-    <option value="en-NZ">English (New Zealand)</option>
-    <option value="en-ZA">English (South Africa)</option>
-    <option value="en-GB">English (United Kingdom)</option>
-    <option value="en-US">English (United States)</option>
-    <option value="eo">Esperanto - esperanto</option>
-    <option value="et">Estonian - eesti</option>
-    <option value="fil">Filipino</option>
-    <option value="fi">Finnish - suomi</option>
-    <option value="fr">French - français</option>
-    <option value="fr-CA">French (Canada) - français (Canada)</option>
-    <option value="fr-FR">French (France) - français (France)</option>
-    <option value="fr-CH">French (Switzerland) - français (Suisse)</option>
-    <option value="gl">Galician - galego</option>
-    <option value="ka">Georgian - ქართული</option>
-    <option value="de">German - Deutsch</option>
-    <option value="de-AT">German (Austria) - Deutsch (Österreich)</option>
-    <option value="de-DE">German (Germany) - Deutsch (Deutschland)</option>
-    <option value="de-LI">German (Liechtenstein) - Deutsch (Liechtenstein)</option>
-    <option value="de-CH">German (Switzerland) - Deutsch (Schweiz)</option>
-    <option value="el">Greek - Ελληνικά</option>
-    <option value="gu">Gujarati - ગુજરાતી</option>
-    <option value="ha">Hausa</option>
-    <option value="haw">Hawaiian - ʻŌlelo Hawaiʻi</option>
-    <option value="he">Hebrew - עברית</option>
-    <option value="hi">Hindi - हिन्दी</option>
-    <option value="hu">Hungarian - magyar</option>
-    <option value="is">Icelandic - íslenska</option>
-    <option value="id">Indonesian - Indonesia</option>
-    <option value="ga">Irish - Gaeilge</option>
-    <option value="it">Italian - italiano</option>
-    <option value="it-IT">Italian (Italy) - italiano (Italia)</option>
-    <option value="it-CH">Italian (Switzerland) - italiano (Svizzera)</option>
-    <option value="ja">Japanese - 日本語</option>
-    <option value="kn">Kannada - ಕನ್ನಡ</option>
-    <option value="kk">Kazakh - қазақ тілі</option>
-    <option value="km">Khmer - ខ្មែរ</option>
-    <option value="ko">Korean - 한국어</option>
-    <option value="ku">Kurdish - Kurdî</option>
-    <option value="ky">Kyrgyz - кыргызча</option>
-    <option value="lo">Lao - ລາວ</option> 
-    <option value="la">Latin</option>
-    <option value="lv">Latvian - latviešu</option>
-    <option value="lt">Lithuanian - lietuvių</option>
-    <option value="mk">Macedonian - македонски</option>
-    <option value="ms">Malay - Bahasa Melayu</option>
-    <option value="ml">Malayalam - മലയാളം</option>
-    <option value="mt">Maltese - Malti</option>
-    <option value="mr">Marathi - मराठी</option>
-    <option value="mn">Mongolian - монгол</option>
-    <option value="ne">Nepali - नेपाली</option>
-    <option value="no">Norwegian - norsk</option>
-    <option value="nb">Norwegian Bokmål - norsk bokmål</option>
-    <option value="nn">Norwegian Nynorsk - nynorsk</option>
-    <option value="od">Odia</option>
-    <option value="ps">Pashto - پښتو</option>
-    <option value="fa">Persian - فارسی</option>
-    <option value="pl">Polish - polski</option>
-    <option value="pt">Portuguese - português</option>
-    <option value="pt-BR">Portuguese (Brazil) - português (Brasil)</option>
-    <option value="pt-PT">Portuguese (Portugal) - português (Portugal)</option>
-    <option value="pa">Punjabi - ਪੰਜਾਬੀ</option>
-    <option value="ro">Romanian - română</option>
-    <option value="mo">Romanian (Moldova) - română (Moldova)</option>
-    <option value="rm">Romansh - rumantsch</option>
-    <option value="ru">Russian - русский</option>
-    <option value="gd">Scottish Gaelic</option>
-    <option value="sr">Serbian - српски</option> 
-    <option value="sn">Shona - chiShona</option>
-    <option value="sd">Sindhi</option>
-    <option value="si">Sinhala - සිංහල</option>
-    <option value="sk">Slovak - slovenčina</option>
-    <option value="sl">Slovenian - slovenščina</option>
-    <option value="so">Somali - Soomaali</option>
-    <option value="st">Southern Sotho</option>
-    <option value="es">Spanish - español</option>
-    <option value="es-AR">Spanish (Argentina) - español (Argentina)</option>
-    <option value="es-419">Spanish (Latin America) - español (Latinoamérica)</option>
-    <option value="es-MX">Spanish (Mexico) - español (México)</option>
-    <option value="es-ES">Spanish (Spain) - español (España)</option>
-    <option value="es-US">Spanish (United States) - español (Estados Unidos)</option>
-    <option value="su">Sundanese</option>
-    <option value="sw">Swahili - Kiswahili</option> 
-    <option value="sv">Swedish - svenska</option>
-    <option value="tg">Tajik - тоҷикӣ</option>
-    <option value="ta">Tamil - தமிழ்</option> 
-    <option value="tt">Tatar</option>
-    <option value="te">Telugu - తెలుగు</option>
-    <option value="th">Thai - ไทย</option>
-    <option value="tr">Turkish - Türkçe</option>
-    <option value="tk">Turkmen</option>
-    <option value="uk">Ukrainian - українська</option>
-    <option value="ur">Urdu - اردو</option>
-    <option value="ug">Uyghur</option>
-    <option value="uz">Uzbek - o‘zbek</option>
-    <option value="vi">Vietnamese - Tiếng Việt</option>
-    <option value="cy">Welsh - Cymraeg</option>
-    <option value="fy">Western Frisian</option>
-    <option value="xh">Xhosa</option>
-    <option value="yi">Yiddish</option>
-    <option value="yo">Yoruba - Èdè Yorùbá</option>
-    <option value="zu">Zulu - isiZulu</option>
-    `);
-    //Toggle Menu - updated with aria-expanded
-    $('#main').click(function() {
-        var $btn = $('#menu-toggle-btn');
-        if ($('#mySidenav').is(':visible')) {
-            $(this).css({
-                'marginRight': '0'
-            });
-            $('#mySidenav').hide();
-            $btn.attr('aria-expanded', 'false');
-        } else {
-            if ($(window).width() > 640) {
-                $(this).css({
-                    'marginRight': '400px'
-                });
-            } else {
-                $(this).css({
-                    'marginRight': '250px'
-                });
-            }
-            $('#mySidenav').show();
-            $btn.attr('aria-expanded', 'true');
-        };
-    });
-    //if user back refresh page
-    let link = window.location.href;
-    if (link.indexOf('popupbox') > -1) {
-        window.location.replace('https://zhangboheng.github.io/Easy-Web-TV-M3u8/');
-    }
-    //Set attributes to button
-    $('.stylebtn:eq(2)').click(function() {
-        $(this).attr('title', 'selected');
-        $('.stylebtn:eq(4)').removeAttr("title");
-    });
-    $('.stylebtn:eq(4)').click(function() {
-        $(this).attr('title', 'selected');
-        $('.stylebtn:eq(2)').removeAttr("title");
-    });
-    //Select TV Options
-    $('.stylebtn:eq(0)').on('click', function() {
-        if ($('input[name=radioName]:checked', '#selectform').val() == 1 && $('.stylebtn:eq(2)').attr('title') == 'selected') {
-            window.location.href = "routes/countries.html";
-        } else if ($('input[name=radioName]:checked', '#selectform').val() == 2 && $('.stylebtn:eq(2)').attr('title') == 'selected') {
-            window.location.href = "routes/language.html";
-        } else if ($('input[name=radioName]:checked', '#selectform').val() == 3 && $('.stylebtn:eq(2)').attr('title') == 'selected') {
-            window.location.href = "routes/category.html";
-        } else if ($('input[name=radioName]:checked', '#selectform').val() == 1 && $('.stylebtn:eq(4)').attr('title') == 'selected') {
-            window.location.href = "routes/radio.html?t=1";
-        } else if ($('input[name=radioName]:checked', '#selectform').val() == 2 && $('.stylebtn:eq(4)').attr('title') == 'selected') {
-            window.location.href = "routes/radio.html?t=2";
-        } else if ($('input[name=radioName]:checked', '#selectform').val() == 3 && $('.stylebtn:eq(4)').attr('title') == 'selected') {
-            window.location.href = "routes/radio.html?t=3";
-        }
-    });
-    //Set adult content default
-    if (window.localStorage.getItem('bannedcountries') != 'true' && window.localStorage.getItem('adult') == 'open') {
-        $('#adultban').prop('checked', true);
-        var currentLang = window.localStorage.getItem('languages') || 'en';
-        var buttonText = AdultTranslations.getButtonText(currentLang);
-        var descText = AdultTranslations.getDescriptionText(currentLang);
-        $('.mobile').append(`<li><img src="images/sex.svg" /><dd><a href="routes/adult.html"><button class="stylebtn">${buttonText}</button></a></dd><p>${descText}</p></li>`);
-    }
-    // Age Confirmation Modal Manager
-    const AgeConfirmModal = {
-        pendingCheckbox: null,
-        
-        init: function() {
-            this.bindEvents();
-        },
-        
-        bindEvents: function() {
-            // Yes button click
-            $('#age-confirm-yes').on('click', function() {
-                AgeConfirmModal.confirmYes();
-            });
-            
-            // No button click
-            $('#age-confirm-no').on('click', function() {
-                AgeConfirmModal.confirmNo();
-            });
-            
-            // Close on overlay click
-            $('#age-confirm-overlay').on('click', function() {
-                AgeConfirmModal.confirmNo();
-            });
-            
-            // Close on ESC key
-            $(document).on('keydown', function(e) {
-                if (e.key === 'Escape' && $('#age-confirm-modal').hasClass('show')) {
-                    AgeConfirmModal.confirmNo();
-                }
-            });
-        },
-        
-        show: function(checkbox) {
-            this.pendingCheckbox = checkbox;
-            $('#age-confirm-modal').addClass('show');
-            $('#age-confirm-overlay').addClass('show');
-            $('#age-confirm-modal').attr('aria-hidden', 'false');
-            $('#age-confirm-overlay').attr('aria-hidden', 'false');
-        },
-        
-        hide: function() {
-            $('#age-confirm-modal').removeClass('show');
-            $('#age-confirm-overlay').removeClass('show');
-            $('#age-confirm-modal').attr('aria-hidden', 'true');
-            $('#age-confirm-overlay').attr('aria-hidden', 'true');
-            this.pendingCheckbox = null;
-        },
-        
-        confirmYes: function() {
-            if (this.pendingCheckbox) {
-                this.pendingCheckbox.prop('checked', true);
-                var currentLang = window.localStorage.getItem('languages') || 'en';
-                var buttonText = AdultTranslations.getButtonText(currentLang);
-                var descText = AdultTranslations.getDescriptionText(currentLang);
-                $('.mobile').append(`<li><img src="images/sex.svg" /><dd><a href="routes/adult.html"><button class="stylebtn">${buttonText}</button></a></dd><p>${descText}</p></li>`);
-                window.localStorage.setItem('adult', 'open');
-            }
-            this.hide();
-        },
-        
-        confirmNo: function() {
-            if (this.pendingCheckbox) {
-                this.pendingCheckbox.prop('checked', false);
-            }
-            this.hide();
-        }
-    };
-    
     // Initialize Age Confirmation Modal
     AgeConfirmModal.init();
     
-    //Check sensetive content if or not - updated to use custom modal
-    $('#adultban').on('change', function() {
-        if ($(this).is(':checked')) {
-            // Prevent the checkbox from being checked immediately
-            $(this).prop('checked', false);
-            // Show custom modal
-            AgeConfirmModal.show($(this));
-        } else {
-            $('.mobile li:eq(7)').remove();
-            localStorage.removeItem('adult');
+    // Initialize Source Control in Settings Modal
+    SettingsModal.initSourceControl();
+    
+    // Check user IP belongs to if in China, North Korea
+    if (window.localStorage.getItem('bannedcountries') != 'true') {
+        getUserIp();
+    }
+    
+    // Append select language options - Grouped and optimized
+    var languages = DOM.$('#languages');
+    var settingsLanguages = DOM.$('#settings-languages');
+    var languagesHtml = `
+            <option value="selectbox">==Select==</option>
+            <optgroup label="🌍 Common">
+                <option value="en">English</option>
+                <option value="zh">Chinese - 中文</option>
+                <option value="zh-CN">Chinese (Simplified) - 中文（简体）</option>
+                <option value="zh-TW">Chinese (Traditional) - 中文（繁體）</option>
+                <option value="ja">Japanese - 日本語</option>
+                <option value="ko">Korean - 한국어</option>
+                <option value="es">Spanish - español</option>
+                <option value="fr">French - français</option>
+                <option value="de">German - Deutsch</option>
+                <option value="pt">Portuguese - português</option>
+                <option value="ru">Russian - русский</option>
+                <option value="ar">Arabic - العربية</option>
+                <option value="hi">Hindi - हिन्दी</option>
+            </optgroup>
+            <optgroup label="🇪🇺 European">
+                <option value="sq">Albanian - shqip</option>
+                <option value="hy">Armenian - հայերեն</option>
+                <option value="az">Azerbaijani - azərbaycan dili</option>
+                <option value="be">Belarusian - беларуская</option>
+                <option value="bs">Bosnian - bosanski</option>
+                <option value="bg">Bulgarian - български</option>
+                <option value="ca">Catalan - català</option>
+                <option value="hr">Croatian - hrvatski</option>
+                <option value="cs">Czech - čeština</option>
+                <option value="da">Danish - dansk</option>
+                <option value="nl">Dutch - Nederlands</option>
+                <option value="et">Estonian - eesti</option>
+                <option value="fi">Finnish - suomi</option>
+                <option value="el">Greek - Ελληνικά</option>
+                <option value="hu">Hungarian - magyar</option>
+                <option value="is">Icelandic - íslenska</option>
+                <option value="ga">Irish - Gaeilge</option>
+                <option value="it">Italian - italiano</option>
+                <option value="lv">Latvian - latviešu</option>
+                <option value="lt">Lithuanian - lietuvių</option>
+                <option value="mk">Macedonian - македонски</option>
+                <option value="mt">Maltese - Malti</option>
+                <option value="no">Norwegian - norsk</option>
+                <option value="pl">Polish - polski</option>
+                <option value="ro">Romanian - română</option>
+                <option value="sr">Serbian - српски</option>
+                <option value="sk">Slovak - slovenčina</option>
+                <option value="sl">Slovenian - slovenščina</option>
+                <option value="sv">Swedish - svenska</option>
+                <option value="tr">Turkish - Türkçe</option>
+                <option value="uk">Ukrainian - українська</option>
+                <option value="cy">Welsh - Cymraeg</option>
+            </optgroup>
+            <optgroup label="🌏 Asian">
+                <option value="bn">Bangla - বাংলা</option>
+                <option value="gu">Gujarati - ગુજરાતી</option>
+                <option value="he">Hebrew - עברית</option>
+                <option value="id">Indonesian - Indonesia</option>
+                <option value="kk">Kazakh - қазақ тілі</option>
+                <option value="km">Khmer - ខ្មែរ</option>
+                <option value="ky">Kyrgyz - кыргызча</option>
+                <option value="lo">Lao - ລາວ</option>
+                <option value="ms">Malay - Bahasa Melayu</option>
+                <option value="mr">Marathi - मराठी</option>
+                <option value="mn">Mongolian - монгол</option>
+                <option value="ne">Nepali - नेपाली</option>
+                <option value="pa">Punjabi - ਪੰਜਾਬੀ</option>
+                <option value="si">Sinhala - සිංහල</option>
+                <option value="ta">Tamil - தமிழ்</option>
+                <option value="te">Telugu - తెలుగు</option>
+                <option value="th">Thai - ไทย</option>
+                <option value="ur">Urdu - اردو</option>
+                <option value="uz">Uzbek - o'zbek</option>
+                <option value="vi">Vietnamese - Tiếng Việt</option>
+            </optgroup>
+            <optgroup label="🌍 Other">
+                <option value="af">Afrikaans</option>
+                <option value="am">Amharic - አማርኛ</option>
+                <option value="eu">Basque - euskara</option>
+                <option value="fil">Filipino</option>
+                <option value="ha">Hausa</option>
+                <option value="haw">Hawaiian - ʻŌlelo Hawaiʻi</option>
+                <option value="kn">Kannada - ಕನ್ನಡ</option>
+                <option value="ml">Malayalam - മലയാളം</option>
+                <option value="fa">Persian - فارسی</option>
+                <option value="sw">Swahili - Kiswahili</option>
+                <option value="yo">Yoruba - Èdè Yorùbá</option>
+                <option value="zu">Zulu - isiZulu</option>
+            </optgroup>
+        `;
+    
+    if (languages) {
+        languages.innerHTML = languagesHtml;
+    }
+    
+    if (settingsLanguages) {
+        settingsLanguages.innerHTML = languagesHtml;
+        // Sync selected value
+        var savedLang = window.localStorage.getItem('languages') || 'en';
+        settingsLanguages.value = savedLang;
+    }
+    
+    // Note: Menu toggle event is handled by SettingsModal.bindEvents()
+    
+    // If user back refresh page
+    var link = window.location.href;
+    if (link.indexOf('popupbox') > -1) {
+        window.location.replace('https://zhangboheng.github.io/Easy-Web-TV-M3u8/');
+    }
+    
+    // Set attributes to button
+    var stylebtns = DOM.$$('.stylebtn');
+    if (stylebtns.length > 2) {
+        stylebtns[2].addEventListener('click', function() {
+            this.setAttribute('title', 'selected');
+            if (stylebtns.length > 4) {
+                stylebtns[4].removeAttribute('title');
+            }
+        });
+    }
+    if (stylebtns.length > 4) {
+        stylebtns[4].addEventListener('click', function() {
+            this.setAttribute('title', 'selected');
+            if (stylebtns.length > 2) {
+                stylebtns[2].removeAttribute('title');
+            }
+        });
+    }
+    
+    // Select TV Options
+    if (stylebtns.length > 0) {
+        stylebtns[0].addEventListener('click', function() {
+            var selectform = DOM.$('#selectform');
+            if (!selectform) return;
+            
+            var radioName = selectform.querySelector('input[name="radioName"]:checked');
+            var btn2 = stylebtns.length > 2 ? stylebtns[2] : null;
+            var btn4 = stylebtns.length > 4 ? stylebtns[4] : null;
+            
+            var radioValue = radioName ? radioName.value : null;
+            var isBtn2Selected = btn2 ? btn2.getAttribute('title') === 'selected' : false;
+            var isBtn4Selected = btn4 ? btn4.getAttribute('title') === 'selected' : false;
+            
+            if (radioValue == 1 && isBtn2Selected) {
+                window.location.href = "routes/countries.html";
+            } else if (radioValue == 2 && isBtn2Selected) {
+                window.location.href = "routes/language.html";
+            } else if (radioValue == 3 && isBtn2Selected) {
+                window.location.href = "routes/category.html";
+            } else if (radioValue == 1 && isBtn4Selected) {
+                window.location.href = "routes/radio.html?t=1";
+            } else if (radioValue == 2 && isBtn4Selected) {
+                window.location.href = "routes/radio.html?t=2";
+            } else if (radioValue == 3 && isBtn4Selected) {
+                window.location.href = "routes/radio.html?t=3";
+            }
+        });
+    }
+    
+    // Set adult content default
+    if (window.localStorage.getItem('bannedcountries') != 'true' && window.localStorage.getItem('adult') == 'open') {
+        var adultban = DOM.$('#adultban');
+        if (adultban) adultban.checked = true;
+        
+        var currentLang = window.localStorage.getItem('languages') || 'en';
+        var buttonText = AdultTranslations.getButtonText(currentLang);
+        var descText = AdultTranslations.getDescriptionText(currentLang);
+        var mobile = DOM.$('.mobile');
+        if (mobile) {
+            DOM.append(mobile, `<li data-adult="true"><img src="images/sex.svg" /><dd><a href="routes/adult.html"><button class="stylebtn">${buttonText}</button></a></dd><p>${descText}</p></li>`);
         }
-    });
-    //Clear cache
-    $('.cachebtn:eq(0)').click(function() {
-        if (confirm("Are you sure clear the cache?")) {
-            localStorage.clear();
-        } else {
-            console.log("Not do nothing...");
-        }
-    });
-    //Append log history
-    $('.scrollidbar').empty();
-    $('.scrollidbar').append(`
-        <p>[2026-05-18] V8.4.1 release fixed some bugs</p>
-        <p>[2026-05-18] V8.4.0 release improved podcast browsing and added podcast favorites</p>
-        <p>[2026-05-17] V8.3.0 release add retro console game emulator</p>
-        <p>[2026-05-17] V8.2.3 release add video autoplay next episode feature</p>
-        <p>[2026-05-16] V8.2.2 release fixed some bugs</p>
-        <p>[2026-05-16] V8.2.1 release beautify UI</p>
-        <p>[2021-10-09] V8.2.0 release support to play one game</p>
-        <p>[2021-10-06] V8.1.1 release Add about feature and fixed some bugs</p>
-        <p>[2021-10-02] V8.1.0 release Add source control feature</p>
-        <p>[2021-10-01] Delete one invalid manga source and add log history</p>
-        <p>[2021-09-16] V8.0.0 release support to listen to music online</p>
-        <p>[2021-09-15] V7.0.0 release support to read manga books</p>
-        <p>[2021-09-13] V6.0.0 release support to read novel books</p>
-        <p>[2021-09-08] V5.0.0 release support to listen 28000+ radio stations</p>
-        <p>[2021-09-04] V4.0.0 release support to watch movies, series, cartoon...</p>
-        <p>[2021-08-31] V3.0.0 release support to watch IPTV</p>
-        <p>[2021-08-29] V2.0.0 release support to search IPTV channels</p>
-        <p>[2021-08-29] V1.1.0 release pure code</p>
-        <p>[2021-08-28] V1.0.3 release support to remark favorite channels</p>
-        <p>[2021-04-21] V1.0.0 release</p>
-    `);
-    //Show QRcode
-    $('.circlescon li:eq(3)').click(function() {
-        $('.qrcode').toggle(500);
-    });
-    $('.circlescon li:eq(3)').mouseleave(function() {
-        $('.qrcode').hide(500);
-    });
+    }
+    
+    // Check sensitive content if or not - updated to use custom modal
+    var adultban = DOM.$('#adultban');
+    if (adultban) {
+            adultban.addEventListener('change', function() {
+            if (this.checked) {
+                // Prevent the checkbox from being checked immediately
+                this.checked = false;
+                // Show custom modal
+                AgeConfirmModal.show(this);
+            } else {
+                var mobile = DOM.$('.mobile');
+                if (mobile) {
+                    // Remove the adult content item by its unique identifier
+                    var adultItem = mobile.querySelector('li[data-adult="true"]');
+                    if (adultItem) adultItem.remove();
+                }
+                localStorage.removeItem('adult');
+            }
+        });
+    }
+    
+    // Clear cache
+    var cachebtn = DOM.$('.cachebtn');
+    if (cachebtn) {
+        cachebtn.addEventListener('click', function() {
+            if (confirm("Are you sure clear the cache?")) {
+                localStorage.clear();
+            } else {
+                console.log("Not do nothing...");
+            }
+        });
+    }
+    
+    // Append log history
+    var scrollidbar = DOM.$('.scrollidbar');
+    if (scrollidbar) {
+        scrollidbar.innerHTML = '';
+        DOM.append(scrollidbar, `
+            <p>[2026-05-18] V8.4.2 release change jQuery to JavaScript</p>
+            <p>[2026-05-18] V8.4.1 release fixed some bugs</p>
+            <p>[2026-05-18] V8.4.0 release improved podcast browsing and added podcast favorites</p>
+            <p>[2026-05-17] V8.3.0 release add retro console game emulator</p>
+            <p>[2026-05-17] V8.2.3 release add video autoplay next episode feature</p>
+            <p>[2026-05-16] V8.2.2 release fixed some bugs</p>
+            <p>[2026-05-16] V8.2.1 release beautify UI</p>
+            <p>[2021-10-09] V8.2.0 release support to play one game</p>
+            <p>[2021-10-06] V8.1.1 release Add about feature and fixed some bugs</p>
+            <p>[2021-10-02] V8.1.0 release Add source control feature</p>
+            <p>[2021-10-01] Delete one invalid manga source and add log history</p>
+            <p>[2021-09-16] V8.0.0 release support to listen to music online</p>
+            <p>[2021-09-15] V7.0.0 release support to read manga books</p>
+            <p>[2021-09-13] V6.0.0 release support to read novel books</p>
+            <p>[2021-09-08] V5.0.0 release support to listen 28000+ radio stations</p>
+            <p>[2021-09-04] V4.0.0 release support to watch movies, series, cartoon...</p>
+            <p>[2021-08-31] V3.0.0 release support to watch IPTV</p>
+            <p>[2021-08-29] V2.0.0 release support to search IPTV channels</p>
+            <p>[2021-08-29] V1.1.0 release pure code</p>
+            <p>[2021-08-28] V1.0.3 release support to remark favorite channels</p>
+            <p>[2021-04-21] V1.0.0 release</p>
+        `);
+    }
+    
+    // Show QRcode
+    var circlesconLis = DOM.$$('.circlescon li');
+    if (circlesconLis.length > 3) {
+        circlesconLis[3].addEventListener('click', function() {
+            var qrcode = DOM.$('.qrcode');
+            if (qrcode) {
+                qrcode.style.display = qrcode.style.display === 'block' ? 'none' : 'block';
+            }
+        });
+        circlesconLis[3].addEventListener('mouseleave', function() {
+            var qrcode = DOM.$('.qrcode');
+            if (qrcode) {
+                qrcode.style.display = 'none';
+            }
+        });
+    }
 });
-//Go to source nextpage
+
+// Go to source nextpage
 function goToSource() {
-    if ($('input[name="sourceName"]:checked').val() == 1) {
-        $('#sourceitem div').remove();
-        $('#sourceitem button').remove();
-        $('#sourceitem').append(`
+    var sourceName = document.querySelector('input[name="sourceName"]:checked');
+    if (!sourceName) return;
+    
+    var sourceitem = DOM.$('#sourceitem');
+    if (!sourceitem) return;
+    
+    // Clear existing content
+    sourceitem.innerHTML = '';
+    
+    if (sourceName.value == 1) {
+        sourceitem.innerHTML = `
             <div id="selectform" style="display:flex;">
                 <input type="checkbox" name="movie" value="hyzy" checked />
                 <label for="movie"> 虎牙资源</label><br />
@@ -828,21 +1211,23 @@ function goToSource() {
                 <label for="movie"> 如意资源</label><br />
             </div>
             <button class="stylebtn" onclick="returnSource()"><img src="./images/return.svg" style="width:30px;"></button>
-        `);
-        let ms = window.localStorage.getItem('movie').split(",");
-        let arr = ["hyzy", "wlys", "gszy", "hnzy", "tky", "bjy"];
-        let lst = arr.filter(x => ms.includes(x)).map(x => arr.indexOf(x));
-        let cat = arr.filter(x => !ms.includes(x)).map(x => arr.indexOf(x));
-        for (let i of lst) {
-            $(`input[name="movie"]:eq(${i})`).prop('checked', true);
+        `;
+        var ms = window.localStorage.getItem('movie');
+        if (ms) {
+            ms = ms.split(",");
+            var arr = ["hyzy", "wlys", "gszy", "hnzy", "tky", "bjy"];
+            var lst = arr.filter(function(x) { return ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var cat = arr.filter(function(x) { return !ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var checkboxes = document.querySelectorAll('input[name="movie"]');
+            lst.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = true;
+            });
+            cat.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = false;
+            });
         }
-        for (let i of cat) {
-            $(`input[name="movie"]:eq(${i})`).prop('checked', false);
-        }
-    } else if ($('input[name="sourceName"]:checked').val() == 2) {
-        $('#sourceitem div').remove();
-        $('#sourceitem button').remove();
-        $('#sourceitem').append(`
+    } else if (sourceName.value == 2) {
+        sourceitem.innerHTML = `
             <div id="selectform" style="display:flex;">
                 <input type="checkbox" name="novel" value="novelonlinefull" checked />
                 <label for="novel"> novelonlinefull</label><br />
@@ -850,21 +1235,23 @@ function goToSource() {
                 <label for="novel"> 95书包</label><br />
             </div>
             <button class="stylebtn" onclick="returnSource()"><img src="./images/return.svg" style="width:30px;"></button>
-        `);
-        let ms = window.localStorage.getItem('novel').split(",");
-        let arr = ["novelonlinefull", "95sb"];
-        let lst = arr.filter(x => ms.includes(x)).map(x => arr.indexOf(x));
-        let cat = arr.filter(x => !ms.includes(x)).map(x => arr.indexOf(x));
-        for (let i of lst) {
-            $(`input[name="novel"]:eq(${i})`).prop('checked', true);
+        `;
+        var ms = window.localStorage.getItem('novel');
+        if (ms) {
+            ms = ms.split(",");
+            var arr = ["novelonlinefull", "95sb"];
+            var lst = arr.filter(function(x) { return ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var cat = arr.filter(function(x) { return !ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var checkboxes = document.querySelectorAll('input[name="novel"]');
+            lst.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = true;
+            });
+            cat.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = false;
+            });
         }
-        for (let i of cat) {
-            $(`input[name="novel"]:eq(${i})`).prop('checked', false);
-        }
-    } else if ($('input[name="sourceName"]:checked').val() == 3) {
-        $('#sourceitem div').remove();
-        $('#sourceitem button').remove();
-        $('#sourceitem').append(`
+    } else if (sourceName.value == 3) {
+        sourceitem.innerHTML = `
             <div id="selectform" style="display:flex;">
                 <input type="checkbox" name="manga" value="mangabuddy" checked />
                 <label for="manga"> mangabuddy</label><br />
@@ -876,41 +1263,45 @@ function goToSource() {
                 <label for="manga"> 耽美漫画(PC端)</label><br />
             </div>
             <button class="stylebtn" onclick="returnSource()"><img src="./images/return.svg" style="width:30px;"></button>
-        `);
-        let ms = window.localStorage.getItem('manga').split(",");
-        let arr = ["mangabuddy", "mangadex", "dmmh"];
-        let lst = arr.filter(x => ms.includes(x)).map(x => arr.indexOf(x));
-        let cat = arr.filter(x => !ms.includes(x)).map(x => arr.indexOf(x));
-        for (let i of lst) {
-            $(`input[name="manga"]:eq(${i})`).prop('checked', true);
+        `;
+        var ms = window.localStorage.getItem('manga');
+        if (ms) {
+            ms = ms.split(",");
+            var arr = ["mangabuddy", "mangadex", "dmmh"];
+            var lst = arr.filter(function(x) { return ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var cat = arr.filter(function(x) { return !ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var checkboxes = document.querySelectorAll('input[name="manga"]');
+            lst.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = true;
+            });
+            cat.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = false;
+            });
         }
-        for (let i of cat) {
-            $(`input[name="manga"]:eq(${i})`).prop('checked', false);
-        }
-    } else if ($('input[name="sourceName"]:checked').val() == 4) {
-        $('#sourceitem div').remove();
-        $('#sourceitem button').remove();
-        $('#sourceitem').append(`
+    } else if (sourceName.value == 4) {
+        sourceitem.innerHTML = `
             <div id="selectform" style="display:flex;">
                 <input type="checkbox" name="music" value="wymusic" checked>
                 <label for="music"> 网易云音乐</label><br />
             </div>
             <button class="stylebtn" onclick="returnSource()"><img src="./images/return.svg" style="width:30px;"></button>
-        `);
-        let ms = window.localStorage.getItem('music').split(",");
-        let arr = ["wymusic"];
-        let lst = arr.filter(x => ms.includes(x)).map(x => arr.indexOf(x));
-        let cat = arr.filter(x => !ms.includes(x)).map(x => arr.indexOf(x));
-        for (let i of lst) {
-            $(`input[name="music"]:eq(${i})`).prop('checked', true);
+        `;
+        var ms = window.localStorage.getItem('music');
+        if (ms) {
+            ms = ms.split(",");
+            var arr = ["wymusic"];
+            var lst = arr.filter(function(x) { return ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var cat = arr.filter(function(x) { return !ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var checkboxes = document.querySelectorAll('input[name="music"]');
+            lst.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = true;
+            });
+            cat.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = false;
+            });
         }
-        for (let i of cat) {
-            $(`input[name="music"]:eq(${i})`).prop('checked', false);
-        }
-    } else if ($('input[name="sourceName"]:checked').val() == 5) {
-        $('#sourceitem div').remove();
-        $('#sourceitem button').remove();
-        $('#sourceitem').append(`
+    } else if (sourceName.value == 5) {
+        sourceitem.innerHTML = `
             <div id="selectform" style="display:flex;">
                 <input type="checkbox" name="porn" value="zmwzy" checked>
                 <label for="porn"> 字幕网</label><br />
@@ -936,42 +1327,49 @@ function goToSource() {
                 <label for="porn"> 利来</label><br />
             </div>
             <button class="stylebtn" onclick="returnSource()"><img src="./images/return.svg" style="width:30px;"></button>
-        `);
-        let ms = window.localStorage.getItem('porn').split(",");
-        let arr = ["zmwzy", "fedzy", "javmy", "hyzy", "sszy", "jjzy", "lsnzy", "bttzy", "llzy"];
-        let lst = arr.filter(x => ms.includes(x)).map(x => arr.indexOf(x));
-        let cat = arr.filter(x => !ms.includes(x)).map(x => arr.indexOf(x));
-        for (let i of lst) {
-            $(`input[name="porn"]:eq(${i})`).prop('checked', true);
-        }
-        for (let i of cat) {
-            $(`input[name="porn"]:eq(${i})`).prop('checked', false);
+        `;
+        var ms = window.localStorage.getItem('porn');
+        if (ms) {
+            ms = ms.split(",");
+            var arr = ["zmwzy", "fedzy", "javmy", "hyzy", "sszy", "jjzy", "lsnzy", "bttzy", "llzy"];
+            var lst = arr.filter(function(x) { return ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var cat = arr.filter(function(x) { return !ms.includes(x); }).map(function(x) { return arr.indexOf(x); });
+            var checkboxes = document.querySelectorAll('input[name="porn"]');
+            lst.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = true;
+            });
+            cat.forEach(function(i) {
+                if (checkboxes[i]) checkboxes[i].checked = false;
+            });
         }
     }
 }
-//Return source homepage
+
+// Return source homepage
 function returnSource() {
     var arr = [];
-    $('input[name="movie"]:checked').each(function() {
+    
+    document.querySelectorAll('input[name="movie"]:checked').forEach(function(el) {
         arr[0] = "movie";
-        arr.push($(this).val());
+        arr.push(el.value);
     });
-    $('input[name="novel"]:checked').each(function() {
+    document.querySelectorAll('input[name="novel"]:checked').forEach(function(el) {
         arr[0] = "novel";
-        arr.push($(this).val());
+        arr.push(el.value);
     });
-    $('input[name="manga"]:checked').each(function() {
+    document.querySelectorAll('input[name="manga"]:checked').forEach(function(el) {
         arr[0] = "manga";
-        arr.push($(this).val());
+        arr.push(el.value);
     });
-    $('input[name="music"]:checked').each(function() {
+    document.querySelectorAll('input[name="music"]:checked').forEach(function(el) {
         arr[0] = "music";
-        arr.push($(this).val());
+        arr.push(el.value);
     });
-    $('input[name="porn"]:checked').each(function() {
+    document.querySelectorAll('input[name="porn"]:checked').forEach(function(el) {
         arr[0] = "porn";
-        arr.push($(this).val());
+        arr.push(el.value);
     });
+    
     if (arr.length == 0) {
         alert("Please select at least one source...");
     } else {
@@ -986,70 +1384,62 @@ function returnSource() {
         } else if (arr[0] == "porn") {
             window.localStorage.setItem('porn', arr.slice(1).join(","));
         }
-        $('#sourceitem div').remove();
-        $('#sourceitem button').remove();
-        $('#sourceitem').append(`
-            <div id="selectform">
-                <input type="radio" name="sourceName" value="1" checked/> <span>Moive</span> <br />
-                <input type="radio" name="sourceName" value="2" /> <span>Novel</span> <br />
-                <input type="radio" name="sourceName" value="3" /> <span>Manga</span> <br />
-                <input type="radio" name="sourceName" value="4" /> <span>Music</span> <br />
-                <input type="radio" name="sourceName" value="5" /> <span>Porn</span> <br />
-            </div>
-            <button class="stylebtn" onclick="goToSource()"><img src="./images/nextselect.svg" style="width:30px;"></button>
-        `);
+        
+        var sourceitem = DOM.$('#sourceitem');
+        if (sourceitem) {
+            sourceitem.innerHTML = `
+                <div id="selectform">
+                    <input type="radio" name="sourceName" value="1" checked/> <span>Moive</span> <br />
+                    <input type="radio" name="sourceName" value="2" /> <span>Novel</span> <br />
+                    <input type="radio" name="sourceName" value="3" /> <span>Manga</span> <br />
+                    <input type="radio" name="sourceName" value="4" /> <span>Music</span> <br />
+                    <input type="radio" name="sourceName" value="5" /> <span>Porn</span> <br />
+                </div>
+                <button class="stylebtn" onclick="goToSource()"><img src="./images/nextselect.svg" style="width:30px;"></button>
+            `;
+        }
     }
 }
-//Get User IP
+
+// Get User IP
 function getUserIp() {
     LoadingManager.show();
-    var request = new XMLHttpRequest();
     
-    request.timeout = 10000; // 10 seconds timeout
-
-    request.open('GET', 'https://api.ipdata.co/?api-key=7910661894e758448cbebb4a636485005498427178dea6ef0e911311');
-
-    request.setRequestHeader('Accept', 'application/json');
-
-    request.onreadystatechange = function() {
-        if (this.readyState === 4) {
-            LoadingManager.hide();
-            if (this.status === 200) {
-                try {
-                    let response = JSON.parse(this.responseText);
-                    let country = response.country_code;
-                    if (country && (country.toLowerCase() == 'cn' || country.toLowerCase() == 'kp')) {
-                        window.localStorage.setItem('bannedcountries', 'true');
-                        $('#mySidenav div:eq(0)').hide();
-                    }
-                } catch (e) {
-                    console.error('Error parsing IP response:', e);
-                    getCoordintes();
-                }
-            } else {
-                console.warn('IP API request failed, trying geolocation');
-                getCoordintes();
+    fetch('https://api.ipdata.co/?api-key=7910661894e758448cbebb4a636485005498427178dea6ef0e911311', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        },
+        signal: AbortSignal.timeout(10000)
+    })
+    .then(function(response) {
+        LoadingManager.hide();
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('IP API request failed');
+    })
+    .then(function(data) {
+        if (data && data.country_code) {
+            var country = data.country_code.toLowerCase();
+            if (country === 'cn' || country === 'kp') {
+                window.localStorage.setItem('bannedcountries', 'true');
+                var firstDiv = DOM.find('#mySidenav', 'div');
+                if (firstDiv) firstDiv.style.display = 'none';
             }
         }
-    };
-    
-    request.ontimeout = function() {
+    })
+    .catch(function(error) {
         LoadingManager.hide();
-        console.warn('IP API request timed out, trying geolocation');
+        console.warn('IP API request failed, trying geolocation');
         getCoordintes();
-    };
-    
-    request.onerror = function() {
-        LoadingManager.hide();
-        console.error('IP API request error, trying geolocation');
-        getCoordintes();
-    };
-    
-    request.send();
+    });
 }
+
 // Step 1: Get user coordinates
 function getCoordintes() {
     LoadingManager.show();
+    
     var options = {
         enableHighAccuracy: true,
         timeout: 5000,
@@ -1060,46 +1450,31 @@ function getCoordintes() {
         var crd = pos.coords;
         var lat = crd.latitude.toString();
         var lng = crd.longitude.toString();
-        var coordinates = [lat, lng];
-        var xhr = new XMLHttpRequest();
-        var lat = coordinates[0];
-        var lng = coordinates[1];
-
-        // Paste your LocationIQ token below.
-        xhr.open('GET', "https://us1.locationiq.com/v1/reverse.php?key=pk.dd067483fe694f72f04c0fdd2d312091&lat=" + lat + "&lon=" + lng + "&format=json", true);
-        xhr.timeout = 8000;
         
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                LoadingManager.hide();
-                if (xhr.status == 200) {
-                    try {
-                        var response = JSON.parse(xhr.responseText);
-                        var city = response.address;
-                        if (city && (city.country_code == 'cn' || city.country_code == 'kp')) {
-                            window.localStorage.setItem('bannedcountries', 'true');
-                            $('#mySidenav div:eq(0)').hide();
-                        }
-                    } catch (e) {
-                        console.error('Error parsing geolocation response:', e);
-                    }
-                } else {
-                    console.warn('Geolocation API request failed');
+        fetch("https://us1.locationiq.com/v1/reverse.php?key=pk.dd067483fe694f72f04c0fdd2d312091&lat=" + lat + "&lon=" + lng + "&format=json", {
+            signal: AbortSignal.timeout(8000)
+        })
+        .then(function(response) {
+            LoadingManager.hide();
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Geolocation API request failed');
+        })
+        .then(function(data) {
+            if (data && data.address && data.address.country_code) {
+                var country = data.address.country_code.toLowerCase();
+                if (country === 'cn' || country === 'kp') {
+                    window.localStorage.setItem('bannedcountries', 'true');
+                    var firstDiv = DOM.find('#mySidenav', 'div');
+                    if (firstDiv) firstDiv.style.display = 'none';
                 }
             }
-        };
-        
-        xhr.ontimeout = function() {
+        })
+        .catch(function(error) {
             LoadingManager.hide();
-            console.warn('Geolocation API request timed out');
-        };
-        
-        xhr.onerror = function() {
-            LoadingManager.hide();
-            console.error('Geolocation API request error');
-        };
-        
-        xhr.send();
+            console.warn('Geolocation API request failed');
+        });
     }
 
     function error(err) {

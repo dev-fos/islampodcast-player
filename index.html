@@ -36,7 +36,7 @@
     <link rel="manifest" href="manifest.json">
     
     <link rel="stylesheet" href="css/style.css" />
-    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/core/dom.js"></script>
     <script src="js/index.js"></script>
 </head>
 
@@ -50,39 +50,281 @@
         <span class="loading-text">Loading...</span>
     </div>
 
-    <!-- Side Navigation -->
-    <nav id="mySidenav" class="sidenav" aria-label="Main Navigation">
-        <h3>Easy Web TV</h3>
-        <hr>
-        <div>
-            <span>Sensitive Content</span>
-            <label class="switch">
-                <input type="checkbox" id="adultban" aria-label="Toggle sensitive content">
-                <span class="slider round"></span>
-            </label>
+    <!-- Settings Modal Overlay -->
+    <div id="settings-modal-overlay" class="settings-modal-overlay"></div>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="settings-modal-container">
+            <!-- Main Page -->
+            <div class="settings-page active" data-page="main">
+                <header class="settings-header">
+                    <button class="close-btn" aria-label="Close settings">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h2 id="settings-title" data-i18n="settings_title">Settings</h2>
+                </header>
+                <nav class="settings-nav">
+                    <div class="settings-nav-item" data-target="basic">
+                        <span class="nav-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                        </span>
+                        <span class="nav-title" data-i18n="settings_basic">Basic Settings</span>
+                        <span class="nav-badge">2</span>
+                        <span class="nav-arrow">›</span>
+                    </div>
+                    <div class="settings-nav-item" data-target="advanced">
+                        <span class="nav-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="16 18 22 12 16 6"></polyline>
+                                <polyline points="8 6 2 12 8 18"></polyline>
+                            </svg>
+                        </span>
+                        <span class="nav-title" data-i18n="settings_advanced">Advanced</span>
+                        <span class="nav-badge">2</span>
+                        <span class="nav-arrow">›</span>
+                    </div>
+                    <div class="settings-nav-item" data-target="appearance">
+                        <span class="nav-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                            </svg>
+                        </span>
+                        <span class="nav-title" data-i18n="settings_appearance">Appearance</span>
+                        <span class="nav-badge">1</span>
+                        <span class="nav-arrow">›</span>
+                    </div>
+                    <div class="settings-nav-item" data-target="source">
+                        <span class="nav-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </span>
+                        <span class="nav-title" data-i18n="settings_source">Source Control</span>
+                        <span class="nav-arrow">›</span>
+                    </div>
+                    <div class="settings-nav-item" data-target="about">
+                        <span class="nav-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                        </span>
+                        <span class="nav-title" data-i18n="settings_about">About</span>
+                        <span class="nav-arrow">›</span>
+                    </div>
+                </nav>
+            </div>
+            
+            <!-- Basic Settings Page -->
+            <div class="settings-page" data-page="basic">
+                <header class="settings-header">
+                    <button class="back-btn" aria-label="Go back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 data-i18n="settings_basic">Basic Settings</h2>
+                </header>
+                <div class="settings-content">
+                    <div class="settings-item">
+                        <div>
+                            <div class="item-label" data-i18n="settings_sensitive_label">Sensitive Content</div>
+                            <div class="item-description" data-i18n="settings_sensitive_desc">Toggle adult content visibility</div>
+                        </div>
+                        <div class="item-control">
+                            <label class="switch">
+                                <input type="checkbox" id="adultban" aria-label="Toggle sensitive content">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div class="item-label" data-i18n="settings_language_label">Language</div>
+                            <div class="item-description" data-i18n="settings_language_desc">Select your preferred language</div>
+                        </div>
+                        <div class="item-control">
+                            <select id="settings-languages" class="settings-select" aria-label="Select language">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Advanced Page -->
+            <div class="settings-page" data-page="advanced">
+                <header class="settings-header">
+                    <button class="back-btn" aria-label="Go back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 data-i18n="settings_advanced">Advanced</h2>
+                </header>
+                <div class="settings-content">
+                    <div class="settings-item">
+                        <div>
+                            <div class="item-label" data-i18n="settings_cache_label">Clear Cache</div>
+                            <div class="item-description" data-i18n="settings_cache_desc">Clear all cached data</div>
+                        </div>
+                        <div class="item-control">
+                            <button class="settings-btn" id="clear-cache-btn" aria-label="Clear all cache" data-i18n="settings_cache_btn">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Appearance Page -->
+            <div class="settings-page" data-page="appearance">
+                <header class="settings-header">
+                    <button class="back-btn" aria-label="Go back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 data-i18n="settings_appearance">Appearance</h2>
+                </header>
+                <div class="settings-content">
+                    <div class="settings-item">
+                        <div>
+                            <div class="item-label" data-i18n="settings_theme_label">Dark Theme</div>
+                            <div class="item-description" data-i18n="settings_theme_desc">Toggle dark/light mode</div>
+                        </div>
+                        <div class="item-control">
+                            <label class="switch">
+                                <input type="checkbox" id="settings-theme-toggle" aria-label="Toggle dark theme">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Source Control Page -->
+            <div class="settings-page" data-page="source">
+                <header class="settings-header">
+                    <button class="back-btn" aria-label="Go back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 data-i18n="settings_source">Source Control</h2>
+                </header>
+                <div class="settings-content">
+                    <div class="source-control-section">
+                        <h4 class="source-section-title" data-i18n="settings_source_title">Select Content Type</h4>
+                        <div class="source-type-selector">
+                            <button class="source-type-btn active" data-source-type="movie">🎬 Movie</button>
+                            <button class="source-type-btn" data-source-type="novel">📖 Novel</button>
+                            <button class="source-type-btn" data-source-type="manga">📚 Manga</button>
+                            <button class="source-type-btn" data-source-type="music">🎵 Music</button>
+                            <button class="source-type-btn" data-source-type="porn">🔞 Porn</button>
+                        </div>
+                        <div class="source-options-container">
+                            <!-- Movie Sources -->
+                            <div class="source-options" data-source-type="movie">
+                                <label class="source-checkbox"><input type="checkbox" name="settings-movie" value="hyzy" checked> 虎牙资源</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-movie" value="xlzy" checked> 新浪资源</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-movie" value="gszy" checked> 光速资源</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-movie" value="hnzy" checked> 红牛资源</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-movie" value="tky" checked> 茅台资源</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-movie" value="bjy" checked> 如意资源</label>
+                            </div>
+                            <!-- Novel Sources -->
+                            <div class="source-options hidden" data-source-type="novel">
+                                <label class="source-checkbox"><input type="checkbox" name="settings-novel" value="royalroad" checked> Royal Road</label>
+                            </div>
+                            <!-- Manga Sources -->
+                            <div class="source-options hidden" data-source-type="manga">
+                                <label class="source-checkbox"><input type="checkbox" name="settings-manga" value="mangadex" checked> MangaDex</label>
+                            </div>
+                            <!-- Music Sources -->
+                            <div class="source-options hidden" data-source-type="music">
+                                <label class="source-checkbox"><input type="checkbox" name="settings-music" value="wymusic" checked> 网易云音乐</label>
+                            </div>
+                            <!-- Porn Sources -->
+                            <div class="source-options hidden" data-source-type="porn">
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="msnii" checked> 美少女资源站</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="xrbsp" checked> 淫水机资源站</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="slapibf" checked> 森林资源站</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="lbapi9" checked> 乐播资源站</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="dadiapi" checked> 大地资源网</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="155api" checked> 155资源站</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="apilsbzy2" checked> 老色逼</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="thzy1" checked> 桃花资源</label>
+                                <label class="source-checkbox"><input type="checkbox" name="settings-porn" value="xiangjiaozyw" checked> 香蕉资源网</label>
+                            </div>
+                        </div>
+                        <button class="settings-btn source-save-btn" id="save-source-btn" data-i18n="settings_source_save">Save Sources</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- About Page -->
+            <div class="settings-page" data-page="about">
+                <header class="settings-header">
+                    <button class="back-btn" aria-label="Go back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 data-i18n="settings_about">About</h2>
+                </header>
+                <div class="settings-content">
+                    <div class="settings-item">
+                        <div>
+                            <div class="item-label" data-i18n="settings_version_label">Version</div>
+                            <div class="item-description" data-i18n="settings_version_desc">Current application version</div>
+                        </div>
+                        <div class="item-control">
+                            <span class="settings-version">8.4.2</span>
+                        </div>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div class="item-label" data-i18n="settings_developer_label">Developer</div>
+                            <div class="item-description">Zhang Boheng</div>
+                        </div>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div class="item-label" data-i18n="settings_connect_label">Connect</div>
+                            <div class="item-description" data-i18n="settings_connect_desc">Follow us on social media</div>
+                        </div>
+                    </div>
+                    <div class="settings-social-links">
+                        <a href="https://github.com/zhangboheng/" target="_blank" class="settings-social-link" aria-label="GitHub Profile">
+                            <img src="images/github.svg" alt="GitHub">
+                        </a>
+                        <a href="https://www.youtube.com/c/LuckyDesigner" target="_blank" class="settings-social-link" aria-label="YouTube Channel">
+                            <img src="images/youtube.svg" alt="YouTube">
+                        </a>
+                        <a href="https://t.me/Luckydesignerspace" target="_blank" class="settings-social-link" aria-label="Telegram Channel">
+                            <img src="images/telegram.svg" alt="Telegram">
+                        </a>
+                        <button class="settings-social-link" id="wechat-btn" aria-label="WeChat">
+                            <img src="images/wechat.svg" alt="WeChat">
+                        </button>
+                    </div>
+                    <div class="settings-item" style="margin-top: 16px;">
+                        <div class="item-description" style="font-size: 12px; color: #888;">
+                            Copyright 2019-2026 行运设计师<br>
+                            https://www.luckydesigner.space
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-            <label for="languages">Languages</label>
-            <select id="languages" name="languages" aria-label="Select language">
-            </select>
-        </div>
-        <div>
-            <span>Clear</span>
-            <button class="cachebtn" aria-label="Clear all cache">All</button>
-        </div>
-        <div>
-            <span>Source</span>
-            <button class="cachebtn" aria-label="Open source control"><a href="#sourcebox" data-reveal-id="sourceitem">Control</a></button>
-        </div>
-        <div>
-            <span>Version</span>
-            <label class="switch" style="cursor: pointer;"><a href="#logbox" data-reveal-id="logboxitem" style="color:#fff">8.4.1</a></label>
-        </div>
-        <div>
-            <span>About</span>
-            <label class="switch" style="cursor: pointer;"><a href="#infobox" data-reveal-id="infoboxitem" style="color:#fff">APP</a></label>
-        </div>
-    </nav>
+    </div>
 
     <!-- Menu Toggle Button with Settings Buttons Below -->
     <header id="main">
@@ -202,7 +444,7 @@
                         </li>
                     </ul>
                 </div>
-                <p>Copyright 2019-2021 行运设计师 www.luckydesigner.space All Rights Reserved.</p>
+                <p>Copyright 2019-2026 行运设计师 www.luckydesigner.space All Rights Reserved.</p>
             </div>
         </div>
     </div>

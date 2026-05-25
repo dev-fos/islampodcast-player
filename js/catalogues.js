@@ -1,246 +1,347 @@
+// TV/Radio Channels Play Page JS
+// Native JavaScript (No jQuery)
+
 var channels = [];
 //Get default localstorage key
 var localkey = ['manga', 'bannedcountries', 'novel', 'movie', 'music', 'languages', 'porn', 'adult'];
-$(document).ready(function() {
-    $("#video1").width($("#div1").width()).height($("#div1").height());
-    $(".toggle").css({ 'left': $('#left').width() - 50 });
-    var player = videojs(document.querySelector('#video1'));
+var player = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    var video1 = document.getElementById('video1');
+    var div1 = document.getElementById('div1');
+    
+    video1.style.width = div1.offsetWidth + 'px';
+    video1.style.height = div1.offsetHeight + 'px';
+    
+    var toggle = document.querySelector('.toggle');
+    var left = document.getElementById('left');
+    if (toggle && left) {
+        toggle.style.left = (left.offsetWidth - 50) + 'px';
+    }
+    
+    player = videojs(document.querySelector('#video1'));
 
     //Get Current href
     var key = decodeURIComponent(window.location.href).split('=')[1].split('&')[0];
 
     //Set Page Title
-    $('title').html(key.toUpperCase().split('')[0] + key.slice(1) + ' Channels');
-    $('#left h3').empty();
-    $('#left h3').html(key.toUpperCase().split('')[0] + key.slice(1) + ' Channels');
+    var titleText = key.toUpperCase().charAt(0) + key.slice(1) + ' Channels';
+    document.title = titleText;
+    
+    var leftH3 = document.querySelector('#left h3');
+    if (leftH3) {
+        leftH3.innerHTML = '';
+        leftH3.innerHTML = titleText;
+    }
+    
     //Get iptv-org m3u list and show contents lists
-    $.ajax({
-        type: "GET",
-        url: 'https://iptv-org.github.io/iptv/categories/' + key + ".m3u",
-        success: function(message, text, response) {
-            $("#menu").empty();
-            $("#menu").append('<li style="background-color:#fff"><input id="search" type="text" placeholder="Search..." /></li>');
-            $("#channelcontent").empty();
-            let str = message;
-            let lst = str.split(",").slice(1, ).filter(x => /[^h]+.m3u8/.test(x)).map(x => x.split("\n"));
-            let array = str.split(" ");
-            let links = array.filter(x => /[^h]+.m3u8/.test(x)).map(x => x.split("\n")).flat().filter(x => /[^h]+.m3u8/.test(x));
-            for (let i = 0; i < links.length; i++) {
+    fetch('https://iptv-org.github.io/iptv/categories/' + key + '.m3u')
+        .then(function(response) { return response.text(); })
+        .then(function(message) {
+            var menu = document.getElementById('menu');
+            menu.innerHTML = '';
+            
+            var searchLi = document.createElement('li');
+            searchLi.style.backgroundColor = '#fff';
+            searchLi.innerHTML = '<input id="search" type="text" placeholder="Search..." />';
+            menu.appendChild(searchLi);
+            
+            var channelcontent = document.getElementById('channelcontent');
+            channelcontent.innerHTML = '';
+            
+            var str = message;
+            var lst = str.split(",").slice(1).filter(function(x) { return /[^h]+.m3u8/.test(x); }).map(function(x) { return x.split("\n"); });
+            var array = str.split(" ");
+            var links = array.filter(function(x) { return /[^h]+.m3u8/.test(x); }).map(function(x) { return x.split("\n"); }).flat().filter(function(x) { return /[^h]+.m3u8/.test(x); });
+            
+            for (var i = 0; i < links.length; i++) {
                 channels.push(links[i]);
-                if (i == 0) {
+                if (i === 0) {
                     player.src({
                         src: links[0],
-                        type: 'application/x-mpegURL' /*video type*/
+                        type: 'application/x-mpegURL'
                     });
-
                     player.play();
                 }
-                if ($(window).width() > 640) {
-                    if (window.localStorage.getItem(links[i]) == lst[i][0]) {
-                        $("#menu").append(`<li><p><input type="button" style="background-image: url('../images/favorite.png');"/><span title=${links[i]}>${lst[i][0]}</span></p></li>`);
-                    } else {
-                        $("#menu").append(`<li><p><input type="button" style="background-image: url('../images/unfavorite.png');"/><span title=${links[i]}>${lst[i][0]}</span></p></li>`);
-                    }
-                } else {
-                    if (window.localStorage.getItem(links[i]) == lst[i][0]) {
-                        $("#menu").append(`<li><p><input type="button" style="background-image: url('../images/favorite20.png');"/><span title=${links[i]}>${lst[i][0]}</span></p></li>`);
-                    } else {
-                        $("#menu").append(`<li><p><input type="button" style="background-image: url('../images/unfavorite20.png');"/><span title=${links[i]}>${lst[i][0]}</span></p></li>`);
-                    }
-                }
+                
+                var li = document.createElement('li');
+                var isFavorited = window.localStorage.getItem(links[i]) === lst[i][0];
+                var favImg = window.innerWidth > 640 ? 
+                    (isFavorited ? '../images/favorite.png' : '../images/unfavorite.png') :
+                    (isFavorited ? '../images/favorite20.png' : '../images/unfavorite20.png');
+                
+                li.innerHTML = '<p><input type="button" style="background-image: url(\'' + favImg + '\');" /><span title="' + links[i] + '">' + lst[i][0] + '</span></p>';
+                menu.appendChild(li);
             }
+            
             //Append favorite list
-            for (let i of Object.keys(localStorage).filter(x => !localkey.includes(x))) {
-                if ($(window).width() > 640) {
-                    $("#channelcontent").append(`<li><p><input type="button" style="background-image: url('../images/favorite.png');"/><span title=${i}>${localStorage[i]}</span></p></li>`);
-                } else {
-                    $("#channelcontent").append(`<li><p><input type="button" style="background-image: url('../images/favorite20.png');"/><span title=${i}>${localStorage[i]}</span></p></li>`);
+            Object.keys(localStorage).forEach(function(i) {
+                if (!localkey.includes(i)) {
+                    var li = document.createElement('li');
+                    var favImg = window.innerWidth > 640 ? '../images/favorite.png' : '../images/favorite20.png';
+                    li.innerHTML = '<p><input type="button" style="background-image: url(\'' + favImg + '\');" /><span title="' + i + '">' + localStorage[i] + '</span></p>';
+                    channelcontent.appendChild(li);
                 }
-            }
+            });
+            
             //Click channels to play
-            $("li p span").click(function() {
-                player.src({
-                    src: $(this).attr("title"),
-                    type: 'application/x-mpegURL' /*video type*/
-                });
-
-                player.play();
-            });
-            //Click play random channels
-            $("#shuffleplay").click(function() {
-                let detail = channels[Math.floor(Math.random() * channels.length)];
-                player.src({
-                    src: detail,
-                    type: 'application/x-mpegURL' /*video type*/
-                });
-
-                player.play();
-            });
-            //Change icon size
-            $('#menu li p input').click(function() {
-                //Get browser support localstorage if or not
-                if (!window.localStorage) {
-                    console.log("Browser not support localstorage");
-                    return false;
-                } else {
-                    window.localStorage.setItem($(this).next().attr('title'), $(this).next().text());
-                }
-                if ($(window).width() > 640) {
-                    $(this).css({ 'background-image': 'url(../images/favorite.png)' });
-                } else {
-                    $(this).css({ 'background-image': 'url(../images/favorite20.png)' });
-                }
-                if ($(this).next().attr('title').length > 0) {
-                    window.location.reload();
-                }
-            });
-            //Collect favorite channles
-            $('#channelcontent li p input').click(function() {
-                //Get browser support localstorage if or not
-                if (!window.localStorage) {
-                    console.log("Browser not support localstorage");
-                    return false;
-                } else {
-                    localStorage.removeItem($(this).next().attr('title'));
-                }
-                if ($(window).width() > 640) {
-                    $(this).css({ 'background-image': 'url(../images/unfavorite.png)' });
-                } else {
-                    $(this).css({ 'background-image': 'url(../images/unfavorite20.png)' });
-                }
-                window.location.reload();
-            });
-            //Search Channels
-            $("#search").on("keyup", function(e) {
-                var valThis = $(this).val().toLowerCase();
-                if (valThis == "") {
-                    $('#menu li').slice(1).show(); // show all lis
-                } else {
-                    $('#menu li:gt(0)').each(function() {
-                        var label = $(this); // cache this
-                        var text = label.text().toLowerCase();
-                        if (text.indexOf(valThis) > -1) {
-                            label.show() // show all li parents up the ancestor tree
-                        } else {
-                            label.hide(); // hide current li as it doesn't match
-                        }
+            var spans = document.querySelectorAll('li p span');
+            spans.forEach(function(span) {
+                span.addEventListener('click', function() {
+                    player.src({
+                        src: this.getAttribute('title'),
+                        type: 'application/x-mpegURL'
                     });
-                };
+                    player.play();
+                });
             });
-        },
-        fail: function(xhr, textStatus, errorThrown) {
-            alert("Please check your Internet or the iptv source has gone out!")
-        },
-        complete: function(){
-            $("#menu li:eq(0)").addClass("bd");
-            $("#menu li").on('click', function(){
-                $(this).addClass("bd").siblings().removeClass("bd");
-            });
-        }
-    });
-    //Set Toggle Menu
-    $('.toggle').click(function() {
-            $('#left').toggle();
-            if ($('#left').is(':visible')) {
-                $('.toggle').css({ 'left': $('#left').width() - 50 });
-            } else {
-                $('.toggle').css({ 'left': '5px' });
+            
+            //Click play random channels
+            var shuffleplay = document.getElementById('shuffleplay');
+            if (shuffleplay) {
+                shuffleplay.addEventListener('click', function() {
+                    var detail = channels[Math.floor(Math.random() * channels.length)];
+                    player.src({
+                        src: detail,
+                        type: 'application/x-mpegURL'
+                    });
+                    player.play();
+                });
             }
+            
+            //Change icon size (favorite button)
+            var menuInputs = document.querySelectorAll('#menu li p input');
+            menuInputs.forEach(function(input) {
+                input.addEventListener('click', function() {
+                    var span = this.nextElementSibling;
+                    //Get browser support localstorage if or not
+                    if (!window.localStorage) {
+                        console.log("Browser not support localstorage");
+                        return false;
+                    } else {
+                        window.localStorage.setItem(span.getAttribute('title'), span.textContent);
+                    }
+                    if (window.innerWidth > 640) {
+                        this.style.backgroundImage = 'url(../images/favorite.png)';
+                    } else {
+                        this.style.backgroundImage = 'url(../images/favorite20.png)';
+                    }
+                    if (span.getAttribute('title').length > 0) {
+                        window.location.reload();
+                    }
+                });
+            });
+            
+            //Collect favorite channles
+            var channelInputs = document.querySelectorAll('#channelcontent li p input');
+            channelInputs.forEach(function(input) {
+                input.addEventListener('click', function() {
+                    var span = this.nextElementSibling;
+                    //Get browser support localstorage if or not
+                    if (!window.localStorage) {
+                        console.log("Browser not support localstorage");
+                        return false;
+                    } else {
+                        localStorage.removeItem(span.getAttribute('title'));
+                    }
+                    if (window.innerWidth > 640) {
+                        this.style.backgroundImage = 'url(../images/unfavorite.png)';
+                    } else {
+                        this.style.backgroundImage = 'url(../images/unfavorite20.png)';
+                    }
+                    window.location.reload();
+                });
+            });
+            
+            //Search Channels
+            var searchInput = document.getElementById('search');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function(e) {
+                    var valThis = this.value.toLowerCase();
+                    var lis = document.querySelectorAll('#menu li');
+                    if (valThis === "") {
+                        lis.forEach(function(li, index) {
+                            if (index > 0) li.style.display = '';
+                        });
+                    } else {
+                        lis.forEach(function(li, index) {
+                            if (index > 0) {
+                                var text = li.textContent.toLowerCase();
+                                if (text.indexOf(valThis) > -1) {
+                                    li.style.display = '';
+                                } else {
+                                    li.style.display = 'none';
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+            
+            //Complete - set first item as selected and add click handlers
+            var menuLis = document.querySelectorAll('#menu li');
+            if (menuLis.length > 0) {
+                menuLis[0].classList.add('bd');
+            }
+            menuLis.forEach(function(li) {
+                li.addEventListener('click', function() {
+                    menuLis.forEach(function(item) {
+                        item.classList.remove('bd');
+                    });
+                    this.classList.add('bd');
+                });
+            });
         })
-        //Set M3U8 links to play
-    $("#player").on({
-        mouseenter: function() {
-            $(this).css({ "opacity": 1 })
-        },
-        click: function() {
-            $(this).css({ "background-image": "url(../images/player.jpg)", "border": "1px solid #fff" })
-            if (window.width > 640) {
-                $("#inputlink").show(500)
+        .catch(function(xhr, textStatus, errorThrown) {
+            alert("Please check your Internet or the iptv source has gone out!");
+        });
+    
+    //Set Toggle Menu
+    if (toggle) {
+        toggle.addEventListener('click', function() {
+            if (left.style.display !== 'none') {
+                left.style.display = 'none';
+                toggle.style.left = '5px';
             } else {
-                $("#inputlink").toggle(500)
+                left.style.display = '';
+                toggle.style.left = (left.offsetWidth - 50) + 'px';
             }
-            let link = $("#inputlink").val()
+        });
+    }
+    
+    //Set M3U8 links to play
+    var playerBtn = document.getElementById('player');
+    if (playerBtn) {
+        playerBtn.addEventListener('mouseenter', function() {
+            this.style.opacity = '1';
+        });
+        playerBtn.addEventListener('click', function() {
+            this.style.backgroundImage = 'url(../images/player.jpg)';
+            this.style.border = '1px solid #fff';
+            
+            var inputlink = document.getElementById('inputlink');
+            if (window.innerWidth > 640) {
+                inputlink.style.display = 'block';
+            } else {
+                inputlink.style.display = inputlink.style.display === 'block' ? 'none' : 'block';
+            }
+            
+            var link = inputlink.value;
             if (link.length > 0) {
                 player.src({
                     src: link,
-                    type: 'application/x-mpegURL' /*video type*/
+                    type: 'application/x-mpegURL'
                 });
                 player.play();
             }
-            $('#inputlink').val("")
-        },
-        mouseleave: function() {
-            $(this).css({ "opacity": 0.5 })
-        }
-    });
+            inputlink.value = '';
+        });
+        playerBtn.addEventListener('mouseleave', function() {
+            this.style.opacity = '0.5';
+        });
+    }
+    
     //Set Tools Menu
-    $("#menuicon").on({
-        mouseenter: function() {
-            $(this).css({ "opacity": 1 })
-        },
-        click: function() {
-            $('#control div:gt(0)').slideToggle(500);
-            $('#channelist').hide();
-            $('#inputlink').hide();
-        },
-        mouseleave: function() {
-            $(this).css({ "opacity": 0.5 })
-        }
-    });
+    var menuicon = document.getElementById('menuicon');
+    if (menuicon) {
+        menuicon.addEventListener('mouseenter', function() {
+            this.style.opacity = '1';
+        });
+        menuicon.addEventListener('click', function() {
+            var controlDivs = document.querySelectorAll('#control > div');
+            controlDivs.forEach(function(div, index) {
+                if (index > 0) {
+                    if (div.style.display === 'none') {
+                        div.style.display = 'block';
+                    } else {
+                        div.style.display = 'none';
+                    }
+                }
+            });
+            var channelist = document.getElementById('channelist');
+            var inputlink = document.getElementById('inputlink');
+            if (channelist) channelist.style.display = 'none';
+            if (inputlink) inputlink.style.display = 'none';
+        });
+        menuicon.addEventListener('mouseleave', function() {
+            this.style.opacity = '0.5';
+        });
+    }
+    
     //Set return home page
-    $("#prev").on({
-        mouseenter: function() {
-            $(this).css({ "opacity": 1 })
-        },
-        click: function() {
+    var prev = document.getElementById('prev');
+    if (prev) {
+        prev.addEventListener('mouseenter', function() {
+            this.style.opacity = '1';
+        });
+        prev.addEventListener('click', function() {
             window.history.back();
-        },
-        mouseleave: function() {
-            $(this).css({ "opacity": 0.5 })
-        }
-    });
+        });
+        prev.addEventListener('mouseleave', function() {
+            this.style.opacity = '0.5';
+        });
+    }
+    
     //Set Github link
-    $("#github").on({
-        mouseenter: function() {
-            $(this).css({ "opacity": 1 })
-        },
-        click: function() {
+    var github = document.getElementById('github');
+    if (github) {
+        github.addEventListener('mouseenter', function() {
+            this.style.opacity = '1';
+        });
+        github.addEventListener('click', function() {
             window.open("https://github.com/zhangboheng/Easy-Web-TV-M3u8");
-        },
-        mouseleave: function() {
-            $(this).css({ "opacity": 0.5 })
-        }
-    });
+        });
+        github.addEventListener('mouseleave', function() {
+            this.style.opacity = '0.5';
+        });
+    }
+    
     //Set documents list
-    $("#favorite").on({
-        mouseenter: function() {
-            $(this).css({ "opacity": 1 })
-        },
-        click: function() {
-            $('#channelist').toggle(500);
-        },
-        mouseleave: function() {
-            $(this).css({ "opacity": 0.5 })
-        }
-    });
+    var favorite = document.getElementById('favorite');
+    if (favorite) {
+        favorite.addEventListener('mouseenter', function() {
+            this.style.opacity = '1';
+        });
+        favorite.addEventListener('click', function() {
+            var channelist = document.getElementById('channelist');
+            if (channelist.style.display === 'none' || !channelist.style.display) {
+                channelist.style.display = 'block';
+            } else {
+                channelist.style.display = 'none';
+            }
+        });
+        favorite.addEventListener('mouseleave', function() {
+            this.style.opacity = '0.5';
+        });
+    }
+    
     //Set shuffle play
-    $("#shuffleplay").on({
-        mouseenter: function() {
-            $(this).css({ "opacity": 1 })
-        },
-        mouseleave: function() {
-            $(this).css({ "opacity": 0.5 })
-        }
-    });
+    var shuffleplay = document.getElementById('shuffleplay');
+    if (shuffleplay) {
+        shuffleplay.addEventListener('mouseenter', function() {
+            this.style.opacity = '1';
+        });
+        shuffleplay.addEventListener('mouseleave', function() {
+            this.style.opacity = '0.5';
+        });
+    }
+    
     //Set link input
-    $('#inputlink').on({
-        mouseenter: function() {
-            $(this).css({ "opacity": 1 });
-        },
-        mouseleave: function() {
-            $(this).css({ "opacity": 0.5 });
-            $(this).hide(3000);
-            $("#player").css({ "background-image": "url(../images/link.jpg)" });
-        }
-    });
-})
+    var inputlink = document.getElementById('inputlink');
+    if (inputlink) {
+        inputlink.addEventListener('mouseenter', function() {
+            this.style.opacity = '1';
+        });
+        inputlink.addEventListener('mouseleave', function() {
+            this.style.opacity = '0.5';
+            var self = this;
+            setTimeout(function() {
+                self.style.display = 'none';
+            }, 3000);
+            var playerBtn = document.getElementById('player');
+            if (playerBtn) {
+                playerBtn.style.backgroundImage = 'url(../images/link.jpg)';
+            }
+        });
+    }
+});

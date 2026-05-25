@@ -1,11 +1,22 @@
+// TV Player JS - Native JavaScript (No jQuery)
+
 var channels = [];
 var player;
 var currentChannelIndex = -1;  // Track current playing channel index
 
 // Favorite prefix for localStorage - ensures only this app's favorites are shown
-const FAV_PREFIX = 'fav_tvplay_';
+var FAV_PREFIX = 'fav_tvplay_';
 
-$(document).ready(function() {
+// Helper functions
+function $(selector) {
+    return document.querySelector(selector);
+}
+
+function $$(selector) {
+    return document.querySelectorAll(selector);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
     // Initialize video player
     player = videojs(document.querySelector('#video1'));
     
@@ -22,11 +33,11 @@ $(document).ready(function() {
             var nextIndex = currentChannelIndex + 1;
             console.log('Auto-playing next channel:', nextIndex + 1);
             var nextUrl = channels[nextIndex];
-            var $nextItem = $('.channel-item').eq(nextIndex);
-            var nextName = $nextItem.data('name');
+            var nextItem = $$('.channel-item')[nextIndex];
+            var nextName = nextItem.dataset.name;
             playChannel(nextUrl, nextName);
-            $('.channel-item').removeClass('active');
-            $nextItem.addClass('active');
+            $$('.channel-item').forEach(function(el) { el.classList.remove('active'); });
+            nextItem.classList.add('active');
         } else {
             console.log('No more channels to play');
         }
@@ -40,8 +51,8 @@ $(document).ready(function() {
     var title = urlParams.get('title') || 'TV';
 
     // Set Page Title
-    $('title').text(decodeURIComponent(title) + ' - TV Player');
-    $('#categoryTitle').text(decodeURIComponent(title));
+    document.title = decodeURIComponent(title) + ' - TV Player';
+    $('#categoryTitle').textContent = decodeURIComponent(title);
 
     // Build API URL based on type
     var apiUrl = 'https://iptv-org.github.io/iptv/' + type + '/' + key + ".m3u";
@@ -61,207 +72,225 @@ $(document).ready(function() {
         
         // Toggle sidebar
         if (window.innerWidth <= 768) {
-            sidebar.toggleClass('show-mobile');
+            sidebar.classList.toggle('show-mobile');
         } else {
-            sidebar.toggleClass('collapsed');
+            sidebar.classList.toggle('collapsed');
         }
         
         // Show toolbar when sidebar is expanded, hide when collapsed
-        var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
+        var isExpanded = (window.innerWidth <= 768) ? sidebar.classList.contains('show-mobile') : !sidebar.classList.contains('collapsed');
         
         if (isExpanded) {
-            toolbar.removeClass('hidden');
+            toolbar.classList.remove('hidden');
         } else {
-            toolbar.addClass('hidden');
+            toolbar.classList.add('hidden');
         }
     }
     
     // Toggle Sidebar button
-    $('#toggleSidebar').on('click', function() {
-        toggleSidebar();
-    });
+    var toggleSidebarBtn = $('#toggleSidebar');
+    if (toggleSidebarBtn) {
+        toggleSidebarBtn.addEventListener('click', function() {
+            toggleSidebar();
+        });
+    }
     
     // Menu Button - hides toolbar for immersive mode
-    $('#menuBtn').on('click', function() {
-        var sidebar = $('#sidebar');
-        var toolbar = $('#top-toolbar');
-        
-        // Hide toolbar for immersive mode
-        toolbar.addClass('hidden');
-        
-        // Collapse sidebar
-        if (window.innerWidth <= 768) {
-            sidebar.removeClass('show-mobile');
-        } else {
-            sidebar.addClass('collapsed');
-        }
-    });
-    
-    // Back Button
-    $('#backBtn').on('click', function() {
-        window.history.back();
-    });
-    
-    // Link Input Toggle
-    $('#linkBtn').on('click', function() {
-        $('#linkInputWrapper').toggleClass('show');
-    });
-    
-    // Play Custom Link
-    $('#playLinkBtn').on('click', function() {
-        var link = $('#linkInput').val();
-        if (link) {
-            playChannel(link, 'Custom URL');
-        }
-    });
-    
-    // Favorite Panel Toggle
-    $('#favoriteBtn').on('click', function() {
-        $('#favoritePanel').toggleClass('show');
-    });
-    
-    // GitHub Button
-    $('#githubBtn').on('click', function() {
-        window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
-    });
-    
-    // Shuffle Play
-    $('#shuffleBtn').on('click', function() {
-        var channelItems = $('#channelList .channel-item');
-        if (channelItems.length > 0) {
-            var randomIndex = Math.floor(Math.random() * channelItems.length);
-            channelItems.eq(randomIndex).click();
-        }
-    });
-    
-    // Channel Search
-    $('#channelSearch').on('input', function() {
-        var searchTerm = $(this).val().toLowerCase();
-        $('#channelList .channel-item').each(function() {
-            var name = $(this).find('.channel-name').text().toLowerCase();
-            if (name.indexOf(searchTerm) > -1) {
-                $(this).show();
+    var menuBtn = $('#menuBtn');
+    if (menuBtn) {
+        menuBtn.addEventListener('click', function() {
+            var sidebar = $('#sidebar');
+            var toolbar = $('#top-toolbar');
+            
+            // Hide toolbar for immersive mode
+            toolbar.classList.add('hidden');
+            
+            // Collapse sidebar
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('show-mobile');
             } else {
-                $(this).hide();
+                sidebar.classList.add('collapsed');
             }
         });
-    });
+    }
+    
+    // Back Button
+    var backBtn = $('#backBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            window.history.back();
+        });
+    }
+    
+    // Link Input Toggle
+    var linkBtn = $('#linkBtn');
+    if (linkBtn) {
+        linkBtn.addEventListener('click', function() {
+            $('#linkInputWrapper').classList.toggle('show');
+        });
+    }
+    
+    // Play Custom Link
+    var playLinkBtn = $('#playLinkBtn');
+    if (playLinkBtn) {
+        playLinkBtn.addEventListener('click', function() {
+            var link = $('#linkInput').value;
+            if (link) {
+                playChannel(link, 'Custom URL');
+            }
+        });
+    }
+    
+    // Favorite Panel Toggle
+    var favoriteBtn = $('#favoriteBtn');
+    if (favoriteBtn) {
+        favoriteBtn.addEventListener('click', function() {
+            $('#favoritePanel').classList.toggle('show');
+        });
+    }
+    
+    // GitHub Button
+    var githubBtn = $('#githubBtn');
+    if (githubBtn) {
+        githubBtn.addEventListener('click', function() {
+            window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
+        });
+    }
+    
+    // Shuffle Play
+    var shuffleBtn = $('#shuffleBtn');
+    if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', function() {
+            var channelItems = $$('#channelList .channel-item');
+            if (channelItems.length > 0) {
+                var randomIndex = Math.floor(Math.random() * channelItems.length);
+                channelItems[randomIndex].click();
+            }
+        });
+    }
+    
+    // Channel Search
+    var channelSearch = $('#channelSearch');
+    if (channelSearch) {
+        channelSearch.addEventListener('input', function() {
+            var searchTerm = this.value.toLowerCase();
+            $$('#channelList .channel-item').forEach(function(item) {
+                var name = item.querySelector('.channel-name').textContent.toLowerCase();
+                if (name.indexOf(searchTerm) > -1) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
     
     // Close panels when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#favoritePanel, #favoriteBtn').length) {
-            $('#favoritePanel').removeClass('show');
+    document.addEventListener('click', function(e) {
+        var favoritePanel = $('#favoritePanel');
+        var favoriteBtnEl = $('#favoriteBtn');
+        if (favoritePanel && favoriteBtnEl && !favoritePanel.contains(e.target) && !favoriteBtnEl.contains(e.target)) {
+            favoritePanel.classList.remove('show');
         }
-        if (!$(e.target).closest('#linkInputWrapper, #linkBtn').length) {
-            $('#linkInputWrapper').removeClass('show');
+        var linkInputWrapper = $('#linkInputWrapper');
+        var linkBtnEl = $('#linkBtn');
+        if (linkInputWrapper && linkBtnEl && !linkInputWrapper.contains(e.target) && !linkBtnEl.contains(e.target)) {
+            linkInputWrapper.classList.remove('show');
         }
     });
+    
+    // Channel list click delegation
+    var channelListEl = $('#channelList');
+    if (channelListEl) {
+        channelListEl.addEventListener('click', function(e) {
+            var favoriteBtnClick = e.target.closest('.favorite-btn');
+            if (favoriteBtnClick) {
+                e.stopPropagation();
+                var channelItem = favoriteBtnClick.closest('.channel-item');
+                var url = channelItem.dataset.url;
+                var name = channelItem.dataset.name;
+                
+                if (favoriteBtnClick.classList.contains('active')) {
+                    // Remove from favorites
+                    localStorage.removeItem(FAV_PREFIX + url);
+                    favoriteBtnClick.classList.remove('active');
+                } else {
+                    // Add to favorites
+                    localStorage.setItem(FAV_PREFIX + url, name);
+                    favoriteBtnClick.classList.add('active');
+                }
+                
+                loadFavorites();
+                return;
+            }
+            
+            var channelItem = e.target.closest('.channel-item');
+            if (channelItem) {
+                var url = channelItem.dataset.url;
+                var name = channelItem.dataset.name;
+                
+                $$('.channel-item').forEach(function(el) { el.classList.remove('active'); });
+                channelItem.classList.add('active');
+                
+                playChannel(url, name);
+            }
+        });
+    }
 });
 
 // Load channels from API
 function loadChannels(apiUrl) {
-    $.ajax({
-        type: "GET",
-        url: apiUrl,
-        success: function(message, text, response) {
+    fetch(apiUrl)
+        .then(function(response) { return response.text(); })
+        .then(function(message) {
             var channelList = [];
-            let str = message;
-            let lst = str.split(",").slice(1, ).filter(x => /[^h]+.m3u8/.test(x)).map(x => x.split("\n"));
-            let array = str.split(" ");
-            let links = array.filter(x => /[^h]+.m3u8/.test(x)).map(x => x.split("\n")).flat().filter(x => /[^h]+.m3u8/.test(x));
+            var str = message;
+            var lst = str.split(",").slice(1).filter(function(x) { return /[^h]+.m3u8/.test(x); }).map(function(x) { return x.split("\n"); });
+            var array = str.split(" ");
+            var links = array.filter(function(x) { return /[^h]+.m3u8/.test(x); }).map(function(x) { return x.split("\n"); }).flat().filter(function(x) { return /[^h]+.m3u8/.test(x); });
             
-            for (let i = 0; i < links.length; i++) {
+            for (var i = 0; i < links.length; i++) {
                 channels.push(links[i]);
                 channelList.push({
                     name: lst[i][0],
                     url: links[i],
-                    isFavorite: window.localStorage.getItem(FAV_PREFIX + links[i]) == lst[i][0]
+                    isFavorite: window.localStorage.getItem(FAV_PREFIX + links[i]) === lst[i][0]
                 });
             }
             
             renderChannelList(channelList);
-        },
-        fail: function(xhr, textStatus, errorThrown) {
-            $('#channelList').html(`
-                <div class="no-channels">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Failed to load channels</p>
-                    <p style="font-size: 12px; margin-top: 10px;">Please check your internet connection</p>
-                </div>
-            `);
-        }
-    });
+        })
+        .catch(function() {
+            $('#channelList').innerHTML = '<div class="no-channels"><i class="fas fa-exclamation-triangle"></i><p>Failed to load channels</p><p style="font-size: 12px; margin-top: 10px;">Please check your internet connection</p></div>';
+        });
 }
 
 // Render channel list
 function renderChannelList(channelList) {
-    $('#channelList').empty();
-    $('#channelCount').text(channelList.length);
+    $('#channelList').innerHTML = '';
+    $('#channelCount').textContent = channelList.length;
     
     if (channelList.length === 0) {
-        $('#channelList').html(`
-            <div class="no-channels">
-                <i class="fas fa-tv"></i>
-                <p>No channels found</p>
-            </div>
-        `);
+        $('#channelList').innerHTML = '<div class="no-channels"><i class="fas fa-tv"></i><p>No channels found</p></div>';
         return;
     }
     
+    var html = '';
     channelList.forEach(function(channel, index) {
         var isFav = channel.isFavorite ? 'active' : '';
-        var item = $(`
-            <div class="channel-item" data-url="${channel.url}" data-name="${channel.name}">
-                <div class="channel-icon">
-                    <i class="fas fa-tv"></i>
-                </div>
-                <span class="channel-name">${channel.name}</span>
-                <i class="fas fa-heart favorite-btn ${isFav}" title="Add to favorites"></i>
-            </div>
-        `);
-        
-        // Play first channel automatically
-        if (index === 0) {
-            item.addClass('active');
-            playChannel(channel.url, channel.name);
-        }
-        
-        $('#channelList').append(item);
+        html += '<div class="channel-item ' + (index === 0 ? 'active' : '') + '" data-url="' + channel.url + '" data-name="' + channel.name + '">';
+        html += '    <div class="channel-icon"><i class="fas fa-tv"></i></div>';
+        html += '    <span class="channel-name">' + channel.name + '</span>';
+        html += '    <i class="fas fa-heart favorite-btn ' + isFav + '" title="Add to favorites"></i>';
+        html += '</div>';
     });
     
-    // Click to play channel
-    $('.channel-item').on('click', function(e) {
-        if ($(e.target).hasClass('favorite-btn')) {
-            return; // Don't play if clicking favorite button
-        }
-        
-        var url = $(this).data('url');
-        var name = $(this).data('name');
-        
-        $('.channel-item').removeClass('active');
-        $(this).addClass('active');
-        
-        playChannel(url, name);
-    });
+    $('#channelList').innerHTML = html;
     
-    // Favorite button click
-    $('.favorite-btn').on('click', function(e) {
-        e.stopPropagation();
-        var url = $(this).closest('.channel-item').data('url');
-        var name = $(this).closest('.channel-item').data('name');
-        
-        if ($(this).hasClass('active')) {
-            // Remove from favorites
-            localStorage.removeItem(FAV_PREFIX + url);
-            $(this).removeClass('active');
-        } else {
-            // Add to favorites
-            localStorage.setItem(FAV_PREFIX + url, name);
-            $(this).addClass('active');
-        }
-        
-        loadFavorites();
-    });
+    // Play first channel automatically
+    if (channelList.length > 0) {
+        playChannel(channelList[0].url, channelList[0].name);
+    }
 }
 
 // Play channel
@@ -284,57 +313,54 @@ function playChannel(url, name) {
     });
     
     player.play();
-    $('#currentChannel').text(name);
+    $('#currentChannel').textContent = name;
 }
 
 // Load favorites list
 function loadFavorites() {
     var favorites = [];
     
-    for (let key of Object.keys(localStorage)) {
+    Object.keys(localStorage).forEach(function(key) {
         if (key.startsWith(FAV_PREFIX)) {
             favorites.push({
                 url: key.replace(FAV_PREFIX, ''),
                 name: localStorage.getItem(key)
             });
         }
-    }
+    });
     
-    $('#favCount').text(favorites.length);
+    $('#favCount').textContent = favorites.length;
     
     if (favorites.length === 0) {
-        $('#favoriteContent').html(`
-            <div class="no-channels" style="padding: 20px;">
-                <i class="fas fa-heart-broken" style="font-size: 24px;"></i>
-                <span style="font-size: 12px;">No favorites yet</span>
-            </div>
-        `);
+        $('#favoriteContent').innerHTML = '<div class="no-channels" style="padding: 20px;"><i class="fas fa-heart-broken" style="font-size: 24px;"></i><span style="font-size: 12px;">No favorites yet</span></div>';
         return;
     }
     
-    $('#favoriteContent').empty();
-    
+    var html = '';
     favorites.forEach(function(fav) {
-        var item = $(`
-            <div class="favorite-item" data-url="${fav.url}" data-name="${fav.name}">
-                <i class="fas fa-tv"></i>
-                <span>${fav.name}</span>
-            </div>
-        `);
-        
-        $('#favoriteContent').append(item);
+        html += '<div class="favorite-item" data-url="' + fav.url + '" data-name="' + fav.name + '">';
+        html += '    <i class="fas fa-tv"></i>';
+        html += '    <span>' + fav.name + '</span>';
+        html += '</div>';
     });
     
+    $('#favoriteContent').innerHTML = html;
+    
     // Click to play favorite
-    $('.favorite-item').on('click', function() {
-        var url = $(this).data('url');
-        var name = $(this).data('name');
-        
-        playChannel(url, name);
-        $('#favoritePanel').removeClass('show');
-        
-        // Update active state in channel list
-        $('.channel-item').removeClass('active');
-        $('.channel-item[data-url="' + url + '"]').addClass('active');
+    $$('.favorite-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            var url = this.dataset.url;
+            var name = this.dataset.name;
+            
+            playChannel(url, name);
+            $('#favoritePanel').classList.remove('show');
+            
+            // Update active state in channel list
+            $$('.channel-item').forEach(function(el) { el.classList.remove('active'); });
+            var channelItem = $('.channel-item[data-url="' + url + '"]');
+            if (channelItem) {
+                channelItem.classList.add('active');
+            }
+        });
     });
 }

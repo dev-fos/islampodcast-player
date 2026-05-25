@@ -1,5 +1,7 @@
 // Radio Player JS - Extracted from radioplay.html
 // Radio Browser API source
+// Native JavaScript (No jQuery)
+
 var radiosource = ['https://de1.api.radio-browser.info/'];
 var rand = Math.floor(Math.random() * radiosource.length);
 var stations = [];
@@ -8,7 +10,7 @@ var player;
 // Favorite prefix for localStorage - ensures only this app's favorites are shown
 const FAV_PREFIX = 'radio_fav_';
 
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Initialize video.js player
     player = videojs('video1');
     
@@ -26,7 +28,7 @@ $(document).ready(function() {
     // Set page title
     var displayName = tab === 'Taiwan Province Of China' ? 'Taiwan' : tab;
     document.title = displayName + ' - Radio Player';
-    $('#categoryTitle').text(displayName);
+    document.getElementById('categoryTitle').textContent = displayName;
     
     // API endpoints by type
     // t=1: by country, t=2: by language, t=3: by tag
@@ -44,131 +46,136 @@ $(document).ready(function() {
     
     // Toggle sidebar - toggle station list and toolbar visibility
     function toggleSidebar() {
-        var sidebar = $('#sidebar');
-        var toolbar = $('#top-toolbar');
+        var sidebar = document.getElementById('sidebar');
+        var toolbar = document.getElementById('top-toolbar');
         
         // Toggle sidebar
         if (window.innerWidth <= 768) {
-            sidebar.toggleClass('show-mobile');
+            sidebar.classList.toggle('show-mobile');
         } else {
-            sidebar.toggleClass('collapsed');
+            sidebar.classList.toggle('collapsed');
         }
         
         // Show toolbar when sidebar is expanded, hide when collapsed
-        var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
+        var isExpanded = (window.innerWidth <= 768) ? sidebar.classList.contains('show-mobile') : !sidebar.classList.contains('collapsed');
         
         if (isExpanded) {
-            toolbar.removeClass('hidden');
+            toolbar.classList.remove('hidden');
         } else {
-            toolbar.addClass('hidden');
+            toolbar.classList.add('hidden');
         }
     }
     
     // Toggle Sidebar button
-    $('#toggleSidebar').on('click', function() {
-        toggleSidebar();
-    });
-    
-    // Menu Button - hides toolbar for immersive mode
-    $('#menuBtn').on('click', function() {
-        var sidebar = $('#sidebar');
-        var toolbar = $('#top-toolbar');
-        
-        // Hide toolbar for immersive mode
-        toolbar.addClass('hidden');
-        
-        // Collapse sidebar
-        if (window.innerWidth <= 768) {
-            sidebar.removeClass('show-mobile');
-        } else {
-            sidebar.addClass('collapsed');
-        }
-    });
+    var toggleSidebarBtn = document.getElementById('toggleSidebar');
+    if (toggleSidebarBtn) {
+        toggleSidebarBtn.addEventListener('click', function() {
+            toggleSidebar();
+        });
+    }
     
     // Back Button
-    $('#backBtn').on('click', function() {
-        window.history.back();
-    });
+    var backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            window.history.back();
+        });
+    }
     
     // Link Input Toggle
-    $('#linkBtn').on('click', function() {
-        $('#linkInputWrapper').toggleClass('show');
-    });
+    var linkBtn = document.getElementById('linkBtn');
+    if (linkBtn) {
+        linkBtn.addEventListener('click', function() {
+            document.getElementById('linkInputWrapper').classList.toggle('show');
+        });
+    }
     
     // Play Custom Link
-    $('#playLinkBtn').on('click', function() {
-        var link = $('#linkInput').val();
-        if (link) {
-            playStation(link, 'Custom URL', '');
-        }
-    });
-    
-    // Favorite Panel Toggle
-    $('#favoriteBtn').on('click', function() {
-        $('#favoritePanel').toggleClass('show');
-    });
-    
-    // GitHub Button
-    $('#githubBtn').on('click', function() {
-        window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
-    });
-    
-    // Shuffle Play
-    $('#shuffleBtn').on('click', function() {
-        if (stations.length > 0) {
-            var randomIndex = Math.floor(Math.random() * stations.length);
-            var station = stations[randomIndex];
-            playStation(station.url, station.name, station.country);
-        }
-    });
-    
-    // Station Search
-    $('#stationSearch').on('input', function() {
-        var searchTerm = $(this).val().toLowerCase();
-        $('#stationList .station-item').each(function() {
-            var name = $(this).find('.station-name').text().toLowerCase();
-            if (name.indexOf(searchTerm) > -1) {
-                $(this).show();
-            } else {
-                $(this).hide();
+    var playLinkBtn = document.getElementById('playLinkBtn');
+    if (playLinkBtn) {
+        playLinkBtn.addEventListener('click', function() {
+            var link = document.getElementById('linkInput').value;
+            if (link) {
+                playStation(link, 'Custom URL', '');
             }
         });
-    });
+    }
+    
+    // Favorite Panel Toggle
+    var favoriteBtn = document.getElementById('favoriteBtn');
+    if (favoriteBtn) {
+        favoriteBtn.addEventListener('click', function() {
+            document.getElementById('favoritePanel').classList.toggle('show');
+        });
+    }
+    
+    // GitHub Button
+    var githubBtn = document.getElementById('githubBtn');
+    if (githubBtn) {
+        githubBtn.addEventListener('click', function() {
+            window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
+        });
+    }
+    
+    // Shuffle Play
+    var shuffleBtn = document.getElementById('shuffleBtn');
+    if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', function() {
+            if (stations.length > 0) {
+                var randomIndex = Math.floor(Math.random() * stations.length);
+                var station = stations[randomIndex];
+                playStation(station.url, station.name, station.country);
+            }
+        });
+    }
+    
+    // Station Search
+    var stationSearch = document.getElementById('stationSearch');
+    if (stationSearch) {
+        stationSearch.addEventListener('input', function() {
+            var searchTerm = this.value.toLowerCase();
+            document.querySelectorAll('#stationList .station-item').forEach(function(item) {
+                var name = item.querySelector('.station-name').textContent.toLowerCase();
+                item.style.display = name.indexOf(searchTerm) > -1 ? '' : 'none';
+            });
+        });
+    }
     
     // Close panels when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#favoritePanel, #favoriteBtn').length) {
-            $('#favoritePanel').removeClass('show');
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#favoritePanel') && !e.target.closest('#favoriteBtn')) {
+            document.getElementById('favoritePanel').classList.remove('show');
         }
-        if (!$(e.target).closest('#linkInputWrapper, #linkBtn').length) {
-            $('#linkInputWrapper').removeClass('show');
+        if (!e.target.closest('#linkInputWrapper') && !e.target.closest('#linkBtn')) {
+            document.getElementById('linkInputWrapper').classList.remove('show');
         }
     });
     
     // Player events
     player.on('pause', function() {
-        $('#radioVisualizer').addClass('paused');
+        document.getElementById('radioVisualizer').classList.add('paused');
     });
     
     player.on('play', function() {
-        $('#radioVisualizer').removeClass('paused');
+        document.getElementById('radioVisualizer').classList.remove('paused');
     });
 });
 
 // Load stations from API
 function loadStations(tab, endpoint) {
-    $.ajax({
-        type: "GET",
-        url: radiosource[rand] + endpoint + encodeURIComponent(tab),
-        success: function(data) {
-            $('#stationList').empty();
+    fetch(radiosource[rand] + endpoint + encodeURIComponent(tab))
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            var stationList = document.getElementById('stationList');
+            stationList.innerHTML = '';
             stations = [];
             
             if (data && data.length > 0) {
-                $('#stationCount').text(data.length);
+                document.getElementById('stationCount').textContent = data.length;
                 
-                for (var i = 0; i < data.length; i++) {
-                    var station = data[i];
+                data.forEach(function(station) {
                     stations.push({
                         url: station.url,
                         name: station.name,
@@ -188,40 +195,41 @@ function loadStations(tab, endpoint) {
                             <i class="fas fa-heart favorite-btn ${favoriteClass}" title="Add to favorites"></i>
                         </div>
                     `;
-                    $('#stationList').append(itemHtml);
-                }
+                    stationList.insertAdjacentHTML('beforeend', itemHtml);
+                });
                 
                 // Auto-play first station
                 playStation(data[0].url, data[0].name, data[0].country);
                 
                 // Click handler for station items
-                $('.station-item').on('click', function(e) {
-                    if ($(e.target).hasClass('favorite-btn')) {
-                        // Handle favorite
-                        toggleFavorite($(this).data('url'), $(this).data('name'), $(e.target));
-                    } else {
-                        // Play station
-                        playStation($(this).data('url'), $(this).data('name'), $(this).data('country'));
-                    }
+                document.querySelectorAll('.station-item').forEach(function(item) {
+                    item.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('favorite-btn')) {
+                            // Handle favorite
+                            toggleFavorite(this.dataset.url, this.dataset.name, e.target);
+                        } else {
+                            // Play station
+                            playStation(this.dataset.url, this.dataset.name, this.dataset.country);
+                        }
+                    });
                 });
             } else {
-                $('#stationList').html(`
+                stationList.innerHTML = `
                     <div class="no-stations">
                         <i class="fas fa-broadcast-tower"></i>
                         <p>No stations found</p>
                     </div>
-                `);
+                `;
             }
-        },
-        error: function() {
-            $('#stationList').html(`
+        })
+        .catch(function() {
+            document.getElementById('stationList').innerHTML = `
                 <div class="no-stations">
                     <i class="fas fa-exclamation-triangle"></i>
                     <p>Failed to load stations. Please check your internet connection.</p>
                 </div>
-            `);
-        }
-    });
+            `;
+        });
 }
 
 // Play station
@@ -235,18 +243,23 @@ function playStation(url, name, country) {
     player.play();
     
     // Update UI
-    $('#currentStation').text(name);
-    $('#stationTitle').text(name);
+    document.getElementById('currentStation').textContent = name;
+    document.getElementById('stationTitle').textContent = name;
     if (country) {
-        $('#stationCountry').html('<i class="fas fa-globe"></i><span>' + country + '</span>');
+        document.getElementById('stationCountry').innerHTML = '<i class="fas fa-globe"></i><span>' + country + '</span>';
     }
     
     // Start visualizer animation
-    $('#radioVisualizer').removeClass('paused');
+    document.getElementById('radioVisualizer').classList.remove('paused');
     
     // Update active state
-    $('.station-item').removeClass('active');
-    $('.station-item[data-url="' + url + '"]').addClass('active');
+    document.querySelectorAll('.station-item').forEach(function(item) {
+        item.classList.remove('active');
+    });
+    var activeItem = document.querySelector('.station-item[data-url="' + url + '"]');
+    if (activeItem) {
+        activeItem.classList.add('active');
+    }
 }
 
 // Toggle favorite
@@ -256,10 +269,10 @@ function toggleFavorite(url, name, btn) {
     
     if (existingName) {
         localStorage.removeItem(favKey);
-        btn.removeClass('active');
+        btn.classList.remove('active');
     } else {
         localStorage.setItem(favKey, name);
-        btn.addClass('active');
+        btn.classList.add('active');
     }
     
     loadFavorites();
@@ -279,13 +292,13 @@ function loadFavorites() {
         }
     }
     
-    $('#favCount').text(favorites.length);
+    document.getElementById('favCount').textContent = favorites.length;
+    var favoriteContent = document.getElementById('favoriteContent');
     
     if (favorites.length > 0) {
-        $('#favoriteContent').empty();
+        favoriteContent.innerHTML = '';
         
-        for (var j = 0; j < favorites.length; j++) {
-            var fav = favorites[j];
+        favorites.forEach(function(fav) {
             var itemHtml = `
                 <div class="favorite-item" data-url="${fav.url}">
                     <i class="fas fa-heart"></i>
@@ -293,44 +306,49 @@ function loadFavorites() {
                     <i class="fas fa-times delete-btn" title="Remove from favorites"></i>
                 </div>
             `;
-            $('#favoriteContent').append(itemHtml);
-        }
+            favoriteContent.insertAdjacentHTML('beforeend', itemHtml);
+        });
         
         // Click handler for favorite items (play)
-        $('.favorite-item').on('click', function(e) {
-            if ($(e.target).hasClass('delete-btn')) {
-                // Delete favorite
-                var url = $(this).data('url');
-                localStorage.removeItem(FAV_PREFIX + url);
-                $(this).remove();
-                
-                // Update station list favorite icons
-                $('.station-item[data-url="' + url + '"]').find('.favorite-btn').removeClass('active');
-                
-                // Update count and check if empty
-                var remaining = $('.favorite-item').length;
-                $('#favCount').text(remaining);
-                if (remaining === 0) {
-                    $('#favoriteContent').html(`
-                        <div class="no-stations" style="padding: 20px;">
-                            <i class="fas fa-heart-broken" style="font-size: 24px;"></i>
-                            <span style="font-size: 12px;">No favorites yet</span>
-                        </div>
-                    `);
+        document.querySelectorAll('.favorite-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                if (e.target.classList.contains('delete-btn')) {
+                    // Delete favorite
+                    var url = this.dataset.url;
+                    localStorage.removeItem(FAV_PREFIX + url);
+                    this.remove();
+                    
+                    // Update station list favorite icons
+                    var stationItem = document.querySelector('.station-item[data-url="' + url + '"]');
+                    if (stationItem) {
+                        stationItem.querySelector('.favorite-btn').classList.remove('active');
+                    }
+                    
+                    // Update count and check if empty
+                    var remaining = document.querySelectorAll('.favorite-item').length;
+                    document.getElementById('favCount').textContent = remaining;
+                    if (remaining === 0) {
+                        favoriteContent.innerHTML = `
+                            <div class="no-stations" style="padding: 20px;">
+                                <i class="fas fa-heart-broken" style="font-size: 24px;"></i>
+                                <span style="font-size: 12px;">No favorites yet</span>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // Play station
+                    playStation(this.dataset.url, this.querySelector('span').textContent, '');
+                    document.getElementById('favoritePanel').classList.remove('show');
                 }
-            } else {
-                // Play station
-                playStation($(this).data('url'), $(this).find('span').text(), '');
-                $('#favoritePanel').removeClass('show');
-            }
+            });
         });
     } else {
-        $('#favoriteContent').html(`
+        favoriteContent.innerHTML = `
             <div class="no-stations" style="padding: 20px;">
                 <i class="fas fa-heart-broken" style="font-size: 24px;"></i>
                 <span style="font-size: 12px;">No favorites yet</span>
             </div>
-        `);
+        `;
     }
 }
 

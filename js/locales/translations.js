@@ -1,6 +1,6 @@
 /**
- * 多语言翻译数据
- * 所有语言的翻译文本集中管理
+ * Multi-language translation data
+ * Centralized management of all language translation texts
  */
 const translations = {
     en: {
@@ -24,7 +24,30 @@ const translations = {
         sidenav_2: "Clear",
         sidenav_3: "Source",
         sidenav_4: "Version",
-        sidenav_5: "About"
+        sidenav_5: "About",
+        // Settings Modal
+        settings_title: "Settings",
+        settings_basic: "Basic Settings",
+        settings_advanced: "Advanced",
+        settings_appearance: "Appearance",
+        settings_source: "Source Control",
+        settings_about: "About",
+        settings_sensitive_label: "Sensitive Content",
+        settings_sensitive_desc: "Toggle adult content visibility",
+        settings_language_label: "Language",
+        settings_language_desc: "Select your preferred language",
+        settings_cache_label: "Clear Cache",
+        settings_cache_desc: "Clear all cached data",
+        settings_cache_btn: "Clear",
+        settings_theme_label: "Dark Theme",
+        settings_theme_desc: "Toggle dark/light mode",
+        settings_source_title: "Select Content Type",
+        settings_source_save: "Save Sources",
+        settings_version_label: "Version",
+        settings_version_desc: "Current application version",
+        settings_developer_label: "Developer",
+        settings_connect_label: "Connect",
+        settings_connect_desc: "Follow us on social media"
     },
     "zh-CN": {
         button: "进入",
@@ -47,7 +70,30 @@ const translations = {
         sidenav_2: "清理",
         sidenav_3: "来源",
         sidenav_4: "版本",
-        sidenav_5: "关于"
+        sidenav_5: "关于",
+        // Settings Modal
+        settings_title: "设置",
+        settings_basic: "基本设置",
+        settings_advanced: "高级设置",
+        settings_appearance: "外观",
+        settings_source: "来源控制",
+        settings_about: "关于",
+        settings_sensitive_label: "敏感内容",
+        settings_sensitive_desc: "切换成人内容可见性",
+        settings_language_label: "语言",
+        settings_language_desc: "选择您的首选语言",
+        settings_cache_label: "清除缓存",
+        settings_cache_desc: "清除所有缓存数据",
+        settings_cache_btn: "清除",
+        settings_theme_label: "深色主题",
+        settings_theme_desc: "切换深色/浅色模式",
+        settings_source_title: "选择内容类型",
+        settings_source_save: "保存来源",
+        settings_version_label: "版本",
+        settings_version_desc: "当前应用程序版本",
+        settings_developer_label: "开发者",
+        settings_connect_label: "联系",
+        settings_connect_desc: "在社交媒体上关注我们"
     },
     "zh-TW": {
         button: "進入",
@@ -70,7 +116,30 @@ const translations = {
         sidenav_2: "清除",
         sidenav_3: "來源",
         sidenav_4: "版本",
-        sidenav_5: "關於"
+        sidenav_5: "關於",
+        // Settings Modal
+        settings_title: "設定",
+        settings_basic: "基本設定",
+        settings_advanced: "進階設定",
+        settings_appearance: "外觀",
+        settings_source: "來源控制",
+        settings_about: "關於",
+        settings_sensitive_label: "敏感內容",
+        settings_sensitive_desc: "切換成人內容可見性",
+        settings_language_label: "語言",
+        settings_language_desc: "選擇您的首選語言",
+        settings_cache_label: "清除快取",
+        settings_cache_desc: "清除所有快取資料",
+        settings_cache_btn: "清除",
+        settings_theme_label: "深色主題",
+        settings_theme_desc: "切換深色/淺色模式",
+        settings_source_title: "選擇內容類型",
+        settings_source_save: "儲存來源",
+        settings_version_label: "版本",
+        settings_version_desc: "目前應用程式版本",
+        settings_developer_label: "開發者",
+        settings_connect_label: "聯繫",
+        settings_connect_desc: "在社群媒體上關注我們"
     },
     ja: {
         button: "入力",
@@ -93,7 +162,30 @@ const translations = {
         sidenav_2: "クリア",
         sidenav_3: "ソース",
         sidenav_4: "バージョン",
-        sidenav_5: "だいたい"
+        sidenav_5: "だいたい",
+        // Settings Modal
+        settings_title: "設定",
+        settings_basic: "基本設定",
+        settings_advanced: "詳細設定",
+        settings_appearance: "外観",
+        settings_source: "ソース管理",
+        settings_about: "約",
+        settings_sensitive_label: "敏感なコンテンツ",
+        settings_sensitive_desc: "アダルトコンテンツの表示を切り替え",
+        settings_language_label: "言語",
+        settings_language_desc: "お好みの言語を選択",
+        settings_cache_label: "キャッシュをクリア",
+        settings_cache_desc: "すべてのキャッシュデータをクリア",
+        settings_cache_btn: "クリア",
+        settings_theme_label: "ダークテーマ",
+        settings_theme_desc: "ダーク/ライトモードを切り替え",
+        settings_source_title: "コンテンツタイプを選択",
+        settings_source_save: "ソースを保存",
+        settings_version_label: "バージョン",
+        settings_version_desc: "現在のアプリバージョン",
+        settings_developer_label: "開発者",
+        settings_connect_label: "接続",
+        settings_connect_desc: "ソーシャルメディアでフォロー"
     },
     ko: {
         button: "입력하다",
@@ -116,7 +208,30 @@ const translations = {
         sidenav_2: "분명한",
         sidenav_3: "원천",
         sidenav_4: "버전",
-        sidenav_5: "에 대한"
+        sidenav_5: "에 대한",
+        // Settings Modal
+        settings_title: "설정",
+        settings_basic: "기본 설정",
+        settings_advanced: "고급",
+        settings_appearance: "외관",
+        settings_source: "소스 관리",
+        settings_about: "정보",
+        settings_sensitive_label: "민감한 콘텐츠",
+        settings_sensitive_desc: "성인 콘텐츠 표시 전환",
+        settings_language_label: "언어",
+        settings_language_desc: "선호하는 언어 선택",
+        settings_cache_label: "캐시 지우기",
+        settings_cache_desc: "모든 캐시 데이터 지우기",
+        settings_cache_btn: "지우기",
+        settings_theme_label: "다크 테마",
+        settings_theme_desc: "다크/라이트 모드 전환",
+        settings_source_title: "콘텐츠 유형 선택",
+        settings_source_save: "소스 저장",
+        settings_version_label: "버전",
+        settings_version_desc: "현재 앱 버전",
+        settings_developer_label: "개발자",
+        settings_connect_label: "연결",
+        settings_connect_desc: "소셜 미디어에서 팔로우"
     },
     fr: {
         button: "Entrer",
@@ -139,7 +254,30 @@ const translations = {
         sidenav_2: "dégager",
         sidenav_3: "La source",
         sidenav_4: "Version",
-        sidenav_5: "Sur"
+        sidenav_5: "Sur",
+        // Settings Modal
+        settings_title: "Paramètres",
+        settings_basic: "Paramètres de base",
+        settings_advanced: "Avancé",
+        settings_appearance: "Apparence",
+        settings_source: "Contrôle des sources",
+        settings_about: "À propos",
+        settings_sensitive_label: "Contenu sensible",
+        settings_sensitive_desc: "Basculer la visibilité du contenu adulte",
+        settings_language_label: "Langue",
+        settings_language_desc: "Sélectionnez votre langue préférée",
+        settings_cache_label: "Vider le cache",
+        settings_cache_desc: "Effacer toutes les données en cache",
+        settings_cache_btn: "Effacer",
+        settings_theme_label: "Thème sombre",
+        settings_theme_desc: "Basculer entre mode sombre/clair",
+        settings_source_title: "Sélectionner le type de contenu",
+        settings_source_save: "Enregistrer les sources",
+        settings_version_label: "Version",
+        settings_version_desc: "Version actuelle de l'application",
+        settings_developer_label: "Développeur",
+        settings_connect_label: "Connecter",
+        settings_connect_desc: "Suivez-nous sur les réseaux sociaux"
     },
     de: {
         button: "Eintreten",
@@ -162,7 +300,30 @@ const translations = {
         sidenav_2: "klar",
         sidenav_3: "Quelle",
         sidenav_4: "Ausführung",
-        sidenav_5: "Über"
+        sidenav_5: "Über",
+        // Settings Modal
+        settings_title: "Einstellungen",
+        settings_basic: "Grundeinstellungen",
+        settings_advanced: "Erweitert",
+        settings_appearance: "Erscheinungsbild",
+        settings_source: "Quellenverwaltung",
+        settings_about: "Über",
+        settings_sensitive_label: "Sensible Inhalte",
+        settings_sensitive_desc: "Sichtbarkeit von Inhalten für Erwachsene umschalten",
+        settings_language_label: "Sprache",
+        settings_language_desc: "Wählen Sie Ihre bevorzugte Sprache",
+        settings_cache_label: "Cache leeren",
+        settings_cache_desc: "Alle zwischengespeicherten Daten löschen",
+        settings_cache_btn: "Löschen",
+        settings_theme_label: "Dunkles Thema",
+        settings_theme_desc: "Dunkel-/Hellmodus umschalten",
+        settings_source_title: "Inhaltstyp auswählen",
+        settings_source_save: "Quellen speichern",
+        settings_version_label: "Version",
+        settings_version_desc: "Aktuelle Anwendungsversion",
+        settings_developer_label: "Entwickler",
+        settings_connect_label: "Verbinden",
+        settings_connect_desc: "Folgen Sie uns in den sozialen Medien"
     },
     es: {
         button: "Ingresar",
@@ -185,7 +346,30 @@ const translations = {
         sidenav_2: "claro",
         sidenav_3: "Fuente",
         sidenav_4: "Versión",
-        sidenav_5: "Sobre"
+        sidenav_5: "Sobre",
+        // Settings Modal
+        settings_title: "Configuración",
+        settings_basic: "Configuración básica",
+        settings_advanced: "Avanzado",
+        settings_appearance: "Apariencia",
+        settings_source: "Control de fuentes",
+        settings_about: "Acerca de",
+        settings_sensitive_label: "Contenido sensible",
+        settings_sensitive_desc: "Alternar visibilidad de contenido para adultos",
+        settings_language_label: "Idioma",
+        settings_language_desc: "Seleccione su idioma preferido",
+        settings_cache_label: "Borrar caché",
+        settings_cache_desc: "Borrar todos los datos en caché",
+        settings_cache_btn: "Borrar",
+        settings_theme_label: "Tema oscuro",
+        settings_theme_desc: "Alternar modo oscuro/claro",
+        settings_source_title: "Seleccionar tipo de contenido",
+        settings_source_save: "Guardar fuentes",
+        settings_version_label: "Versión",
+        settings_version_desc: "Versión actual de la aplicación",
+        settings_developer_label: "Desarrollador",
+        settings_connect_label: "Conectar",
+        settings_connect_desc: "Síguenos en redes sociales"
     },
     ru: {
         button: "Входить",
@@ -208,7 +392,30 @@ const translations = {
         sidenav_2: "Чисто",
         sidenav_3: "Источник",
         sidenav_4: "Версия",
-        sidenav_5: "О"
+        sidenav_5: "О",
+        // Settings Modal
+        settings_title: "Настройки",
+        settings_basic: "Основные настройки",
+        settings_advanced: "Дополнительно",
+        settings_appearance: "Внешний вид",
+        settings_source: "Управление источниками",
+        settings_about: "О приложении",
+        settings_sensitive_label: "Конфиденциальный контент",
+        settings_sensitive_desc: "Переключить видимость контента для взрослых",
+        settings_language_label: "Язык",
+        settings_language_desc: "Выберите предпочтительный язык",
+        settings_cache_label: "Очистить кэш",
+        settings_cache_desc: "Очистить все кэшированные данные",
+        settings_cache_btn: "Очистить",
+        settings_theme_label: "Тёмная тема",
+        settings_theme_desc: "Переключить тёмный/светлый режим",
+        settings_source_title: "Выбрать тип контента",
+        settings_source_save: "Сохранить источники",
+        settings_version_label: "Версия",
+        settings_version_desc: "Текущая версия приложения",
+        settings_developer_label: "Разработчик",
+        settings_connect_label: "Связаться",
+        settings_connect_desc: "Подписывайтесь на нас в соцсетях"
     },
     ar: {
         button: "يدخل",
@@ -474,7 +681,7 @@ const translations = {
         sidenav_4: "Версія",
         sidenav_5: "Про"
     },
-    // 新增语言翻译
+    // New language translations
     af: {
         button: "Betree",
         buttonFirst: "Gaan!",
@@ -2127,7 +2334,7 @@ const translations = {
     }
 };
 
-// 语言别名映射（处理语言变体）
+// Language alias mapping (handling language variants)
 const languageAliases = {
     'selectbox': 'en',
     'en-AU': 'en', 'en-CA': 'en', 'en-IN': 'en', 'en-NZ': 'en', 'en-ZA': 'en', 'en-GB': 'en', 'en-US': 'en',
@@ -2141,54 +2348,101 @@ const languageAliases = {
 };
 
 /**
- * 获取规范化语言代码
- * @param {string} lang - 原始语言代码
- * @returns {string} - 规范化后的语言代码
+ * Get normalized language code
+ * @param {string} lang - Original language code
+ * @returns {string} - Normalized language code
  */
 function getNormalizedLanguage(lang) {
     if (!lang) return 'en';
-    // 先检查别名
+    // Check aliases first
     if (languageAliases[lang]) {
         return languageAliases[lang];
     }
-    // 检查是否有直接匹配
+    // Check for direct match
     if (translations[lang]) {
         return lang;
     }
-    // 默认返回英语
+    // Default to English
     return 'en';
 }
 
 /**
- * 应用翻译到页面元素
- * @param {string} lang - 语言代码
+ * Apply translations to page elements
+ * @param {string} lang - Language code
  */
 function applyTranslation(lang) {
     const normalizedLang = getNormalizedLanguage(lang);
     const t = translations[normalizedLang] || translations['en'];
     
-    // 按钮文本
-    $('.stylebtn:eq(0)').text(t.buttonFirst || t.button);
-    $('.stylebtn').slice(1).text(t.button);
-    
-    // Mobile 段落
-    for (let i = 0; i <= 8; i++) {
-        $(`.mobile p:eq(${i})`).text(t[`mobile_p${i}`] || translations['en'][`mobile_p${i}`] || '');
+    // Use native JavaScript instead of jQuery
+    // Button texts
+    const styleButtons = document.querySelectorAll('.stylebtn');
+    if (styleButtons.length > 0) {
+        styleButtons[0].textContent = t.buttonFirst || t.button;
+        for (let i = 1; i < styleButtons.length; i++) {
+            styleButtons[i].textContent = t.button;
+        }
     }
     
-    // 标题
-    $('h2').text(t.h2);
+    // Mobile paragraphs
+    const mobileParagraphs = document.querySelectorAll('.mobile li p');
+    for (let i = 0; i <= 8 && i < mobileParagraphs.length; i++) {
+        mobileParagraphs[i].textContent = t[`mobile_p${i}`] || translations['en'][`mobile_p${i}`] || '';
+    }
     
-    // 选择表单
-    $('#selectform input:eq(0)').next().text(t.selectform_0);
-    $('#selectform input:eq(1)').next().text(t.selectform_1);
-    $('#selectform input:eq(2)').next().text(t.selectform_2);
+    // Headings
+    const h2Elements = document.querySelectorAll('h2');
+    h2Elements.forEach(h2 => h2.textContent = t.h2);
     
-    // 侧边导航
-    $('#mySidenav div:eq(0)').find('span:eq(0)').text(t.sidenav_0);
-    $('#mySidenav div:eq(1)').find('label').text(t.sidenav_1);
-    $('#mySidenav div:eq(2)').find('span').text(t.sidenav_2);
-    $('#mySidenav div:eq(3)').find('span').text(t.sidenav_3);
-    $('#mySidenav div:eq(4)').find('span').text(t.sidenav_4);
-    $('#mySidenav div:eq(5)').find('span').text(t.sidenav_5);
+    // Select form
+    const selectformLabels = document.querySelectorAll('#selectform label');
+    if (selectformLabels.length >= 3) {
+        selectformLabels[0].textContent = t.selectform_0;
+        selectformLabels[1].textContent = t.selectform_1;
+        selectformLabels[2].textContent = t.selectform_2;
+    }
+    
+    // Side navigation - use safer selectors
+    const sidenav = document.getElementById('mySidenav');
+    if (sidenav) {
+        const sidenavItems = sidenav.querySelectorAll('.sidenav-item');
+        if (sidenavItems.length >= 6) {
+            // Sensitive Content
+            const span0 = sidenavItems[0].querySelector('span');
+            if (span0) span0.textContent = t.sidenav_0;
+            
+            // Languages
+            const label1 = sidenavItems[1].querySelector('label');
+            if (label1) label1.textContent = t.sidenav_1;
+            
+            // Clear
+            const span2 = sidenavItems[2].querySelector('span');
+            if (span2) span2.textContent = t.sidenav_2;
+            
+            // Source
+            const span3 = sidenavItems[3].querySelector('span');
+            if (span3) span3.textContent = t.sidenav_3;
+            
+            // Version
+            const span4 = sidenavItems[4].querySelector('span');
+            if (span4) span4.textContent = t.sidenav_4;
+            
+            // About
+            const span5 = sidenavItems[5].querySelector('span');
+            if (span5) span5.textContent = t.sidenav_5;
+        }
+    }
+    
+    // Settings Modal - translate all elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) {
+            el.textContent = t[key];
+        }
+    });
+    
+    // Update Adult Content Item text when language changes
+    if (typeof window.updateAdultContentItem === 'function') {
+        window.updateAdultContentItem(normalizedLang);
+    }
 }

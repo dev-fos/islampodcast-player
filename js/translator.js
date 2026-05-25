@@ -1,14 +1,14 @@
 /**
- * 多语言翻译器
- * 负责检测浏览器语言并应用对应翻译
+ * Multi-language translator
+ * Responsible for detecting browser language and applying corresponding translations
  */
 
 (function() {
     'use strict';
 
     /**
-     * 获取浏览器首选语言
-     * @returns {string} 语言代码
+     * Get browser preferred language
+     * @returns {string} Language code
      */
     function getBrowserLanguage() {
         const lang = navigator.language || navigator.userLanguage || 'en';
@@ -16,77 +16,123 @@
     }
 
     /**
-     * 获取存储的语言或浏览器语言
-     * @returns {string} 语言代码
+     * Get stored language or browser language
+     * @returns {string} Language code
      */
     function getStoredLanguage() {
-        // 检查 URL 参数
+        // Check URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const urlLang = urlParams.get('lang');
         if (urlLang) {
             localStorage.setItem('preferredLanguage', urlLang);
+            localStorage.setItem('languages', urlLang);
             return urlLang;
         }
         
-        // 检查 localStorage
-        const storedLang = localStorage.getItem('preferredLanguage');
-        if (storedLang) {
-            return storedLang;
+        // Check localStorage - try both keys for compatibility
+        const preferredLang = localStorage.getItem('preferredLanguage');
+        const languagesLang = localStorage.getItem('languages');
+        
+        // Use preferredLanguage if set, otherwise use languages, otherwise browser language
+        if (preferredLang) {
+            return preferredLang;
+        }
+        if (languagesLang) {
+            // Sync preferredLanguage with languages for consistency
+            localStorage.setItem('preferredLanguage', languagesLang);
+            return languagesLang;
         }
         
-        // 使用浏览器语言
-        return getBrowserLanguage();
+        // Use browser language
+        const browserLang = getBrowserLanguage();
+        // Save to both keys for consistency
+        localStorage.setItem('preferredLanguage', browserLang);
+        localStorage.setItem('languages', browserLang);
+        return browserLang;
     }
 
     /**
-     * 初始化语言选择器
+     * Initialize language selector
      */
     function initLanguageSelector() {
-        const $selector = $('#languages');
-        if (!$selector.length) return;
+        // Initialize both language selectors (main page and settings modal)
+        const mainSelector = document.getElementById('languages');
+        const settingsSelector = document.getElementById('settings-languages');
         
-        // 设置当前选中项
+        // Set current selected item
         const currentLang = getStoredLanguage();
         const normalizedLang = typeof getNormalizedLanguage === 'function' 
             ? getNormalizedLanguage(currentLang) 
             : currentLang;
         
-        $selector.val(normalizedLang);
+        // Sync both selectors with the same value
+        if (mainSelector) {
+            mainSelector.value = normalizedLang;
+            
+            // Bind change event for main selector
+            mainSelector.addEventListener('change', function() {
+                const selectedLang = this.value;
+                window.setLanguage(selectedLang);
+                // Sync settings selector
+                if (settingsSelector) {
+                    settingsSelector.value = selectedLang;
+                }
+            });
+        }
         
-        // 绑定 change 事件
-        $selector.on('change', function() {
-            const selectedLang = $(this).val();
-            window.setLanguage(selectedLang);
-        });
+        if (settingsSelector) {
+            settingsSelector.value = normalizedLang;
+            
+            // Bind change event for settings selector
+            settingsSelector.addEventListener('change', function() {
+                const selectedLang = this.value;
+                window.setLanguage(selectedLang);
+                // Sync main selector
+                if (mainSelector) {
+                    mainSelector.value = selectedLang;
+                }
+            });
+        }
     }
 
     /**
-     * 初始化翻译
+     * Initialize translation
      */
     function initTranslation() {
         const lang = getStoredLanguage();
         if (typeof applyTranslation === 'function') {
             applyTranslation(lang);
         }
-        // 初始化语言选择器
+        // Initialize language selector
         initLanguageSelector();
     }
 
-    // DOM 加载完成后初始化
+    // Initialize after DOM is loaded
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initTranslation);
     } else {
         initTranslation();
     }
 
-    // 暴露全局方法供外部调用
+    // Expose global methods for external calls
     window.setLanguage = function(lang) {
+        // Save to both keys for consistency across the application
         localStorage.setItem('preferredLanguage', lang);
+        localStorage.setItem('languages', lang);
+        
         if (typeof applyTranslation === 'function') {
             applyTranslation(lang);
         }
-        // 更新选择器显示
-        $('#languages').val(lang);
+        
+        // Update both selectors display
+        const mainSelector = document.getElementById('languages');
+        const settingsSelector = document.getElementById('settings-languages');
+        if (mainSelector) {
+            mainSelector.value = lang;
+        }
+        if (settingsSelector) {
+            settingsSelector.value = lang;
+        }
     };
 
     window.getCurrentLanguage = function() {

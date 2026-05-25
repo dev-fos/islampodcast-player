@@ -1,4 +1,5 @@
 // Game Play Page JS
+// Native JavaScript (No jQuery)
 
 // Game data mapping
 var games = {
@@ -51,18 +52,23 @@ function loadGame() {
     var game = games[gameId];
     
     // Update UI
-    $('#gameTitle').text(game.name);
-    $('#gameCategory').text(game.category);
+    var gameTitle = document.getElementById('gameTitle');
+    var gameCategory = document.getElementById('gameCategory');
+    if (gameTitle) gameTitle.textContent = game.name;
+    if (gameCategory) gameCategory.textContent = game.category;
     document.title = game.name + ' - Easy Web TV';
     
     // Load game in iframe
     var iframe = document.getElementById('gameFrame');
-    iframe.src = game.url;
+    if (iframe) iframe.src = game.url;
 }
 
 // Toggle fullscreen
 function toggleFullscreen() {
     var container = document.getElementById('gameplayContainer');
+    var fullscreenBtn = document.getElementById('fullscreenBtn');
+    var icon = fullscreenBtn ? fullscreenBtn.querySelector('i') : null;
+    var span = fullscreenBtn ? fullscreenBtn.querySelector('span') : null;
     
     if (!document.fullscreenElement) {
         if (container.requestFullscreen) {
@@ -72,8 +78,11 @@ function toggleFullscreen() {
         } else if (container.msRequestFullscreen) {
             container.msRequestFullscreen();
         }
-        $('#fullscreenBtn i').removeClass('fa-expand').addClass('fa-compress');
-        $('#fullscreenBtn span').text('Exit');
+        if (icon) {
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-compress');
+        }
+        if (span) span.textContent = 'Exit';
     } else {
         if (document.exitFullscreen) {
             document.exitFullscreen();
@@ -82,64 +91,91 @@ function toggleFullscreen() {
         } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
         }
-        $('#fullscreenBtn i').removeClass('fa-compress').addClass('fa-expand');
-        $('#fullscreenBtn span').text('Fullscreen');
+        if (icon) {
+            icon.classList.remove('fa-compress');
+            icon.classList.add('fa-expand');
+        }
+        if (span) span.textContent = 'Fullscreen';
     }
 }
 
 // Restart game
 function restartGame() {
     var iframe = document.getElementById('gameFrame');
-    if (iframe.src) {
+    var loadingOverlay = document.getElementById('loadingOverlay');
+    if (iframe && iframe.src) {
         iframe.src = iframe.src;
-        $('#loadingOverlay').removeClass('hidden');
+        if (loadingOverlay) loadingOverlay.classList.remove('hidden');
     }
 }
 
+// Update fullscreen button UI
+function updateFullscreenButton() {
+    var fullscreenBtn = document.getElementById('fullscreenBtn');
+    var icon = fullscreenBtn ? fullscreenBtn.querySelector('i') : null;
+    var span = fullscreenBtn ? fullscreenBtn.querySelector('span') : null;
+    
+    if (icon) {
+        icon.classList.remove('fa-compress');
+        icon.classList.add('fa-expand');
+    }
+    if (span) span.textContent = 'Fullscreen';
+}
+
 // Initialize
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     console.log('=== Game Play Page Loaded ===');
     
     // Load game
     loadGame();
     
     // Back button - go to games page
-    $('#backBtn').on('click', function() {
-        window.history.back();
-    });
+    var backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            window.history.back();
+        });
+    }
     
     // Home button - go to home page
-    $('#homeBtn').on('click', function() {
-        window.location.href = '../index.html';
-    });
+    var homeBtn = document.getElementById('homeBtn');
+    if (homeBtn) {
+        homeBtn.addEventListener('click', function() {
+            window.location.href = '../index.html';
+        });
+    }
     
     // Restart button
-    $('#restartBtn').on('click', function() {
-        restartGame();
-    });
+    var restartBtn = document.getElementById('restartBtn');
+    if (restartBtn) {
+        restartBtn.addEventListener('click', function() {
+            restartGame();
+        });
+    }
     
     // Fullscreen button
-    $('#fullscreenBtn').on('click', function() {
-        toggleFullscreen();
-    });
+    var fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', function() {
+            toggleFullscreen();
+        });
+    }
     
     // Listen for fullscreen changes
     document.addEventListener('fullscreenchange', function() {
         if (!document.fullscreenElement) {
-            $('#fullscreenBtn i').removeClass('fa-compress').addClass('fa-expand');
-            $('#fullscreenBtn span').text('Fullscreen');
+            updateFullscreenButton();
         }
     });
     
     document.addEventListener('webkitfullscreenchange', function() {
         if (!document.webkitFullscreenElement) {
-            $('#fullscreenBtn i').removeClass('fa-compress').addClass('fa-expand');
-            $('#fullscreenBtn span').text('Fullscreen');
+            updateFullscreenButton();
         }
     });
     
     // Keyboard shortcuts
-    $(document).on('keydown', function(e) {
+    document.addEventListener('keydown', function(e) {
         // ESC - exit fullscreen or go back
         if (e.key === 'Escape') {
             if (document.fullscreenElement) {

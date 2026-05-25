@@ -1,3 +1,5 @@
+// Music Player JS - Native JavaScript (No jQuery)
+
 var songs = [];
 var playlist = [];
 var currentSongId = null;
@@ -15,7 +17,16 @@ var proxy = {
 };
 var rand = Math.floor(Math.random() * Object.keys(proxy).length);
 
-$(document).ready(function () {
+// Helper functions
+function $(selector) {
+    return document.querySelector(selector);
+}
+
+function $$(selector) {
+    return document.querySelectorAll(selector);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     var player = videojs(document.querySelector('#video1'));
     
     // Error handling - prevent loading spinner and error icon showing simultaneously
@@ -34,43 +45,43 @@ $(document).ready(function () {
         
         // Toggle sidebar
         if (window.innerWidth <= 768) {
-            sidebar.toggleClass('show-mobile');
+            sidebar.classList.toggle('show-mobile');
         } else {
-            sidebar.toggleClass('collapsed');
+            sidebar.classList.toggle('collapsed');
         }
         
         // Show toolbar when sidebar is expanded, hide when collapsed
-        var isExpanded = (window.innerWidth <= 768) ? sidebar.hasClass('show-mobile') : !sidebar.hasClass('collapsed');
+        var isExpanded = (window.innerWidth <= 768) ? sidebar.classList.contains('show-mobile') : !sidebar.classList.contains('collapsed');
         
         if (isExpanded) {
-            toolbar.removeClass('hidden');
+            toolbar.classList.remove('hidden');
         } else {
-            toolbar.addClass('hidden');
+            toolbar.classList.add('hidden');
         }
     }
     
     // Toggle Sidebar button
-    $('#toggleSidebar').on('click', function () {
+    $('#toggleSidebar').addEventListener('click', function () {
         toggleSidebar();
     });
     
     // Back Button
-    $('#backBtn').on('click', function () {
+    $('#backBtn').addEventListener('click', function () {
         window.history.back();
     });
     
     // Favorite Panel Toggle
-    $('#favoriteBtn').on('click', function () {
-        $('#favoritePanel').toggleClass('show');
+    $('#favoriteBtn').addEventListener('click', function () {
+        $('#favoritePanel').classList.toggle('show');
     });
     
     // GitHub Button
-    $('#githubBtn').on('click', function () {
+    $('#githubBtn').addEventListener('click', function () {
         window.open('https://github.com/zhangboheng/Easy-Web-TV-M3u8', '_blank');
     });
     
     // Shuffle Play
-    $('#shuffleBtn').on('click', function () {
+    $('#shuffleBtn').addEventListener('click', function () {
         if (songs.length > 0) {
             var randomIndex = Math.floor(Math.random() * songs.length);
             playSong(songs[randomIndex].id, songs[randomIndex].name);
@@ -78,32 +89,34 @@ $(document).ready(function () {
     });
     
     // Song Search
-    $('#songSearch').on('input', function () {
-        var searchTerm = $(this).val().toLowerCase();
-        $('#songList .song-item').each(function () {
-            var name = $(this).find('.song-name').text().toLowerCase();
+    $('#songSearch').addEventListener('input', function () {
+        var searchTerm = this.value.toLowerCase();
+        $$('#songList .song-item').forEach(function (item) {
+            var name = item.querySelector('.song-name').textContent.toLowerCase();
             if (name.indexOf(searchTerm) > -1) {
-                $(this).show();
+                item.style.display = '';
             } else {
-                $(this).hide();
+                item.style.display = 'none';
             }
         });
     });
     
     // Close panels when clicking outside
-    $(document).on('click', function (e) {
-        if (!$(e.target).closest('#favoritePanel, #favoriteBtn').length) {
-            $('#favoritePanel').removeClass('show');
+    document.addEventListener('click', function (e) {
+        var favoritePanel = $('#favoritePanel');
+        var favoriteBtn = $('#favoriteBtn');
+        if (!favoritePanel.contains(e.target) && !favoriteBtn.contains(e.target)) {
+            favoritePanel.classList.remove('show');
         }
     });
     
     // Player events
     player.on('play', function () {
-        $('#musicVisualizer').removeClass('paused');
+        $('#musicVisualizer').classList.remove('paused');
     });
     
     player.on('pause', function () {
-        $('#musicVisualizer').addClass('paused');
+        $('#musicVisualizer').classList.add('paused');
     });
     
     // Auto play next song on ended
@@ -115,15 +128,46 @@ $(document).ready(function () {
     });
     
     // Scroll to load more songs in sidebar
-    $('#songList').on('scroll', function () {
-        var scrollTop = $(this).scrollTop();
-        var scrollHeight = $(this)[0].scrollHeight;
-        var containerHeight = $(this).height();
+    $('#songList').addEventListener('scroll', function () {
+        var scrollTop = this.scrollTop;
+        var scrollHeight = this.scrollHeight;
+        var containerHeight = this.clientHeight;
         
         if (scrollTop + containerHeight >= scrollHeight - 50) {
             if (!isLoading && hasMore) {
                 loadMoreSongs();
             }
+        }
+    });
+    
+    // Song list click delegation
+    $('#songList').addEventListener('click', function (e) {
+        var favoriteBtn = e.target.closest('.favorite-btn');
+        if (favoriteBtn) {
+            e.stopPropagation();
+            var songItem = favoriteBtn.closest('.song-item');
+            var id = songItem.dataset.id;
+            var name = songItem.dataset.name;
+            
+            if (favoriteBtn.classList.contains('active')) {
+                // Remove from favorites
+                localStorage.removeItem(FAV_PREFIX + id);
+                favoriteBtn.classList.remove('active');
+            } else {
+                // Add to favorites
+                localStorage.setItem(FAV_PREFIX + id, name);
+                favoriteBtn.classList.add('active');
+            }
+            
+            loadFavorites();
+            return;
+        }
+        
+        var songItem = e.target.closest('.song-item');
+        if (songItem) {
+            var id = songItem.dataset.id;
+            var name = songItem.dataset.name;
+            playSong(id, name);
         }
     });
     
@@ -139,28 +183,22 @@ function loadSongs(id) {
     artistId = id;
     isLoading = true;
     
-    $('#songList').html(`
-        <div class="loading-state">
-            <i class="fas fa-spinner"></i>
-            <span>Loading songs...</span>
-        </div>
-    `);
+    $('#songList').innerHTML = '<div class="loading-state"><i class="fas fa-spinner"></i><span>Loading songs...</span></div>';
     
-    $.ajax({
-        type: "GET",
-        url: proxy[rand] + `http://iwenwiki.com:3000/artist/songs?id=${artistId}&limit=50&offset=0`,
-        success: function (message, text, response) {
+    fetch(proxy[rand] + 'http://iwenwiki.com:3000/artist/songs?id=' + artistId + '&limit=50&offset=0')
+        .then(function(response) { return response.json(); })
+        .then(function(message) {
             isLoading = false;
             var songList = message.songs;
             if (songList && songList.length > 0) {
                 artistName = songList[0].ar[0].name;
-                $('#artistTitle').text(artistName);
-                $('#artistName span').text(artistName);
+                $('#artistTitle').textContent = artistName;
+                $('#artistName span').textContent = artistName;
                 
-                songs = songList.map(x => ({ id: x.id, name: x.name }));
-                playlist = [...songs];
+                songs = songList.map(function(x) { return { id: x.id, name: x.name }; });
+                playlist = songs.slice();
                 
-                $('#songCount').text(songs.length);
+                $('#songCount').textContent = songs.length;
                 
                 // Render song list
                 renderSongList();
@@ -174,25 +212,14 @@ function loadSongs(id) {
                 }
             } else {
                 hasMore = false;
-                $('#songList').html(`
-                    <div class="no-songs">
-                        <i class="fas fa-music"></i>
-                        <span>No songs found</span>
-                    </div>
-                `);
+                $('#songList').innerHTML = '<div class="no-songs"><i class="fas fa-music"></i><span>No songs found</span></div>';
             }
-        },
-        error: function (xhr, status) {
+        })
+        .catch(function() {
             isLoading = false;
             hasMore = false;
-            $('#songList').html(`
-                <div class="no-songs">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>Failed to load songs</span>
-                </div>
-            `);
-        }
-    });
+            $('#songList').innerHTML = '<div class="no-songs"><i class="fas fa-exclamation-circle"></i><span>Failed to load songs</span></div>';
+        });
 }
 
 // Load more songs
@@ -202,27 +229,25 @@ function loadMoreSongs() {
     pageNum++;
     
     // Add loading indicator at bottom
-    $('#songList').append(`
-        <div class="loading-more" id="loadingMore">
-            <i class="fas fa-spinner" style="animation: spin 1s linear infinite;"></i>
-            <span style="color: rgba(255,255,255,0.5); font-size: 12px; margin-left: 10px;">Loading more...</span>
-        </div>
-    `);
+    var loadingDiv = document.createElement('div');
+    loadingDiv.className = 'loading-more';
+    loadingDiv.id = 'loadingMore';
+    loadingDiv.innerHTML = '<i class="fas fa-spinner" style="animation: spin 1s linear infinite;"></i><span style="color: rgba(255,255,255,0.5); font-size: 12px; margin-left: 10px;">Loading more...</span>';
+    $('#songList').appendChild(loadingDiv);
     
-    $.ajax({
-        type: "GET",
-        url: proxy[rand] + `http://iwenwiki.com:3000/artist/songs?id=${artistId}&limit=50&offset=${50 * (pageNum - 1)}`,
-        success: function (message, text, response) {
+    fetch(proxy[rand] + 'http://iwenwiki.com:3000/artist/songs?id=' + artistId + '&limit=50&offset=' + (50 * (pageNum - 1)))
+        .then(function(response) { return response.json(); })
+        .then(function(message) {
             isLoading = false;
             $('#loadingMore').remove();
             
             var songList = message.songs;
             if (songList && songList.length > 0) {
-                var newSongs = songList.map(x => ({ id: x.id, name: x.name }));
+                var newSongs = songList.map(function(x) { return { id: x.id, name: x.name }; });
                 songs = songs.concat(newSongs);
                 playlist = playlist.concat(newSongs);
                 
-                $('#songCount').text(songs.length);
+                $('#songCount').textContent = songs.length;
                 
                 // Append new songs to list
                 appendSongList(newSongs);
@@ -233,13 +258,12 @@ function loadMoreSongs() {
             } else {
                 hasMore = false;
             }
-        },
-        error: function (xhr, status) {
+        })
+        .catch(function() {
             isLoading = false;
             pageNum--;
             $('#loadingMore').remove();
-        }
-    });
+        });
 }
 
 // Render song list
@@ -247,46 +271,13 @@ function renderSongList() {
     var html = '';
     songs.forEach(function (song, index) {
         var isFavorite = localStorage.getItem(FAV_PREFIX + song.id);
-        html += `
-            <div class="song-item ${index === 0 ? 'active' : ''}" data-id="${song.id}" data-name="${song.name}">
-                <div class="song-icon">
-                    <i class="fas fa-music"></i>
-                </div>
-                <span class="song-name">${song.name}</span>
-                <i class="fas fa-heart favorite-btn ${isFavorite ? 'active' : ''}"></i>
-            </div>
-        `;
+        html += '<div class="song-item ' + (index === 0 ? 'active' : '') + '" data-id="' + song.id + '" data-name="' + song.name + '">';
+        html += '    <div class="song-icon"><i class="fas fa-music"></i></div>';
+        html += '    <span class="song-name">' + song.name + '</span>';
+        html += '    <i class="fas fa-heart favorite-btn ' + (isFavorite ? 'active' : '') + '"></i>';
+        html += '</div>';
     });
-    $('#songList').html(html);
-    
-    // Click to play song
-    $('#songList').on('click', '.song-item', function (e) {
-        if (!$(e.target).hasClass('favorite-btn')) {
-            var id = $(this).data('id');
-            var name = $(this).data('name');
-            playSong(id, name);
-        }
-    });
-    
-    // Click to toggle favorite
-    $('#songList').on('click', '.favorite-btn', function (e) {
-        e.stopPropagation();
-        var songItem = $(this).closest('.song-item');
-        var id = songItem.data('id');
-        var name = songItem.data('name');
-        
-        if ($(this).hasClass('active')) {
-            // Remove from favorites
-            localStorage.removeItem(FAV_PREFIX + id);
-            $(this).removeClass('active');
-        } else {
-            // Add to favorites
-            localStorage.setItem(FAV_PREFIX + id, name);
-            $(this).addClass('active');
-        }
-        
-        loadFavorites();
-    });
+    $('#songList').innerHTML = html;
 }
 
 // Append new songs to list
@@ -294,17 +285,13 @@ function appendSongList(newSongs) {
     var html = '';
     newSongs.forEach(function (song) {
         var isFavorite = localStorage.getItem(FAV_PREFIX + song.id);
-        html += `
-            <div class="song-item" data-id="${song.id}" data-name="${song.name}">
-                <div class="song-icon">
-                    <i class="fas fa-music"></i>
-                </div>
-                <span class="song-name">${song.name}</span>
-                <i class="fas fa-heart favorite-btn ${isFavorite ? 'active' : ''}"></i>
-            </div>
-        `;
+        html += '<div class="song-item" data-id="' + song.id + '" data-name="' + song.name + '">';
+        html += '    <div class="song-icon"><i class="fas fa-music"></i></div>';
+        html += '    <span class="song-name">' + song.name + '</span>';
+        html += '    <i class="fas fa-heart favorite-btn ' + (isFavorite ? 'active' : '') + '"></i>';
+        html += '</div>';
     });
-    $('#songList').append(html);
+    $('#songList').insertAdjacentHTML('beforeend', html);
 }
 
 // Play song
@@ -312,109 +299,103 @@ function playSong(songId, songName) {
     currentSongId = songId;
     
     // Update UI
-    $('#currentSong').text(songName);
-    $('#songTitle').text(songName);
-    $('#artistName span').text(artistName);
+    $('#currentSong').textContent = songName;
+    $('#songTitle').textContent = songName;
+    $('#artistName span').textContent = artistName;
     
     // Update active state
-    $('#songList .song-item').removeClass('active');
-    $(`#songList .song-item[data-id="${songId}"]`).addClass('active');
-    
-    // Scroll to active song in sidebar
+    $$('#songList .song-item').forEach(function(item) {
+        item.classList.remove('active');
+    });
     var activeItem = $('#songList .song-item[data-id="' + songId + '"]');
-    if (activeItem.length) {
-        var scrollPosition = activeItem.position().top - $('#songList').height() / 2 + activeItem.height() / 2;
-        $('#songList').animate({ scrollTop: scrollPosition }, 300);
+    if (activeItem) {
+        activeItem.classList.add('active');
+        
+        // Scroll to active song in sidebar
+        var songList = $('#songList');
+        var scrollPosition = activeItem.offsetTop - songList.clientHeight / 2 + activeItem.clientHeight / 2;
+        songList.scrollTo({ top: scrollPosition, behavior: 'smooth' });
     }
     
     // Check music availability and play
-    $.ajax({
-        url: proxy[rand] + 'http://iwenwiki.com:3000/check/music?id=' + songId,
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            $.ajax({
-                url: proxy[rand] + 'http://iwenwiki.com:3000/song/url?id=' + songId,
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
-                    var url = data.data[0].url;
-                    if (url) {
-                        var player = videojs(document.querySelector('#video1'));
-                        player.src({
-                            src: url,
-                            type: "audio/mp3"
-                        });
-                        player.play();
-                        $('#musicVisualizer').removeClass('paused');
-                    } else {
-                        alert('Sorry, this song is not available...');
-                    }
-                },
-                error: function (xhr, status) {
-                    alert('Sorry, no rights to play...');
-                }
-            });
-        },
-        error: function (xhr, status) {
+    fetch(proxy[rand] + 'http://iwenwiki.com:3000/check/music?id=' + songId)
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            return fetch(proxy[rand] + 'http://iwenwiki.com:3000/song/url?id=' + songId);
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            var url = data.data[0].url;
+            if (url) {
+                var player = videojs(document.querySelector('#video1'));
+                player.src({
+                    src: url,
+                    type: "audio/mp3"
+                });
+                player.play();
+                $('#musicVisualizer').classList.remove('paused');
+            } else {
+                alert('Sorry, this song is not available...');
+            }
+        })
+        .catch(function() {
             alert('Sorry, no rights to play...');
-        }
-    });
+        });
 }
 
 // Load favorites from localStorage
 function loadFavorites() {
     var favorites = [];
-    for (var key of Object.keys(localStorage)) {
+    Object.keys(localStorage).forEach(function(key) {
         if (key.startsWith(FAV_PREFIX)) {
             var songId = key.replace(FAV_PREFIX, '');
             var songName = localStorage.getItem(key);
             favorites.push({ id: songId, name: songName });
         }
-    }
+    });
     
-    $('#favCount').text(favorites.length);
+    $('#favCount').textContent = favorites.length;
     
     if (favorites.length === 0) {
-        $('#favoriteContent').html(`
-            <div class="no-songs" style="padding: 20px;">
-                <i class="fas fa-heart-broken" style="font-size: 24px;"></i>
-                <span style="font-size: 12px;">No favorites yet</span>
-            </div>
-        `);
+        $('#favoriteContent').innerHTML = '<div class="no-songs" style="padding: 20px;"><i class="fas fa-heart-broken" style="font-size: 24px;"></i><span style="font-size: 12px;">No favorites yet</span></div>';
     } else {
         var html = '';
         favorites.forEach(function (fav) {
-            html += `
-                <div class="favorite-item" data-id="${fav.id}" data-name="${fav.name}">
-                    <i class="fas fa-heart"></i>
-                    <span>${fav.name}</span>
-                    <i class="fas fa-times delete-btn"></i>
-                </div>
-            `;
+            html += '<div class="favorite-item" data-id="' + fav.id + '" data-name="' + fav.name + '">';
+            html += '    <i class="fas fa-heart"></i>';
+            html += '    <span>' + fav.name + '</span>';
+            html += '    <i class="fas fa-times delete-btn"></i>';
+            html += '</div>';
         });
-        $('#favoriteContent').html(html);
+        $('#favoriteContent').innerHTML = html;
         
-        // Click to play favorite
-        $('#favoriteContent').off('click', '.favorite-item').on('click', '.favorite-item', function (e) {
-            if (!$(e.target).hasClass('delete-btn')) {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                playSong(id, name);
-                $('#favoritePanel').removeClass('show');
-            }
+        // Add click handlers for favorite items
+        $$('#favoriteContent .favorite-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('delete-btn')) {
+                    var id = this.dataset.id;
+                    var name = this.dataset.name;
+                    playSong(id, name);
+                    $('#favoritePanel').classList.remove('show');
+                }
+            });
         });
         
-        // Click to delete favorite
-        $('#favoriteContent').off('click', '.delete-btn').on('click', '.delete-btn', function (e) {
-            e.stopPropagation();
-            var songItem = $(this).closest('.favorite-item');
-            var id = songItem.data('id');
-            localStorage.removeItem(FAV_PREFIX + id);
-            loadFavorites();
-            
-            // Update song list favorite icon
-            $(`#songList .song-item[data-id="${id}"] .favorite-btn`).removeClass('active');
+        // Add click handlers for delete buttons
+        $$('#favoriteContent .delete-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var songItem = this.closest('.favorite-item');
+                var id = songItem.dataset.id;
+                localStorage.removeItem(FAV_PREFIX + id);
+                loadFavorites();
+                
+                // Update song list favorite icon
+                var favBtn = $('#songList .song-item[data-id="' + id + '"] .favorite-btn');
+                if (favBtn) {
+                    favBtn.classList.remove('active');
+                }
+            });
         });
     }
 }
