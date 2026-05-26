@@ -1214,37 +1214,156 @@ button.stylebtn:active {
 
 @media screen and (max-width: 576px) {
     .settings-modal {
-        max-width: 340px;
-        min-height: 380px;
-        max-height: 90vh;
+        max-width: calc(100vw - 32px);
+        width: calc(100vw - 32px);
+        max-height: 92vh;
+        min-height: unset;
+        border-radius: 16px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .settings-modal-container {
+        max-height: 92vh;
+        min-height: unset;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* All pages on mobile - use relative positioning for proper height calculation */
+    .settings-page {
+        position: relative !important;
+        height: auto !important;
+        max-height: none !important;
+        transform: none !important;
+        overflow: visible !important;
+    }
+    
+    /* Hide inactive pages with display instead of position */
+    .settings-page:not(.active) {
+        display: none !important;
+    }
+    
+    /* Ensure active page is visible */
+    .settings-page.active {
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        display: block !important;
     }
     
     .settings-header {
         padding: 12px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: linear-gradient(180deg, #1f1f1f 0%, #1a1a1a 100%);
     }
     
     .settings-header h2 {
         font-size: 16px;
     }
     
+    .settings-nav {
+        padding: 8px 0 16px 0;
+    }
+    
     .settings-nav-item {
-        padding: 12px;
+        padding: 10px 12px;
+        margin: 3px 8px;
     }
     
     .settings-nav-item .nav-icon {
-        font-size: 20px;
+        width: 36px;
+        height: 36px;
+    }
+    
+    .settings-nav-item .nav-icon svg {
+        width: 18px;
+        height: 18px;
     }
     
     .settings-nav-item .nav-title {
         font-size: 14px;
     }
     
+    .settings-nav-item .nav-arrow {
+        font-size: 16px;
+    }
+    
+    .settings-nav-item .nav-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
     .settings-content {
         padding: 12px;
+        padding-bottom: 20px;
+        overflow: visible !important;
+        max-height: none !important;
+        height: auto !important;
+    }
+    
+    .settings-item {
+        padding: 12px;
+        margin-bottom: 8px;
     }
     
     .settings-item .item-label {
         font-size: 14px;
+    }
+    
+    .settings-item .item-description {
+        font-size: 11px;
+    }
+    
+    .settings-select {
+        min-width: 120px;
+        max-width: 160px;
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    
+    .settings-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    /* Source control mobile adjustments */
+    .source-type-selector {
+        gap: 6px;
+    }
+    
+    .source-type-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .source-options-container {
+        padding: 10px;
+        overflow: visible;
+        max-height: none;
+    }
+    
+    .source-options {
+        overflow: visible;
+        max-height: none;
+    }
+    
+    .source-checkbox {
+        font-size: 13px;
+        padding: 8px 0;
+    }
+    
+    .source-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .source-save-btn {
+        margin-top: 12px;
+        padding: 10px 16px;
     }
 }
 
