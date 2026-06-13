@@ -3,7 +3,7 @@
 
 var channels = [];
 //Get default localstorage key
-var localkey = ['manga', 'bannedcountries', 'novel', 'movie', 'music', 'languages', 'porn', 'adult'];
+var localkey = ['manga', 'novel','languages',];
 var player = null;
 
 document.addEventListener('DOMContentLoaded', function() {
